@@ -1,0 +1,42 @@
+librerías para descargar y graficar encuestas, separadas por función y lenguaje
+
+Librerías para descargar datos de encuestas
+
+Google Forms / Google Sheets	-> gspread -> Leer hojas de cálculo de Google Sheets
+Google Sheets	-> pygsheets	-> Alternativa a gspread, con más funciones
+APIs REST (SurveyMonkey, Typeform, LimeSurvey, etc.)	-> requests	-> Hacer llamadas HTTP a la API y obtener JSON
+Archivos CSV / Excel ->	pandas	-> Leer CSV (pd.read_csv) o Excel (pd.read_excel)
+SPSS o estadísticas	-> pyreadstat	-> Leer archivos .sav de SPSS, muy usado en encuestas profesionales
+
+Librerías para procesar y limpiar datos
+
+pandas ->	Limpieza, filtrado, agregación, transformación de datos
+numpy	-> Cálculos numéricos, estadísticas básicas
+scipy	-> Estadística más avanzada, tests de hipótesis
+openpyxl	-> Leer/escribir Excel avanzado si pandas no es suficiente
+
+Librerías para graficar resultados
+
+matplotlib	-> Básico y versátil, gráficos de barras, líneas, pastel
+seaborn ->	Estadística avanzada, distribuciones, heatmaps, gráficos más “bonitos” por defecto
+plotly	-> Gráficos interactivos, exportables a web
+altair	-> Declarativa y sencilla, buena para dashboards
+pygal	-> Gráficos SVG interactivos
+bokeh	-> Visualizaciones interactivas tipo web
+
+Librerías para exportar gráficos y reportes
+
+matplotlib.pyplot.savefig	-> Guardar gráficos como PNG, JPG o PDF
+plotly.io.write_html ->	Guardar gráficos interactivos como HTML
+fpdf / reportlab	-> Generar reportes PDF completos con gráficos y texto
+xlsxwriter ->	Crear Excel con gráficos embebidos
+
+Resumen rápido de flujo típico:
+
+Descargar datos → gspread / requests / pandas
+
+Limpiar / procesar → pandas / numpy / scipy
+
+Graficar → matplotlib / seaborn / plotly
+
+Guardar reportes → matplotlib.savefig / fpdf / xlsxwriter

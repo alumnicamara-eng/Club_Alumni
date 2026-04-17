@@ -1,0 +1,13 @@
+Frontend-> HTML, CSS con Bootstrap, js, PWA (Progressive Web App), Tailwind  css
+Backend → PHP + MySQL
+Base de datos → Mysql WorkBench
+
+
+
+FASES
+
+Fase 1: Investigación y Diseño (Cuestionario Inicial)
+Fase 2: Desarrollo e Implementación de la Plataforma
+Fase 3: Lanzamiento y Adhesión
+Fase 4: Ejecución de Programas y Feedback
+
