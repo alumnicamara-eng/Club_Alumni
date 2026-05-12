@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1e40af">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Alumni">
+<title>Alumni</title>
+<link rel="icon" type="image/x-icon" href="img/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div class="shell">
+  <div class="header">
+    <div class="logo-mark"><img src="img/logo.jpeg" alt="Logo"></div>
+    <div class="header-right">
+      <div class="notification-badge" id="notificationBadge" style="display:none;cursor:pointer;position:relative;margin-right:12px" onclick="goScreen('profile')">
+        <i class="fas fa-bell" style="font-size:20px;color:#64748b"></i>
+        <span class="badge-dot" id="badgeDot" style="display:none"></span>
+      </div>
+      <div class="user-pill" id="userBtn">
+        <span class="user-name" id="headerName">¿Deséa Cerrar Sesión?</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="content" id="contentArea">
+    <!-- Inicio -->
+    <div class="screen" id="s-home">
+      <div class="screen-inner">
+        <div class="hero-banner">
+          <div class="hero-name" id="heroName">—</div>
+          <div class="hero-sub" id="heroSub">Tu plataforma de gestión</div>
+        </div>
+        <div class="quick-stats" id="quickStats"></div>
+        <div class="section-header"><span class="section-title">Próximos eventos</span><span class="section-link" onclick="goToFeedWithFilter('proximos')">Ver todo →</span></div>
+        <div id="homeEvents"></div>
+        <div class="section-header"><span class="section-title">Últimas noticias</span><span class="section-link" onclick="goToFeedWithFilter('recientes')">Ver todo →</span></div>
+        <div id="homeNews"></div>
+      </div>
+    </div>
+
+    <!-- Noticias -->
+    <div class="screen" id="s-feed">
+      <div class="screen-inner">
+        <div class="filter-scroll" id="feedFilters">
+          <button class="filter-btn active" data-f="recientes">Todos</button>
+          <button class="filter-btn" data-f="proximos">Próximos</button>
+          <button class="filter-btn" data-f="anteriores">Pasados</button>
+        </div>
+        <div class="advanced-filter" id="advancedFilters" style="display:none">
+          <div class="filter-group"><label>Categoría</label><select id="filterCategory" onchange="applyAdvancedFilters()"><option value="all">Todas</option></select></div>
+          <div class="filter-group"><label>Fecha desde</label><input type="date" id="filterDateFrom" onchange="applyAdvancedFilters()"></div>
+          <div class="filter-group"><label>Fecha hasta</label><input type="date" id="filterDateTo" onchange="applyAdvancedFilters()"></div>
+          <div class="filter-group"><label>Estado</label><select id="filterStatus" onchange="applyAdvancedFilters()"><option value="all">Todos</option><option value="enrolled">Inscrito</option><option value="available">Disponible</option></select></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleAdvancedFilters()" style="margin-bottom:10px"><i class="fas fa-sliders-h"></i> Filtros avanzados</button>
+        <div id="feedList"></div>
+        <div id="feedPag"></div>
+      </div>
+    </div>
+
+    <!-- Calendario -->
+    <div class="screen" id="s-calendar">
+      <div class="screen-inner">
+        <div class="desktop-grid-layout">
+          <div>
+            <div class="cal-wrap">
+              <div class="cal-nav-row">
+                <button class="cal-arrow" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                <span class="cal-month" id="calMonthYear"></span>
+                <button class="cal-arrow" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+              </div>
+              <div class="cal-weekdays"></div>
+              <div class="cal-days" id="daysGrid"></div>
+              <div class="cal-legend">
+                <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--inscrito)"></div>Inscrito</div>
+                <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--disponible)"></div>Disponible</div>
+                <div class="cal-legend-item"><div class="cal-legend-dot" style="border:3px solid var(--hoy-border);background:var(--hoy-bg)"></div>Hoy</div>
+              </div>
+            </div>
+            <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="exportCalendarICS()"><i class="fas fa-download"></i> ICS</button>
+              <button class="btn btn-secondary btn-sm" onclick="syncWithGoogleCalendar()"><i class="fab fa-google"></i> Google</button>
+            </div>
+          </div>
+          <div>
+            <div style="margin-bottom:10px"><button class="btn btn-sm" style="background:#8b5cf6;color:white" onclick="showKanbanView()"><i class="fas fa-columns"></i> Vista Kanban</button></div>
+            <div id="calendarEventList"></div>
+            <div id="kanbanView" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Perfil -->
+    <div class="screen" id="s-profile">
+      <div class="screen-inner">
+        <div class="desktop-grid-layout">
+          <div class="card">
+            <div id="profileAvatar" onclick="document.getElementById('profilePhotoInput').click()" class="profile-avatar-wrap">U</div>
+            <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhoto(this)">
+            <div class="field-group"><label class="field-label">Nombre completo</label><input class="field-input" id="profileName"></div>
+            <div class="field-group"><label class="field-label">DNI</label><input class="field-input" id="profileDni" readonly></div>
+            <div class="field-group"><label class="field-label">Email</label><input class="field-input" id="profileEmail" type="email"></div>
+            <div class="field-group"><label class="field-label">Teléfono</label><input class="field-input" id="profilePhone" type="tel"></div>
+            <div class="field-group"><label class="field-label">LinkedIn</label><input class="field-input" id="profileLinkedin" placeholder="https://linkedin.com/in/..."></div>
+            <div class="field-group"><label class="field-label">Instagram</label><input class="field-input" id="profileInstagram" placeholder="https://instagram.com/..."></div>
+            <div class="field-group"><label class="field-label">Twitter/X</label><input class="field-input" id="profileTwitter" placeholder="https://twitter.com/..."></div>
+            <div class="field-group"><label class="field-label">Descripción personal</label><textarea class="field-input" id="profileBio" rows="3"></textarea></div>
+            <div class="field-group"><label class="field-label">¿Qué estoy buscando?</label><select class="field-input" id="profileLookingFor"><option value="">Selecciona...</option><option value="empleo">Empleo</option><option value="networking">Networking</option><option value="formacion">Formación</option><option value="colaboracion">Colaboraciones</option><option value="mentoria">Mentoría</option></select></div>
+            <div class="field-group"><label class="field-label">WP URL</label><input class="field-input" id="profileWpUrl"></div>
+            <div class="field-group"><label class="field-label">Sonido alarma</label><select class="field-input" id="alarmSound"><option value="bell">Campana</option><option value="chime">🎵 Timbre</option><option value="notification">📢 Notificación</option></select></div>
+            <div class="field-group"><label class="field-label">Alarma antes</label><select class="field-input" id="alarmInterval"><option value="5">5 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 hora</option></select></div>
+            <div class="field-group"><label><input type="checkbox" id="profileReminders"> Recordatorios</label></div>
+            <div class="field-group"><label><input type="checkbox" id="profileEmailNotif"> Notificaciones email</label></div>
+            <button class="btn btn-primary btn-full" onclick="saveProfile()">Guardar</button>
+            <button class="btn btn-secondary btn-full" onclick="requestPushPermission()" style="margin-top:10px"><i class="fas fa-bell"></i> Push</button>
+            <button class="btn btn-ghost btn-full" onclick="exportMyData()" style="margin-top:5px"><i class="fas fa-download"></i> Exportar datos</button>
+            <button class="btn btn-ghost btn-full" onclick="showMyCertificates()" style="margin-top:5px"><i class="fas fa-certificate"></i> Mis certificados</button>
+          </div>
+          <div>
+            <div class="section-header"><span class="section-title">Mis inscripciones</span></div>
+            <div id="myEnrollments"></div>
+            <div class="section-header" style="margin-top:20px"><span class="section-title">Mis logros</span></div>
+            <div id="myAchievements"></div>
+            <div class="section-header" style="margin-top:20px"><span class="section-title">Notificaciones</span></div>
+            <div id="myNotifications"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Red Social -->
+    <div class="screen" id="s-social">
+      <div class="screen-inner">
+        <div class="section-header"><span class="section-title">Red Social Alumni</span><button class="btn btn-primary btn-sm" onclick="showNewPostForm()"><i class="fas fa-plus"></i> Publicar</button></div>
+        <div id="newPostForm" style="display:none">
+          <div class="card">
+            <textarea class="field-input" id="newPostContent" rows="3" placeholder="¿Qué quieres compartir?"></textarea>
+            <input type="file" id="newPostImage" accept="image/*" style="margin:8px 0">
+            <button class="btn btn-primary btn-sm" onclick="createSocialPost()">Publicar</button>
+          </div>
+        </div>
+        <div id="socialFeed"></div>
+      </div>
+    </div>
+
+    <!-- FORO -->
+    <div class="screen" id="s-forum">
+      <div class="screen-inner">
+        <div class="section-header"><span class="section-title">Foro de Discusión</span><button class="btn btn-primary btn-sm" onclick="showNewTopicForm()"><i class="fas fa-plus"></i> Nuevo tema</button></div>
+        <div id="newTopicForm" style="display:none">
+          <div class="card">
+            <input class="field-input" id="newTopicTitle" placeholder="Título del tema" style="margin-bottom:8px">
+            <textarea class="field-input" id="newTopicContent" rows="4" placeholder="Contenido..."></textarea>
+            <button class="btn btn-primary btn-sm" onclick="createTopic()">Crear tema</button>
+          </div>
+        </div>
+        <div id="forumTopics"></div>
+      </div>
+    </div>
+
+    <!-- Administración -->
+    <div class="screen" id="s-admin">
+      <div class="screen-inner">
+        <div class="quick-stats" id="adminStats"></div>
+        
+        <div class="wp-config-panel" id="wpPanel">
+          <h4><i class="fab fa-wordpress"></i> WordPress</h4>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span>Estado: <span class="wp-status-dot disconnected" id="wpStatusDot"></span> <span id="wpStatusText">No configurado</span></span>
+            <button class="btn btn-sm" style="background:#3b82f6;color:white" onclick="testWpConnection()">Test</button>
+            <button class="btn btn-sm" style="background:#10b981;color:white" onclick="syncAllToWp()">Sync todo</button>
+            <button class="btn btn-sm" style="background:#6b7280;color:white" onclick="showWpConfig()">Config</button>
+          </div>
+          <div id="wpSyncLog" style="margin-top:10px;font-size:12px;color:#94a3b8"></div>
+        </div>
+
+        <div class="csv-dropzone" id="csvDropzone">
+          <i class="fas fa-file-csv" style="font-size:32px;color:#3b82f6;margin-bottom:10px"></i>
+          <p>Arrastra CSV aquí o haz clic</p>
+          <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleCsvImport(this)">
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0">
+          <button class="btn btn-sm" style="background:#10b981;color:white" onclick="exportCsv('eventos')">CSV Eventos</button>
+          <button class="btn btn-sm" style="background:#10b981;color:white" onclick="exportCsv('noticias')">CSV Noticias</button>
+          <button class="btn btn-sm" style="background:#10b981;color:white" onclick="exportCsv('usuarios')">CSV Usuarios</button>
+          <button class="btn btn-sm" style="background:#8b5cf6;color:white" onclick="downloadCsvTemplate()">Plantilla</button>
+          <button class="btn btn-sm" style="background:#f59e0b;color:white" onclick="generateReport()"><i class="fas fa-chart-bar"></i> Informe</button>
+        </div>
+
+        <div class="admin-tabs" id="adminTabs">
+          <button class="admin-tab active" data-tab="eventos">Eventos</button>
+          <button class="admin-tab" data-tab="noticias">Noticias</button>
+          <button class="admin-tab" data-tab="usuarios">Usuarios</button>
+          <button class="admin-tab" data-tab="wp">WordPress</button>
+          <button class="admin-tab" data-tab="analytics">Analytics</button>
+        </div>
+        
+        <div id="adminEvents"></div>
+        <div id="adminNews" style="display:none"></div>
+        <div id="adminUsers" style="display:none"></div>
+        <div id="adminWp" style="display:none">
+          <div class="wp-config-panel">
+            <h4>Configuración WordPress</h4>
+            <div class="field-group"><label class="field-label" style="color:white">URL WordPress</label><input class="field-input" id="wpSiteUrl" placeholder="https://tusitio.com"></div>
+            <div class="field-group"><label class="field-label" style="color:white">Webhook URL</label><input class="field-input" id="wpWebhookUrl"></div>
+            <div class="field-group"><label class="field-label" style="color:white">API Key</label><input class="field-input" id="wpApiKey" type="password"></div>
+            <button class="btn btn-primary" onclick="saveWpConfig()">Guardar</button>
+          </div>
+        </div>
+        <div id="adminAnalytics" style="display:none">
+          <div class="quick-stats" id="analyticsStats"></div>
+          <div class="card"><h4>Eventos más populares</h4><div id="topEvents"></div></div>
+          <div class="card" style="margin-top:10px"><h4>Actividad por mes</h4><div id="monthlyActivity"></div></div>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:15px" onclick="openCreateModal()"><i class="fas fa-plus"></i> Crear nuevo</button>
+      </div>
+    </div>
+
+    <!-- Búsqueda -->
+    <div class="screen" id="s-search">
+      <div class="screen-inner">
+        <div class="search-wrap"><i class="fas fa-search"></i><input id="searchInput" placeholder="Buscar eventos, noticias, usuarios..."></div>
+        <div id="searchResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="live-chat-widget" id="chatWidget">
+    <div class="chat-bubble" onclick="toggleChat()"><i class="fas fa-comments"></i></div>
+    <div class="chat-window" id="chatWindow">
+      <div class="chat-header"><span>Chat en vivo</span><span onclick="toggleChat()" style="cursor:pointer;float:right">✕</span></div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area"><input class="field-input" id="chatInput" placeholder="Escribe..." style="flex:1"><button class="btn btn-primary btn-sm" onclick="sendChatMessage()">Enviar</button></div>
+    </div>
+  </div>
+
+  <!-- Botones de navegación -->
+  <div class="bottom-nav" id="bottomNav"></div>
+  <div class="desktop-nav" id="desktopNav"></div>
+
+  <!-- LOGIN MODAL -->
+  <div class="login-overlay" id="loginModal">
+    <div class="login-card">
+      <img src="img/logo.jpeg" alt="Logo" width="80" style="margin:0 auto 20px;display:block">
+      <div class="login-sub">Accede a tu cuenta</div>
+      <input class="login-input" id="loginDni" placeholder="DNI / Usuario">
+      <input class="login-input" type="password" id="loginPass" placeholder="Contraseña">
+      <button class="login-btn" id="doLogin">Iniciar sesión</button>
+      <button class="btn btn-ghost" style="width:100%" id="showRegisterBtn">Crear cuenta</button>
+      <div class="demo-hint"><strong>Demo:</strong><br>User: 12345678 / user123<br>Admin: admin / admin123</div>
+    </div>
+  </div>
+
+  <!-- REGISTER MODAL -->
+  <div class="login-overlay hidden" id="registerModal">
+    <div class="login-card">
+      <div class="login-title">Crear cuenta</div>
+      <input class="login-input" id="regDni" placeholder="DNI">
+      <input class="login-input" id="regName" placeholder="Nombre completo">
+      <input class="login-input" id="regEmail" placeholder="Email">
+      <input class="login-input" type="password" id="regPass" placeholder="Contraseña">
+      <button class="login-btn" id="doRegister">Registrarse</button>
+      <button class="btn btn-ghost" style="width:100%" id="hideRegisterBtn">← Volver</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- CRUD MODAL -->
+  <div class="modal-bg" id="crudModal">
+    <div class="modal-sheet">
+      <div class="modal-title" id="modalTitle">Nuevo</div>
+      <div class="field-group"><label class="field-label">Título</label><input class="field-input" id="modalTitleInput"></div>
+      <div class="field-group"><label class="field-label">Descripción</label><textarea class="field-input" id="modalDesc" rows="3"></textarea></div>
+      <div class="field-group"><label class="field-label">Fecha</label><input class="field-input" type="date" id="modalDate"></div>
+      <div id="eventFields">
+        <div class="field-row"><div class="field-group"><label>Hora</label><input class="field-input" type="time" id="modalTime"></div><div class="field-group"><label>Plazas</label><input class="field-input" type="number" id="modalSpots" value="50"></div></div>
+        <div class="field-group"><label>Ubicación</label><input class="field-input" id="modalPlace"></div>
+        <div class="field-group"><label>Categoría</label><div class="cat-grid" id="catGrid"></div></div>
+        <div class="field-group"><label><input type="checkbox" id="modalHasSurvey"> Encuesta</label></div>
+        <div id="surveyFields" style="display:none"><div class="field-group"><label>Pregunta</label><input class="field-input" id="modalSurveyQuestion"></div><div class="field-group"><label>Opciones (coma)</label><input class="field-input" id="modalSurveyOptions"></div></div>
+        <div class="field-group"><label><input type="checkbox" id="modalGenerateCert"> Generar certificado</label></div>
+      </div>
+      <div class="modal-actions"><button class="modal-cancel" onclick="closeModal()">Cancelar</button><button class="modal-save" onclick="saveModal()">Guardar</button></div>
+    </div>
+  </div>
+
+  <!-- EVENT DETAIL MODAL -->
+  <div class="overlay-modal" id="eventDetailModal">
+    <div class="overlay-card">
+      <h3 id="detailTitle"></h3>
+      <div class="plazas-big"><span id="detailSpots">0</span> / <span id="detailTotalSpots">0</span> plazas</div>
+      <div class="detail-info" id="detailDateInfo"></div>
+      <div class="detail-desc" id="detailDesc"></div>
+      <!-- Star rating -->
+      <div class="star-rating" id="starRating" style="margin:10px 0">
+        <span onclick="rateEvent(1)">☆</span><span onclick="rateEvent(2)">☆</span><span onclick="rateEvent(3)">☆</span><span onclick="rateEvent(4)">☆</span><span onclick="rateEvent(5)">☆</span>
+        <small id="ratingInfo"></small>
+      </div>
+      <div id="detailSurvey"></div>
+      <!-- Comentarios -->
+      <div style="margin:10px 0"><h4>Comentarios</h4><div id="detailComments"></div><textarea class="field-input" id="detailCommentInput" rows="2" placeholder="Añade un comentario..."></textarea><button class="btn btn-sm btn-primary" onclick="addEventComment()" style="margin-top:5px">Comentar</button></div>
+      <!-- QR -->
+      <div class="qr-container" id="detailQr" style="display:none"></div>
+      <div class="detail-actions"><button onclick="closeEventDetail()">Cerrar</button><button id="detailEnrollBtn" onclick="enrollFromDetail()">Inscribirse</button><button class="btn btn-sm" style="background:#8b5cf6;color:white" onclick="showEventQR()">QR</button></div>
+    </div>
+  </div>
+
+  <!-- CERTIFICATE MODAL -->
+  <div class="overlay-modal hidden" id="certificateModal">
+    <div class="overlay-card">
+      <div class="certificate-preview">
+        <h2 style="font-family:'Sora',sans-serif;color:#92400e">CERTIFICADO</h2>
+        <p style="font-size:18px">Otorgado a</p>
+        <h3 id="certName" style="font-family:'Sora',sans-serif;font-size:24px"></h3>
+        <p>Por su participación en</p>
+        <h4 id="certEvent"></h4>
+        <p id="certDate" style="margin-top:10px"></p>
+        <div class="certificate-stamp">VALIDO</div>
+      </div>
+      <div class="detail-actions"><button onclick="closeCertificateModal()">Cerrar</button><button class="btn btn-primary" onclick="downloadCertificate()">Descargar</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIGURACIÓN =====
+const SUPABASE_URL = "https://hnquyvnghrqblxfunxix.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhucXV5dm5naHJxYmx4ZnVueGl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTcxMDgsImV4cCI6MjA5MzE5MzEwOH0.znIDuH5sIAAAqSr9WogkNEeDhADbvYSfRX9LF6F83z0";
+const WORDPRESS_WEBHOOK_URL = "https://tusitio.com/wp-json/custom/v1/webhook";
+
+const CATEGORIES = [
+    {id:'networking',label:'Networking'},{id:'formacion',label:'Formación'},
+    {id:'empleo',label:'Empleo'},{id:'cultura',label:'Cultura'},
+    {id:'deporte',label:'Deporte'},{id:'tecnologia',label:'Tecnología'}
+];
+
+// ===== ESTADO GLOBAL =====
+let eventos = [], noticias = [], currentUser = null;
+let feedFilter = 'recientes', currentDate = new Date();
+let currentDetailEvent = null, modalType = null, modalEditId = null;
+let notificationLog = [], selectedItems = new Set();
+let wpConfig = { siteUrl: '', webhookUrl: '', apiKey: '' };
+let advancedFiltersActive = false;
+
+// Gamificación
+let userXP = 0, userLevel = 1, userStreak = 0, userBadges = [];
+let lastLoginDate = null;
+
+// Social
+let socialPosts = [];
+let forumTopics = [];
+let chatMessages = [];
+let eventComments = {};
+let eventRatings = {};
+let userCertificates = [];
+
+// ===== USUARIOS =====
+let users = [
+    {dni:'12345678',password:'user123',name:'Usuario Demo',role:'user',email:'user@demo.com',phone:'',linkedin:'',instagram:'',twitter:'',bio:'',lookingFor:'',reminders:true,emailNotif:false,wpUrl:'',alarmSound:'bell',alarmInterval:5,xp:0,streak:0,badges:[],certificates:[]},
+    {dni:'admin',password:'admin123',name:'Administrador',role:'admin',email:'admin@demo.com',phone:'',linkedin:'',instagram:'',twitter:'',bio:'',lookingFor:'',reminders:true,emailNotif:false,wpUrl:'',alarmSound:'bell',alarmInterval:5,xp:0,streak:0,badges:[],certificates:[]}
+];
+
+// ===== UTILIDADES =====
+function toast(m){ let t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+function fmtDate(d){ return d ? new Date(d).toLocaleDateString('es-ES') : '—'; }
+function generateId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+// ===== NOTIFICACIONES Y ALARMAS =====
+function playAlarmSound(type){
+    const sound = type || (currentUser?.alarmSound || 'bell');
+    if(sound === 'bell'){ for(let i=0;i<3;i++){ setTimeout(()=>{ new Audio('data:audio/wav;base64,U3RlYWx0aCB3YXZlIGZpbGU=').play().catch(e=>{}) }, i*500); } }
+    else if(sound === 'chime'){ new Audio('data:audio/wav;base64,U3RlYWx0aCB3YXZlIGZpbGU=').play().catch(e=>{}); }
+    if('vibrate' in navigator) navigator.vibrate(500);
+}
+
+function showEmergencyAlarm(event){
+    const alarmDiv = document.createElement('div');
+    alarmDiv.className = 'emergency-alarm';
+    alarmDiv.innerHTML = `<i class="fas fa-bell" style="font-size:48px;margin-bottom:15px"></i><h2>¡ALERTA!</h2><h3>${event.title}</h3><p>Comienza en menos de ${currentUser?.alarmInterval||5} minutos</p><p>📍 ${event.place} | ⏰ ${event.time}h</p><div class="alarm-buttons"><button class="alarm-btn alarm-btn-primary" onclick="window.openEventDetail(${event.id});this.parentElement.parentElement.remove()">Ver</button><button class="alarm-btn alarm-btn-secondary" onclick="this.parentElement.parentElement.remove()">Cerrar</button></div>`;
+    document.body.appendChild(alarmDiv);
+    playAlarmSound();
+    setTimeout(()=>{ if(alarmDiv.parentElement) alarmDiv.remove() }, 30000);
+    notificationLog.unshift({title:event.title,message:`Comienza en ${currentUser?.alarmInterval||5} min`,date:new Date().toISOString(),type:'alarm',read:false});
+    if(notificationLog.length>50) notificationLog.pop();
+    updateNotificationBadge();
+}
+
+async function requestPushPermission(){
+    if(!('Notification' in window)){ toast('No soporta notificaciones'); return; }
+    const permission = await Notification.requestPermission();
+    if(permission==='granted'){ toast('Notificaciones activadas'); if('serviceWorker' in navigator){ try{await navigator.serviceWorker.register('/sw.js')}catch(e){}} }
+    else toast('Permiso denegado');
+}
+
+function showNotification(title,body,eventId){
+    if('Notification' in window && Notification.permission==='granted'){ const n=new Notification(title,{body:body,icon:'img/logo.jpeg'}); n.onclick=()=>{window.openEventDetail(eventId)} }
+    toast(body);
+    notificationLog.unshift({title,message:body,date:new Date().toISOString(),type:'push',read:false});
+    if(notificationLog.length>50) notificationLog.pop();
+    updateNotificationBadge();
+}
+
+function updateNotificationBadge(){
+    const unread = notificationLog.filter(n=>!n.read).length;
+    document.getElementById('notificationBadge').style.display = currentUser ? 'block' : 'none';
+    document.getElementById('badgeDot').style.display = unread>0 ? 'block' : 'none';
+}
+
+function checkEventReminders(){
+    if(!currentUser||!currentUser.reminders) return;
+    const now = new Date();
+    eventos.forEach(e=>{
+        if(!e.enrolled) e.enrolled=[];
+        if(e.enrolled.includes(currentUser.dni)){
+            const evDate = new Date(`${e.date}T${e.time}:00`);
+            const diffMs = evDate - now;
+            const diffMinutes = Math.floor(diffMs/(1000*60));
+            const alarmInterval = currentUser.alarmInterval||5;
+            if(diffMinutes<=alarmInterval && diffMinutes>0 && !e.alarmTriggered){ e.alarmTriggered=true; showEmergencyAlarm(e); showNotification(`🔔 ${e.title}`,`Comienza en ${alarmInterval} min`,e.id); }
+            const diffDays = Math.ceil(diffMs/(1000*60*60*24));
+            if(diffDays===1&&!e.reminded1day){ e.reminded1day=true; showNotification(`📅 ${e.title}`,`Es MAÑANA a las ${e.time}h`,e.id) }
+            if(diffDays===0&&!e.remindedToday&&diffMinutes>60){ e.remindedToday=true; showNotification(`🔔 ${e.title}`,`Es HOY a las ${e.time}h`,e.id) }
+        }
+    });
+}
+
+// ===== WORDPRESS =====
+async function testWpConnection(){
+    const url = wpConfig.webhookUrl || WORDPRESS_WEBHOOK_URL;
+    try{
+        const res = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'test'})});
+        if(res.ok){ document.getElementById('wpStatusDot').className='wp-status-dot connected'; document.getElementById('wpStatusText').textContent='Conectado'; toast('✅ Conexión OK'); }
+        else throw new Error();
+    }catch(e){ document.getElementById('wpStatusDot').className='wp-status-dot disconnected'; document.getElementById('wpStatusText').textContent='Error'; toast('❌ Error conexión'); }
+}
+
+async function syncToWordPress(event,action){
+    const url = wpConfig.webhookUrl || currentUser?.wpUrl || WORDPRESS_WEBHOOK_URL;
+    if(!url) return;
+    try{
+        await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,event:{id:event.id,title:event.title,description:event.description,date:event.date,time:event.time,place:event.place,spots:event.spots,category:event.category}})});
+    }catch(e){}
+}
+
+async function syncAllToWp(){ document.getElementById('wpSyncLog').innerHTML='<div>Sincronizando...</div>'; for(const ev of eventos) await syncToWordPress(ev,'create'); toast('Sync completada'); }
+function saveWpConfig(){ wpConfig.siteUrl=document.getElementById('wpSiteUrl').value; wpConfig.webhookUrl=document.getElementById('wpWebhookUrl').value; wpConfig.apiKey=document.getElementById('wpApiKey').value; toast('Config guardada'); testWpConnection(); }
+function showWpConfig(){ document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active')); document.querySelector('[data-tab="wp"]').classList.add('active'); ['adminEvents','adminNews','adminUsers','adminAnalytics'].forEach(id=>document.getElementById(id).style.display='none'); document.getElementById('adminWp').style.display='block'; }
+
+// ===== CSV =====
+function handleCsvImport(input){
+    if(!input.files||!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload=function(e){
+        const lines = e.target.result.split('\n').filter(l=>l.trim());
+        if(lines.length<2){ toast('CSV inválido'); return; }
+        const headers = lines[0].split(',').map(h=>h.trim().toLowerCase());
+        const type = headers.includes('titulo')&&headers.includes('hora')?'eventos':headers.includes('contenido')?'noticias':headers.includes('dni')?'usuarios':null;
+        if(!type){ toast('Formato no reconocido'); return; }
+        let count=0;
+        for(let i=1;i<lines.length;i++){
+            const values = parseCsvLine(lines[i]);
+            if(values.length<headers.length) continue;
+            const obj={}; headers.forEach((h,idx)=>obj[h]=values[idx]?.trim()||'');
+            if(type==='eventos'&&obj.titulo&&obj.fecha){ eventos.push({id:generateId(),title:obj.titulo,description:obj.descripcion||'',date:obj.fecha,time:obj.hora||'18:00',place:obj.ubicacion||'Online',spots:parseInt(obj.plazas)||50,enrolled:[],category:obj.categoria||'networking'}); count++; }
+            else if(type==='noticias'&&obj.titulo&&obj.contenido){ noticias.push({id:generateId(),title:obj.titulo,content:obj.contenido,date:obj.fecha||new Date().toISOString().split('T')[0],author:obj.autor||'Admin'}); count++; }
+            else if(type==='usuarios'&&obj.dni&&obj.nombre){ if(!users.find(u=>u.dni===obj.dni)){ users.push({dni:obj.dni,password:'123456',name:obj.nombre,role:'user',email:obj.email||'',phone:'',linkedin:'',instagram:'',twitter:'',bio:'',lookingFor:'',reminders:true,emailNotif:false,wpUrl:'',alarmSound:'bell',alarmInterval:5,xp:0,streak:0,badges:[],certificates:[]}); count++; } }
+        }
+        toast(`✅ ${count} ${type} importados`); refreshAll();
+    };
+    reader.readAsText(input.files[0]);
+}
+
+function parseCsvLine(line){ const result=[]; let current='',inQuotes=false; for(let i=0;i<line.length;i++){ const char=line[i]; if(char==='"') inQuotes=!inQuotes; else if(char===','&&!inQuotes){ result.push(current); current=''; } else current+=char; } result.push(current); return result; }
+
+function exportCsv(type){
+    let csv='',filename='';
+    if(type==='eventos'){ csv='titulo,descripcion,fecha,hora,ubicacion,plazas,categoria\n'; eventos.forEach(e=>csv+=`"${e.title}","${e.description}","${e.date}","${e.time}","${e.place}","${e.spots}","${e.category}"\n`); filename='eventos.csv'; }
+    else if(type==='noticias'){ csv='titulo,contenido,fecha,autor\n'; noticias.forEach(n=>csv+=`"${n.title}","${n.content}","${n.date}","${n.author}"\n`); filename='noticias.csv'; }
+    else if(type==='usuarios'){ csv='dni,nombre,email,telefono,rol\n'; users.forEach(u=>csv+=`"${u.dni}","${u.name}","${u.email}","${u.phone}","${u.role}"\n`); filename='usuarios.csv'; }
+    downloadFile(csv,filename,'text/csv'); toast(`📥 ${filename}`);
+}
+
+function downloadCsvTemplate(){ downloadFile('titulo,descripcion,fecha,hora,ubicacion,plazas,categoria\n"Ejemplo","Descripción","2026-06-15","18:00","Madrid","50","networking"','plantilla.csv','text/csv'); toast('📥 Plantilla'); }
+function exportMyData(){ downloadFile(JSON.stringify({usuario:currentUser,inscripciones:eventos.filter(e=>(e.enrolled||[]).includes(currentUser.dni))},null,2),'mis_datos.json','application/json'); toast('📥 Datos exportados'); }
+function exportCalendarICS(){
+    let ics='BEGIN:VCALENDAR\nVERSION:2.0\n';
+    eventos.forEach(e=>{ if((e.enrolled||[]).includes(currentUser?.dni)){ const d=new Date(`${e.date}T${e.time}:00`); ics+=`BEGIN:VEVENT\nDTSTART:${d.toISOString().replace(/[-:]/g,'').split('.')[0]}Z\nSUMMARY:${e.title}\nLOCATION:${e.place}\nEND:VEVENT\n`; } });
+    ics+='END:VCALENDAR'; downloadFile(ics,'eventos.ics','text/calendar'); toast('📅 ICS');
+}
+function syncWithGoogleCalendar(){ window.open('https://calendar.google.com/calendar/r','_blank'); toast('Importa el ICS en Google Calendar'); }
+function downloadFile(content,filename,mimeType){ const blob=new Blob([content],{type:mimeType}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+
+// ===== KANBAN =====
+function showKanbanView(){
+    const kanban = document.getElementById('kanbanView');
+    const list = document.getElementById('calendarEventList');
+    if(kanban.style.display==='none'){
+        kanban.style.display='block'; list.style.display='none';
+        const todo = eventos.filter(e=>new Date(e.date)>=new Date()&&!(e.enrolled||[]).includes(currentUser?.dni));
+        const progress = eventos.filter(e=>new Date(e.date)>=new Date()&&(e.enrolled||[]).includes(currentUser?.dni));
+        const done = eventos.filter(e=>new Date(e.date)<new Date()&&(e.enrolled||[]).includes(currentUser?.dni));
+        kanban.innerHTML = `<div class="kanban-board">
+            <div class="kanban-column kanban-col-todo"><h4>📋 Por hacer (${todo.length})</h4>${todo.map(buildKanbanCard).join('')||'<small>Vacío</small>'}</div>
+            <div class="kanban-column kanban-col-progress"><h4>🔄 En progreso (${progress.length})</h4>${progress.map(buildKanbanCard).join('')||'<small>Vacío</small>'}</div>
+            <div class="kanban-column kanban-col-done"><h4>✅ Completado (${done.length})</h4>${done.map(buildKanbanCard).join('')||'<small>Vacío</small>'}</div>
+        </div>`;
+    } else { kanban.style.display='none'; list.style.display='block'; }
+}
+
+function buildKanbanCard(ev){ return `<div class="kanban-card" onclick="openEventDetail(${ev.id})"><strong>${ev.title}</strong><br><small>${fmtDate(ev.date)} · ${ev.place}</small></div>`; }
+
+// ===== SOCIAL =====
+function showNewPostForm(){ document.getElementById('newPostForm').style.display='block'; }
+function createSocialPost(){
+    const content = document.getElementById('newPostContent').value.trim();
+    if(!content){ toast('Escribe algo'); return; }
+    socialPosts.unshift({id:generateId(),author:currentUser.name,content,date:new Date().toISOString(),likes:[],comments:[]});
+    document.getElementById('newPostContent').value=''; document.getElementById('newPostForm').style.display='none';
+    renderSocialFeed(); addXP(10,'Publicación'); toast('Publicado');
+}
+
+function likePost(postId){
+    const post = socialPosts.find(p=>p.id===postId);
+    if(!post||!currentUser) return;
+    const idx = post.likes.indexOf(currentUser.dni);
+    if(idx!==-1) post.likes.splice(idx,1); else post.likes.push(currentUser.dni);
+    renderSocialFeed();
+}
+
+function renderSocialFeed(){
+    document.getElementById('socialFeed').innerHTML = socialPosts.map(p=>`
+        <div class="social-post">
+            <strong>${p.author}</strong> · <small>${new Date(p.date).toLocaleString()}</small>
+            <p style="margin:8px 0">${p.content}</p>
+            <div class="social-actions">
+                <span onclick="likePost('${p.id}')">❤️ ${p.likes.length}</span>
+                <span>💬 ${p.comments.length}</span>
+            </div>
+        </div>
+    `).join('') || '<div class="empty">No hay publicaciones</div>';
+}
+
+// ===== FORO =====
+function showNewTopicForm(){ document.getElementById('newTopicForm').style.display='block'; }
+function createTopic(){
+    const title = document.getElementById('newTopicTitle').value.trim();
+    const content = document.getElementById('newTopicContent').value.trim();
+    if(!title||!content){ toast('Completa los campos'); return; }
+    forumTopics.unshift({id:generateId(),title,content,author:currentUser.name,date:new Date().toISOString(),replies:[]});
+    document.getElementById('newTopicTitle').value=''; document.getElementById('newTopicContent').value=''; document.getElementById('newTopicForm').style.display='none';
+    renderForum(); addXP(20,'Tema en foro'); toast('Tema creado');
+}
+
+function replyTopic(topicId){
+    const reply = prompt('Tu respuesta:');
+    if(!reply) return;
+    const topic = forumTopics.find(t=>t.id===topicId);
+    if(topic){ topic.replies.push({author:currentUser.name,content:reply,date:new Date().toISOString()}); renderForum(); addXP(5,'Respuesta'); toast('Respuesta añadida'); }
+}
+
+function renderForum(){
+    document.getElementById('forumTopics').innerHTML = forumTopics.map(t=>`
+        <div class="card">
+            <div class="item-title">${t.title}</div>
+            <div class="item-meta">${t.author} · ${new Date(t.date).toLocaleString()} · ${t.replies.length} respuestas</div>
+            <div class="item-desc">${t.content}</div>
+            ${t.replies.map(r=>`<div class="comment-reply"><div class="comment-item"><strong>${r.author}</strong>: ${r.content}<br><small>${new Date(r.date).toLocaleString()}</small></div></div>`).join('')}
+            <button class="btn btn-ghost btn-sm" onclick="replyTopic('${t.id}')">Responder</button>
+        </div>
+    `).join('') || '<div class="empty">No hay temas</div>';
+}
+
+// ===== CHAT =====
+function toggleChat(){ const w=document.getElementById('chatWindow'); w.style.display=w.style.display==='flex'?'none':'flex'; }
+function sendChatMessage(){
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if(!msg||!currentUser) return;
+    chatMessages.push({author:currentUser.name,content:msg,date:new Date().toISOString()});
+    document.getElementById('chatMessages').innerHTML = chatMessages.map(m=>`<div class="chat-msg${m.author===currentUser.name?' mine':''}"><strong>${m.author}:</strong> ${m.content}</div>`).join('');
+    input.value='';
+}
+
+// ===== COMENTARIOS Y VALORACIONES =====
+function rateEvent(stars){
+    if(!currentUser||!currentDetailEvent) return;
+    if(!eventRatings[currentDetailEvent.id]) eventRatings[currentDetailEvent.id] = [];
+    const existing = eventRatings[currentDetailEvent.id].find(r=>r.user===currentUser.dni);
+    if(existing) existing.stars = stars; else eventRatings[currentDetailEvent.id].push({user:currentUser.dni,stars});
+    updateStarDisplay(); addXP(5,'Valoración'); toast('⭐ ¡Gracias por valorar!');
+}
+
+function updateStarDisplay(){
+    if(!currentDetailEvent) return;
+    const ratings = eventRatings[currentDetailEvent.id] || [];
+    const myRating = ratings.find(r=>r.user===currentUser?.dni);
+    const avg = ratings.length ? (ratings.reduce((s,r)=>s+r.stars,0)/ratings.length).toFixed(1) : 0;
+    let starsHtml = '';
+    for(let i=1;i<=5;i++) starsHtml += `<span class="star" onclick="rateEvent(${i})" style="color:${i<=(myRating?.stars||0)?'#fbbf24':'#d1d5db'}">★</span>`;
+    document.getElementById('starRating').innerHTML = starsHtml + ` <small>(${avg}) · ${ratings.length} votos</small>`;
+}
+
+function addEventComment(){
+    if(!currentUser||!currentDetailEvent) return;
+    const input = document.getElementById('detailCommentInput');
+    const comment = input.value.trim();
+    if(!comment) return;
+    if(!eventComments[currentDetailEvent.id]) eventComments[currentDetailEvent.id] = [];
+    eventComments[currentDetailEvent.id].push({author:currentUser.name,content:comment,date:new Date().toISOString()});
+    input.value='';
+    renderEventComments(); addXP(3,'Comentario');
+}
+
+function renderEventComments(){
+    if(!currentDetailEvent) return;
+    const comments = eventComments[currentDetailEvent.id] || [];
+    document.getElementById('detailComments').innerHTML = comments.map(c=>`<div class="comment-item"><strong>${c.author}</strong>: ${c.content}<br><small>${new Date(c.date).toLocaleString()}</small></div>`).join('');
+}
+
+// ===== QR =====
+function showEventQR(){
+    if(!currentDetailEvent) return;
+    const qrData = JSON.stringify({event:currentDetailEvent.id,title:currentDetailEvent.title,date:currentDetailEvent.date});
+    document.getElementById('detailQr').style.display='block';
+    document.getElementById('detailQr').innerHTML = `<p>QR del evento:</p><canvas id="qrCanvas"></canvas>`;
+    // QR simple con texto
+    const canvas = document.getElementById('qrCanvas');
+    if(canvas){
+        const ctx = canvas.getContext('2d');
+        canvas.width=150; canvas.height=150;
+        ctx.fillStyle='white'; ctx.fillRect(0,0,150,150);
+        ctx.fillStyle='black'; ctx.font='12px monospace';
+        ctx.fillText('EVENTO QR',10,75);
+        ctx.fillText(currentDetailEvent.title.substring(0,20),10,95);
+    }
+}
+
+// ===== CERTIFICADOS =====
+function showMyCertificates(){
+    if(!currentUser) return;
+    const certs = currentUser.certificates || [];
+    if(!certs.length){ toast('No tienes certificados aún'); return; }
+    const cert = certs[0];
+    document.getElementById('certName').textContent = currentUser.name;
+    document.getElementById('certEvent').textContent = cert.eventTitle;
+    document.getElementById('certDate').textContent = cert.date;
+    document.getElementById('certificateModal').classList.remove('hidden');
+}
+
+function closeCertificateModal(){ document.getElementById('certificateModal').classList.add('hidden'); }
+
+function downloadCertificate(){
+    const content = document.querySelector('.certificate-preview').innerHTML;
+    const html = `<html><body style="text-align:center;padding:40px">${content}</body></html>`;
+    downloadFile(html,'certificado.html','text/html');
+    toast('📜 Certificado descargado');
+}
+
+// ===== ANALYTICS =====
+function generateReport(){
+    document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-tab="analytics"]').classList.add('active');
+    ['adminEvents','adminNews','adminUsers','adminWp'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('adminAnalytics').style.display='block';
+    
+    document.getElementById('analyticsStats').innerHTML = `
+        <div class="stat-mini"><div class="stat-mini-number">${eventos.length}</div><div class="stat-mini-label">Eventos</div></div>
+        <div class="stat-mini"><div class="stat-mini-number">${eventos.reduce((s,e)=>s+(e.enrolled?.length||0),0)}</div><div class="stat-mini-label">Inscripciones</div></div>
+        <div class="stat-mini"><div class="stat-mini-number">${Object.values(eventRatings).flat().length}</div><div class="stat-mini-label">Valoraciones</div></div>
+        <div class="stat-mini"><div class="stat-mini-number">${socialPosts.length+forumTopics.length}</div><div class="stat-mini-label">Interacciones</div></div>
+    `;
+    
+    const topEvents = [...eventos].sort((a,b)=>(b.enrolled?.length||0)-(a.enrolled?.length||0)).slice(0,5);
+    document.getElementById('topEvents').innerHTML = topEvents.map(e=>`<div>🏆 ${e.title} - ${e.enrolled?.length||0} inscritos</div>`).join('')||'Sin datos';
+    
+    document.getElementById('monthlyActivity').innerHTML = '<div>📊 Actividad registrada</div>';
+}
+
+// ===== DATA FETCHING =====
+async function fetchEventsFromSupabase(){
+    try{
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/eventos?select=*`,{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`}});
+        if(res.ok){ const data=await res.json(); if(data.length){ eventos=data.map(ev=>({id:ev.id,title:ev.titulo||ev.title,description:ev.descripcion||ev.description,date:ev.fecha||ev.date,time:ev.hora||ev.time||'18:00',place:ev.ubicacion||ev.place||'Online',spots:ev.plazas||ev.spots||50,enrolled:ev.inscritos?JSON.parse(ev.inscritos||'[]'):[],category:ev.categoria||ev.category||'networking',survey:ev.encuesta?JSON.parse(ev.encuesta):null})); return; } }
+    }catch(e){}
+    if(!eventos.length) eventos=[{id:1,title:'Networking Tech',description:'Evento networking profesional',date:'2026-06-15',time:'18:00',place:'Madrid',spots:50,enrolled:[],category:'networking'},{id:2,title:'Curso Liderazgo',description:'Habilidades directivas',date:'2026-05-20',time:'10:00',place:'Online',spots:30,enrolled:[],category:'formacion'}];
+}
+
+async function fetchNewsFromSupabase(){
+    try{
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/noticias?select=*`,{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`}});
+        if(res.ok){ const data=await res.json(); if(data.length){ noticias=data.map(n=>({id:n.id,title:n.titulo||n.title,content:n.contenido||n.content,date:n.fecha||n.date,author:'Admin'})); return; } }
+    }catch(e){}
+    if(!noticias.length) noticias=[{id:1,title:'Bienvenidos a Alumni FP',content:'Iniciamos nuevas actividades',date:'2026-05-01',author:'Admin'}];
+}
+
+// ===== EVENT CARD =====
+function buildEventCard(ev){
+    const isEnrolled = currentUser && (ev.enrolled||[]).includes(currentUser.dni);
+    const spotsLeft = Math.max(0,(ev.spots||9999)-(ev.enrolled?.length||0));
+    const cat = CATEGORIES.find(c=>c.id===ev.category)||{label:ev.category||'Evento'};
+    const avgRating = eventRatings[ev.id]?.length ? (eventRatings[ev.id].reduce((s,r)=>s+r.stars,0)/eventRatings[ev.id].length).toFixed(1) : '';
+    return `<div class="card ${isEnrolled?'card-green':'card-amber'}" onclick="openEventDetail(${ev.id})">
+        <div class="chip-row"><span class="chip ${isEnrolled?'chip-green':'chip-amber'}">${isEnrolled?'✅ Inscrito':'📌 Disponible'}</span><span class="chip chip-cat">${cat.label}</span>${ev.survey?.active?'<span class="chip chip-purple">📊 Encuesta</span>':''}${avgRating?`<span class="chip">⭐ ${avgRating}</span>`:''}</div>
+        ${currentUser?.role==='admin'?`<input type="checkbox" style="float:right" onclick="event.stopPropagation();toggleItemSelection(${ev.id},'evento')">`:''}
+        <div class="item-title">${ev.title}</div>
+        <div class="item-meta"><span>📅 ${fmtDate(ev.date)} · ${ev.time}h</span><span>📍 ${ev.place}</span><span>🎟️ ${spotsLeft}/${ev.spots||'∞'}</span></div>
+        <div class="item-desc">${ev.description}</div>
+        <div class="btn-row" onclick="event.stopPropagation()"><button class="btn ${isEnrolled?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleEnroll(${ev.id})">${isEnrolled?'Cancelar':'Inscribirse'}</button></div>
+    </div>`;
+}
+
+function buildNewsCard(n){
+    return `<div class="card card-blue"><div class="chip chip-blue">Noticia</div>${currentUser?.role==='admin'?`<input type="checkbox" style="float:right" onclick="event.stopPropagation();toggleItemSelection(${n.id},'noticia')">`:''}<div class="item-title">${n.title}</div><div class="item-meta">${fmtDate(n.date)} · ${n.author}</div><div class="item-desc">${n.content}</div></div>`;
+}
+
+function toggleEnroll(id){
+    if(!currentUser){ toast('Inicia sesión'); return; }
+    const ev = eventos.find(e=>e.id===id);
+    if(!ev) return;
+    if(!ev.enrolled) ev.enrolled=[];
+    const idx = ev.enrolled.indexOf(currentUser.dni);
+    if(idx!==-1){ ev.enrolled.splice(idx,1); toast('Cancelaste inscripción'); }
+    else{ if(ev.enrolled.length>=ev.spots&&ev.spots>0){ toast('No hay plazas'); return; } ev.enrolled.push(currentUser.dni); addXP(50,'Inscripción a evento'); toast('¡Inscrito!'); }
+    refreshAll();
+}
+
+// ===== EVENT DETAIL =====
+function openEventDetail(id){
+    currentDetailEvent = eventos.find(e=>e.id===id);
+    if(!currentDetailEvent) return;
+    const isEnrolled = currentUser && (currentDetailEvent.enrolled||[]).includes(currentUser.dni);
+    const spotsLeft = Math.max(0,(currentDetailEvent.spots||9999)-(currentDetailEvent.enrolled?.length||0));
+    document.getElementById('detailTitle').textContent = currentDetailEvent.title;
+    document.getElementById('detailDateInfo').innerHTML = `${fmtDate(currentDetailEvent.date)} · ${currentDetailEvent.time}h<br>📍 ${currentDetailEvent.place}`;
+    document.getElementById('detailDesc').textContent = currentDetailEvent.description;
+    document.getElementById('detailSpots').textContent = spotsLeft;
+    document.getElementById('detailTotalSpots').textContent = currentDetailEvent.spots||'∞';
+    
+    document.getElementById('detailSurvey').innerHTML = currentDetailEvent.survey?.active ? showSurveyInDetail(currentDetailEvent) : '';
+    document.getElementById('detailQr').style.display = 'none';
+    
+    const btn = document.getElementById('detailEnrollBtn');
+    btn.textContent = isEnrolled ? 'Cancelar' : 'Inscribirse';
+    btn.style.background = isEnrolled ? '#ef4444' : '#1e40af';
+    
+    updateStarDisplay();
+    renderEventComments();
+    document.getElementById('eventDetailModal').classList.add('open');
+}
+
+window.openEventDetail = openEventDetail;
+function closeEventDetail(){ document.getElementById('eventDetailModal').classList.remove('open'); currentDetailEvent=null; }
+function enrollFromDetail(){ if(currentDetailEvent){ toggleEnroll(currentDetailEvent.id); closeEventDetail(); } }
+
+// ===== SURVEYS =====
+function showSurveyInDetail(event){
+    if(!event.survey?.active) return '';
+    const userVote = event.survey.results?.find(r=>r.userId===currentUser?.dni);
+    if(userVote){
+        const total = event.survey.results.length;
+        return `<div><h4>Resultados</h4>${event.survey.options.map(opt=>{const c=event.survey.results.filter(r=>r.vote===opt).length;return`<div class="survey-result"><strong>${opt}:</strong> ${c} votos (${total>0?(c/total*100).toFixed(1):0}%)</div>`}).join('')}<p>Total: ${total}</p></div>`;
+    }
+    return `<div><h4>${event.survey.question}</h4>${event.survey.options.map(opt=>`<div class="survey-option" onclick="voteSurvey(${event.id},'${opt}')">📊 ${opt}</div>`).join('')}</div>`;
+}
+
+function voteSurvey(eventId,vote){
+    const event = eventos.find(e=>e.id===eventId);
+    if(!event?.survey) return;
+    if(!event.survey.results) event.survey.results=[];
+    if(event.survey.results.find(r=>r.userId===currentUser?.dni)){ toast('Ya votaste'); return; }
+    event.survey.results.push({userId:currentUser.dni,vote});
+    addXP(5,'Voto en encuesta'); toast('¡Voto registrado!');
+    if(currentDetailEvent?.id===eventId) openEventDetail(eventId);
+}
+
+function toggleItemSelection(id,type){ const key=`${type}_${id}`; selectedItems.has(key)?selectedItems.delete(key):selectedItems.add(key); updateBulkUI(); }
+function updateBulkUI(){ document.getElementById('bulkActions').style.display=selectedItems.size>0?'flex':'none'; }
+
+// ===== PROFILE =====
+function handleProfilePhoto(input){
+    if(input.files&&input.files[0]){ const reader=new FileReader(); reader.onload=e=>{if(currentUser){currentUser.photo=e.target.result;updateHeader();renderProfile();toast('Foto actualizada')}}; reader.readAsDataURL(input.files[0]); }
+}
+
+function renderProfile(){
+    if(!currentUser) return;
+    ['profileName','profileDni','profileEmail','profilePhone','profileLinkedin','profileInstagram','profileTwitter','profileBio','profileLookingFor','profileWpUrl','alarmSound','alarmInterval'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.value = currentUser[id.replace('profile','').toLowerCase()] || '';
+    });
+    document.getElementById('profileReminders').checked = currentUser.reminders!==false;
+    document.getElementById('profileEmailNotif').checked = currentUser.emailNotif||false;
+    
+    const avatar = document.getElementById('profileAvatar');
+    if(currentUser.photo){ avatar.style.backgroundImage=`url(${currentUser.photo})`; avatar.style.backgroundSize='cover'; avatar.textContent=''; }
+    else{ avatar.style.backgroundImage='none'; avatar.textContent=currentUser.name?.charAt(0).toUpperCase()||'U'; }
+    
+    const myEvents = eventos.filter(e=>(e.enrolled||[]).includes(currentUser.dni));
+    document.getElementById('myEnrollments').innerHTML = myEvents.length ? myEvents.map(ev=>`<div class="card card-green"><div class="item-title">${ev.title}</div><div class="item-meta">${fmtDate(ev.date)} · ${ev.place}</div><button class="btn btn-ghost btn-sm" onclick="toggleEnroll(${ev.id})">Cancelar</button></div>`).join('') : '<div class="empty">Sin inscripciones</div>';
+    
+    document.getElementById('myAchievements').innerHTML = `
+        <div class="stat-mini"><div class="stat-mini-number">${currentUser.xp||0}</div><div class="stat-mini-label">XP</div></div>
+        <div class="stat-mini"><div class="stat-mini-number">${currentUser.badges?.length||0}</div><div class="stat-mini-label">Insignias</div></div>
+        <div class="stat-mini"><div class="stat-mini-number">${currentUser.certificates?.length||0}</div><div class="stat-mini-label">Certificados</div></div>
+    `;
+    
+    document.getElementById('myNotifications').innerHTML = notificationLog.slice(0,20).map(n=>`<div class="card" style="${n.read?'opacity:0.6':''}" onclick="markNotifRead('${n.date}')"><div class="item-title">${n.read?'':'🔵 '}${n.title}</div><div class="item-meta">${new Date(n.date).toLocaleString()}</div><div class="item-desc">${n.message}</div></div>`).join('')||'<div class="empty">Sin notificaciones</div>';
+}
+
+function markNotifRead(date){ const n=notificationLog.find(n=>n.date===date); if(n) n.read=true; updateNotificationBadge(); renderProfile(); }
+
+function saveProfile(){
+    if(!currentUser) return;
+    currentUser.name = document.getElementById('profileName').value;
+    currentUser.email = document.getElementById('profileEmail').value;
+    currentUser.phone = document.getElementById('profilePhone').value;
+    currentUser.linkedin = document.getElementById('profileLinkedin').value;
+    currentUser.instagram = document.getElementById('profileInstagram').value;
+    currentUser.twitter = document.getElementById('profileTwitter').value;
+    currentUser.bio = document.getElementById('profileBio').value;
+    currentUser.reminders = document.getElementById('profileReminders').checked;
+    currentUser.emailNotif = document.getElementById('profileEmailNotif').checked;
+    currentUser.wpUrl = document.getElementById('profileWpUrl').value;
+    currentUser.alarmSound = document.getElementById('alarmSound').value;
+    currentUser.alarmInterval = parseInt(document.getElementById('alarmInterval').value);
+    const idx = users.findIndex(u=>u.dni===currentUser.dni);
+    if(idx!==-1) users[idx]=currentUser;
+    updateHeader(); toast('Perfil actualizado');
+}
+
+// ===== RENDERING =====
+function renderHome(){
+    if(!currentUser) return;
+    document.getElementById('heroName').textContent = currentUser.name?.split(' ')[0]||'Usuario';
+    const myCount = eventos.filter(e=>(e.enrolled||[]).includes(currentUser.dni)).length;
+    document.getElementById('heroSub').textContent = `Inscrito en ${myCount} evento${myCount!==1?'s':''}`;
+    document.getElementById('quickStats').innerHTML = `<div class="stat-mini"><div class="stat-mini-number">${eventos.length}</div><div class="stat-mini-label">Eventos</div></div><div class="stat-mini"><div class="stat-mini-number">${myCount}</div><div class="stat-mini-label">Inscripciones</div></div><div class="stat-mini"><div class="stat-mini-number">${noticias.length}</div><div class="stat-mini-label">Noticias</div></div>`;
+    document.getElementById('homeEvents').innerHTML = eventos.filter(e=>new Date(e.date)>=new Date()).slice(0,3).map(buildEventCard).join('')||'<div class="empty">Sin eventos</div>';
+    document.getElementById('homeNews').innerHTML = [...noticias].reverse().slice(0,3).map(buildNewsCard).join('')||'<div class="empty">Sin noticias</div>';
+}
+
+function renderFeed(){
+    let items = feedFilter==='recientes'?noticias:(feedFilter==='proximos'?eventos.filter(e=>new Date(e.date)>=new Date()):eventos.filter(e=>new Date(e.date)<new Date()));
+    document.getElementById('feedList').innerHTML = items.length?items.map(i=>i.content?buildNewsCard(i):buildEventCard(i)).join(''):'<div class="empty">Sin resultados</div>';
+}
+
+function renderCalendar(){
+    const y=currentDate.getFullYear(),m=currentDate.getMonth(),daysInMonth=new Date(y,m+1,0).getDate();
+    document.getElementById('calMonthYear').textContent=`${currentDate.toLocaleString('es',{month:'long'})} ${y}`;
+    document.querySelector('.cal-weekdays').innerHTML=['L','M','X','J','V','S','D'].map(d=>`<div class="cal-wd">${d}</div>`).join('');
+    let html=''; const today=new Date();
+    for(let d=1;d<=daysInMonth;d++){
+        const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dayEvents=eventos.filter(e=>e.date===ds);
+        let cls='cal-day';
+        if(dayEvents.length){ const enrolled=dayEvents.some(ev=>(ev.enrolled||[]).includes(currentUser?.dni)); cls+=enrolled?' cal-day-enrolled':' cal-day-available'; }
+        if(d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear()) cls+=' cal-day-today';
+        html+=`<div class="${cls}" data-date="${ds}">${d}</div>`;
+    }
+    document.getElementById('daysGrid').innerHTML=html;
+    document.querySelectorAll('.cal-day[data-date]').forEach(el=>el.addEventListener('click',()=>{const evs=eventos.filter(e=>e.date===el.dataset.date);if(evs.length===1)openEventDetail(evs[0].id);else if(evs.length>1)toast(`${evs.length} eventos`)}));
+    document.getElementById('calendarEventList').innerHTML=eventos.map(buildEventCard).join('');
+}
+
+function renderAdmin(){
+    if(!currentUser||currentUser.role!=='admin') return;
+    document.getElementById('adminStats').innerHTML=`<div class="stat-mini"><div class="stat-mini-number">${eventos.length}</div><div class="stat-mini-label">Eventos</div></div><div class="stat-mini"><div class="stat-mini-number">${noticias.length}</div><div class="stat-mini-label">Noticias</div></div><div class="stat-mini"><div class="stat-mini-number">${users.length}</div><div class="stat-mini-label">Usuarios</div></div><div class="stat-mini"><div class="stat-mini-number">${eventos.reduce((s,e)=>s+(e.enrolled?.length||0),0)}</div><div class="stat-mini-label">Inscripciones</div></div>`;
+    document.getElementById('adminEvents').innerHTML=eventos.map(e=>`<div class="admin-row"><input type="checkbox" onchange="toggleItemSelection(${e.id},'evento')"><div class="admin-row-info"><div class="admin-row-title">${e.title}</div><div class="admin-row-sub">${fmtDate(e.date)} · ${e.enrolled?.length||0}/${e.spots||'∞'}</div></div><div class="admin-row-btns"><button class="icon-btn" onclick="editEvent(${e.id})"><i class="fas fa-pen"></i></button><button class="icon-btn danger" onclick="deleteEvent(${e.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
+    document.getElementById('adminNews').innerHTML=noticias.map(n=>`<div class="admin-row"><input type="checkbox" onchange="toggleItemSelection(${n.id},'noticia')"><div class="admin-row-info"><div class="admin-row-title">${n.title}</div><div class="admin-row-sub">${fmtDate(n.date)} · ${n.author}</div></div><div class="admin-row-btns"><button class="icon-btn" onclick="editNews(${n.id})"><i class="fas fa-pen"></i></button><button class="icon-btn danger" onclick="deleteNews(${n.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
+    document.getElementById('adminUsers').innerHTML=users.map(u=>`<div class="admin-row"><div class="admin-row-info"><div class="admin-row-title">${u.name}</div><div class="admin-row-sub">${u.dni} · ${u.role} · ${u.email}</div></div><div class="admin-row-btns"><button class="icon-btn" onclick="toggleRole('${u.dni}')"><i class="fas fa-user-tag"></i></button><button class="icon-btn danger" onclick="deleteUser('${u.dni}')" ${u.dni===currentUser?.dni?'disabled':''}><i class="fas fa-trash"></i></button></div></div>`).join('');
+}
+
+// ===== CRUD =====
+function openCreateModal(){
+    modalType='evento'; modalEditId=null;
+    document.getElementById('modalTitle').textContent='Nuevo evento';
+    ['modalTitleInput','modalDesc','modalDate','modalTime','modalPlace','modalSpots'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('modalTime').value='18:00'; document.getElementById('modalSpots').value='50';
+    document.getElementById('catGrid').innerHTML=CATEGORIES.map(c=>`<div class="cat-option" data-cat="${c.id}" onclick="selectCat('${c.id}')">${c.label}</div>`).join('');
+    document.getElementById('modalHasSurvey').checked=false;
+    document.getElementById('surveyFields').style.display='none';
+    document.getElementById('eventFields').style.display='block';
+    document.getElementById('crudModal').classList.add('open');
+}
+
+function deleteEvent(id){ eventos=eventos.filter(e=>e.id!==id); selectedItems.delete(`evento_${id}`); refreshAll(); toast('Eliminado'); }
+function deleteNews(id){ noticias=noticias.filter(n=>n.id!==id); selectedItems.delete(`noticia_${id}`); refreshAll(); toast('Eliminado'); }
+
+function editEvent(id){
+    const ev=eventos.find(e=>e.id===id);
+    if(ev){
+        modalType='evento'; modalEditId=id;
+        document.getElementById('modalTitle').textContent='Editar evento';
+        document.getElementById('modalTitleInput').value=ev.title;
+        document.getElementById('modalDesc').value=ev.description;
+        document.getElementById('modalDate').value=ev.date;
+        document.getElementById('modalTime').value=ev.time;
+        document.getElementById('modalPlace').value=ev.place;
+        document.getElementById('modalSpots').value=ev.spots;
+        document.getElementById('catGrid').innerHTML=CATEGORIES.map(c=>`<div class="cat-option${ev.category===c.id?' selected':''}" data-cat="${c.id}" onclick="selectCat('${c.id}')">${c.label}</div>`).join('');
+        document.getElementById('eventFields').style.display='block';
+        document.getElementById('crudModal').classList.add('open');
+    }
+}
+
+function editNews(id){
+    const n=noticias.find(n=>n.id===id);
+    if(n){ modalType='noticia'; modalEditId=id; document.getElementById('modalTitle').textContent='Editar noticia'; document.getElementById('modalTitleInput').value=n.title; document.getElementById('modalDesc').value=n.content; document.getElementById('modalDate').value=n.date; document.getElementById('eventFields').style.display='none'; document.getElementById('crudModal').classList.add('open'); }
+}
+
+function saveModal(){
+    const title=document.getElementById('modalTitleInput').value.trim();
+    const desc=document.getElementById('modalDesc').value.trim();
+    const date=document.getElementById('modalDate').value;
+    if(!title||!date){ toast('Título y fecha requeridos'); return; }
+    
+    if(modalType==='noticia'){
+        if(modalEditId){ const idx=noticias.findIndex(n=>n.id===modalEditId); if(idx!==-1) noticias[idx]={...noticias[idx],title,content:desc,date}; }
+        else noticias.push({id:generateId(),title,content:desc,date,author:currentUser?.name||'Admin'});
+    } else {
+        const time=document.getElementById('modalTime').value||'18:00';
+        const place=document.getElementById('modalPlace').value||'Online';
+        const spots=parseInt(document.getElementById('modalSpots').value)||50;
+        const selectedCat=document.querySelector('.cat-option.selected');
+        const category=selectedCat?selectedCat.dataset.cat:'networking';
+        let survey=null;
+        if(document.getElementById('modalHasSurvey').checked){
+            const q=document.getElementById('modalSurveyQuestion').value;
+            const opts=document.getElementById('modalSurveyOptions').value.split(',').map(s=>s.trim());
+            if(q&&opts.length) survey={active:true,question:q,options:opts,results:[]};
+        }
+        const genCert = document.getElementById('modalGenerateCert')?.checked;
+        if(modalEditId){
+            const idx=eventos.findIndex(e=>e.id===modalEditId);
+            if(idx!==-1){ eventos[idx]={...eventos[idx],title,description:desc,date,time,place,spots,category,survey}; syncToWordPress(eventos[idx],'update'); }
+        } else {
+            const newEvent={id:generateId(),title,description:desc,date,time,place,spots,enrolled:[],category,survey};
+            eventos.push(newEvent);
+            syncToWordPress(newEvent,'create');
+            if(genCert && currentUser){
+                currentUser.certificates = currentUser.certificates || [];
+                currentUser.certificates.push({eventTitle:title,date:fmtDate(date)});
+            }
+        }
+    }
+    closeModal(); refreshAll();
+}
+
+function closeModal(){ document.getElementById('crudModal').classList.remove('open'); modalEditId=null; }
+function selectCat(id){ document.querySelectorAll('.cat-option').forEach(el=>el.classList.toggle('selected',el.dataset.cat===id)); }
+function toggleRole(dni){ const u=users.find(u=>u.dni===dni); if(u){ u.role=u.role==='admin'?'user':'admin'; renderAdmin(); toast(`Rol: ${u.role}`); } }
+function deleteUser(dni){ if(dni===currentUser?.dni){ toast('No puedes eliminarte'); return; } users=users.filter(u=>u.dni!==dni); renderAdmin(); toast('Usuario eliminado'); }
+
+// ===== ADVANCED FILTERS =====
+function toggleAdvancedFilters(){ advancedFiltersActive=!advancedFiltersActive; document.getElementById('advancedFilters').style.display=advancedFiltersActive?'flex':'none'; if(!advancedFiltersActive){ document.getElementById('filterCategory').value='all'; document.getElementById('filterDateFrom').value=''; document.getElementById('filterDateTo').value=''; document.getElementById('filterStatus').value='all'; renderFeed(); } }
+
+function applyAdvancedFilters(){
+    const cat=document.getElementById('filterCategory').value;
+    const dateFrom=document.getElementById('filterDateFrom').value;
+    const dateTo=document.getElementById('filterDateTo').value;
+    const status=document.getElementById('filterStatus').value;
+    let items=feedFilter==='recientes'?noticias:(feedFilter==='proximos'?eventos.filter(e=>new Date(e.date)>=new Date()):eventos.filter(e=>new Date(e.date)<new Date()));
+    if(cat!=='all'&&feedFilter!=='recientes') items=items.filter(i=>i.category===cat);
+    if(dateFrom) items=items.filter(i=>i.date>=dateFrom);
+    if(dateTo) items=items.filter(i=>i.date<=dateTo);
+    if(status==='enrolled'&&currentUser) items=items.filter(i=>(i.enrolled||[]).includes(currentUser.dni));
+    else if(status==='available'&&currentUser) items=items.filter(i=>!(i.enrolled||[]).includes(currentUser.dni));
+    document.getElementById('feedList').innerHTML=items.length?items.map(i=>i.content?buildNewsCard(i):buildEventCard(i)).join(''):'<div class="empty">Sin resultados</div>';
+}
+
+// ===== NAVIGATION =====
+function refreshAll(){ renderHome(); renderFeed(); renderCalendar(); if(currentUser?.role==='admin') renderAdmin(); updateGamificationUI(); updateNotificationBadge(); checkEventReminders(); }
+
+function goScreen(s){
+    document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+    const screen = document.getElementById(`s-${s}`);
+    if(screen) screen.classList.add('active');
+    if(s==='profile') renderProfile();
+    if(s==='calendar') renderCalendar();
+    if(s==='admin') renderAdmin();
+    if(s==='social') renderSocialFeed();
+    if(s==='forum') renderForum();
+}
+
+function buildNav(){
+    const items = ['home','feed','calendar','social','forum','profile','search'];
+    if(currentUser?.role==='admin') items.push('admin');
+    const icons = {home:'fa-home',feed:'fa-newspaper',calendar:'fa-calendar-alt',social:'fa-users',forum:'fa-comments',profile:'fa-user',search:'fa-search',admin:'fa-cog'};
+    
+    document.getElementById('bottomNav').innerHTML = items.map(id=>`<div class="nav-item" data-screen="${id}"><i class="fas ${icons[id]}"></i><span>${id.charAt(0).toUpperCase()+id.slice(1)}</span></div>`).join('');
+    document.querySelectorAll('.nav-item').forEach(el=>el.onclick=()=>goScreen(el.dataset.screen));
+    
+    document.getElementById('desktopNav').innerHTML = items.map(id=>`<div class="desktop-nav-item" data-screen="${id}"><i class="fas ${icons[id]}"></i><span>${id.charAt(0).toUpperCase()+id.slice(1)}</span></div>`).join('');
+    document.querySelectorAll('.desktop-nav-item').forEach(el=>el.onclick=()=>goScreen(el.dataset.screen));
+}
+
+function updateHeader(){
+    const avatar=document.getElementById('headerAvatar');
+    if(currentUser){
+        if(currentUser.photo){ avatar.style.backgroundImage=`url(${currentUser.photo})`; avatar.style.backgroundSize='cover'; avatar.textContent=''; }
+        else{ avatar.style.backgroundImage='none'; avatar.textContent=currentUser.name?.charAt(0).toUpperCase()||'?'; }
+        document.getElementById('headerName').textContent=currentUser.name?.split(' ')[0]||'Tú';
+    } else { avatar.style.backgroundImage='none'; avatar.textContent='?'; document.getElementById('headerName').textContent='Acceder'; }
+}
+
+function login(dni,pass){
+    const user=users.find(u=>u.dni===dni&&u.password===pass);
+    if(user){
+        currentUser=user;
+        userXP=user.xp||0; userLevel=user.xp?calculateLevel(user.xp).level:1; userStreak=user.streak||0; userBadges=user.badges||[];
+        document.getElementById('loginModal').classList.add('hidden');
+        updateHeader(); buildNav(); refreshAll(); updateGamificationUI(); checkStreak();
+        goScreen(user.role==='admin'?'admin':'home');
+        requestPushPermission(); toast(`Bienvenido ${user.name}`);
+    } else toast('Credenciales incorrectas');
+}
+
+function register(){
+    const dni=document.getElementById('regDni').value.trim(),name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPass').value;
+    if(!dni||!name||!pass){ toast('Completa todos los campos'); return; }
+    if(users.find(u=>u.dni===dni)){ toast('DNI ya registrado'); return; }
+    users.push({dni,password:pass,name,role:'user',email,phone:'',linkedin:'',instagram:'',twitter:'',bio:'',lookingFor:'',reminders:true,emailNotif:false,wpUrl:'',alarmSound:'bell',alarmInterval:5,xp:0,streak:0,badges:[],certificates:[]});
+    toast('Cuenta creada');
+    document.getElementById('registerModal').classList.add('hidden');
+    document.getElementById('loginModal').classList.remove('hidden');
+}
+
+// ===== EVENT LISTENERS =====
+document.getElementById('doLogin').onclick=()=>login(document.getElementById('loginDni').value,document.getElementById('loginPass').value);
+document.getElementById('doRegister').onclick=register;
+document.getElementById('showRegisterBtn').onclick=()=>{document.getElementById('loginModal').classList.add('hidden');document.getElementById('registerModal').classList.remove('hidden')};
+document.getElementById('hideRegisterBtn').onclick=()=>{document.getElementById('registerModal').classList.add('hidden');document.getElementById('loginModal').classList.remove('hidden')};
+document.getElementById('userBtn').onclick=()=>{if(currentUser){currentUser=null;document.getElementById('loginModal').classList.remove('hidden');updateHeader();buildNav();toast('Sesión cerrada')}else document.getElementById('loginModal').classList.remove('hidden')};
+document.getElementById('prevMonth').onclick=()=>{currentDate.setMonth(currentDate.getMonth()-1);renderCalendar()};
+document.getElementById('nextMonth').onclick=()=>{currentDate.setMonth(currentDate.getMonth()+1);renderCalendar()};
+
+document.querySelectorAll('#feedFilters .filter-btn').forEach(btn=>btn.onclick=()=>{feedFilter=btn.dataset.f;document.querySelectorAll('#feedFilters .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderFeed()});
+
+document.querySelectorAll('.admin-tab').forEach(btn=>btn.onclick=()=>{
+    const tab=btn.dataset.tab;
+    document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    ['adminEvents','adminNews','adminUsers','adminWp','adminAnalytics'].forEach(id=>document.getElementById(id).style.display='none');
+    if(tab==='eventos') document.getElementById('adminEvents').style.display='block';
+    else if(tab==='noticias') document.getElementById('adminNews').style.display='block';
+    else if(tab==='usuarios') document.getElementById('adminUsers').style.display='block';
+    else if(tab==='wp') document.getElementById('adminWp').style.display='block';
+    else if(tab==='analytics'){ document.getElementById('adminAnalytics').style.display='block'; generateReport(); }
+});
+
+document.getElementById('modalHasSurvey').onchange=function(){document.getElementById('surveyFields').style.display=this.checked?'block':'none'};
+
+document.getElementById('csvDropzone').onclick=()=>document.getElementById('csvFileInput').click();
+document.getElementById('csvDropzone').ondragover=(e)=>{e.preventDefault();e.currentTarget.style.borderColor='#3b82f6'};
+document.getElementById('csvDropzone').ondragleave=(e)=>{e.currentTarget.style.borderColor='#cbd5e1'};
+document.getElementById('csvDropzone').ondrop=(e)=>{e.preventDefault();e.currentTarget.style.borderColor='#cbd5e1';const file=e.dataTransfer.files[0];if(file){const dt=new DataTransfer();dt.items.add(file);document.getElementById('csvFileInput').files=dt.files;handleCsvImport(document.getElementById('csvFileInput'))}};
+
+document.getElementById('searchInput').oninput=function(){
+    const query=this.value.toLowerCase();
+    if(!query){document.getElementById('searchResults').innerHTML='';return}
+    const results=[];
+    eventos.forEach(e=>{if(e.title.toLowerCase().includes(query)||e.description.toLowerCase().includes(query)) results.push({type:'Evento',item:e})});
+    noticias.forEach(n=>{if(n.title.toLowerCase().includes(query)||n.content.toLowerCase().includes(query)) results.push({type:'Noticia',item:n})});
+    if(currentUser?.role==='admin') users.forEach(u=>{if(u.name.toLowerCase().includes(query)||u.dni.includes(query)) results.push({type:'Usuario',item:u})});
+    document.getElementById('searchResults').innerHTML=results.length?results.map(r=>r.type==='Usuario'?`<div class="card"><div class="item-title">👤 ${r.item.name}</div><div class="item-meta">${r.item.dni} · ${r.item.role}</div></div>`:r.type==='Evento'?buildEventCard(r.item):buildNewsCard(r.item)).join(''):'<div class="empty">Sin resultados</div>';
+};
+
+// ===== GLOBAL =====
+window.goToFeedWithFilter=(f)=>{feedFilter=f;renderFeed();goScreen('feed')};
+window.exportCsv=exportCsv;
+window.downloadCsvTemplate=downloadCsvTemplate;
+window.handleCsvImport=handleCsvImport;
+window.generateReport=generateReport;
+
+// ===== INIT =====
+async function init(){
+    await fetchEventsFromSupabase();
+    await fetchNewsFromSupabase();
+    buildNav();
+    setInterval(checkEventReminders,10000);
+}
+
+init();
+</script>
+</body>
+</html>
+
