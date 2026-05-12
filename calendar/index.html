@@ -24,7 +24,7 @@
       </div>
       <div class="user-pill" id="userBtn">
         <div class="user-avatar" id="headerAvatar">?</div>
-        <span class="user-name" id="headerName">Acceder</span>
+        <span class="user-name" id="headerName">Cerrar Sesión</span>
       </div>
     </div>
   </div>
@@ -36,25 +36,7 @@
         <div class="hero-banner">
           <div class="hero-name" id="heroName">—</div>
           <div class="hero-sub" id="heroSub">Tu plataforma de gestión</div>
-        </div>
-        <!-- Gamificación -->
-        <div class="gamification-bar" id="gamificationBar" style="display:none">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-            <div>
-              <span class="level-badge" id="userLevel">Nivel 1</span>
-              <span style="margin-left:8px" id="userTitle">Principiante</span>
-            </div>
-            <div style="display:flex;gap:15px">
-              <div class="gamification-stat"><div class="gamification-stat-number" id="userPoints">0</div><div class="gamification-stat-label">Puntos</div></div>
-              <div class="gamification-stat"><div class="gamification-stat-number" id="userStreak">0</div><div class="gamification-stat-label">Racha</div></div>
-              <div class="gamification-stat"><div class="gamification-stat-number" id="userBadges">0</div><div class="gamification-stat-label">Insignias</div></div>
-            </div>
-          </div>
-          <div style="margin-top:8px;background:rgba(255,255,255,0.2);border-radius:10px;height:8px">
-            <div id="xpProgressBar" style="background:#fbbf24;height:100%;border-radius:10px;width:0%;transition:width 0.5s"></div>
-          </div>
-        </div>
-        
+        </div>      
         <div class="quick-stats" id="quickStats"></div>
         <div class="section-header"><span class="section-title">Próximos eventos</span><span class="section-link" onclick="goToFeedWithFilter('proximos')">Ver todo →</span></div>
         <div id="homeEvents"></div>
@@ -140,7 +122,6 @@
             <button class="btn btn-primary btn-full" onclick="saveProfile()">Guardar</button>
             <button class="btn btn-secondary btn-full" onclick="requestPushPermission()" style="margin-top:10px"><i class="fas fa-bell"></i> Push</button>
             <button class="btn btn-ghost btn-full" onclick="exportMyData()" style="margin-top:5px"><i class="fas fa-download"></i> Exportar datos</button>
-            <button class="btn btn-ghost btn-full" onclick="showMyCertificates()" style="margin-top:5px"><i class="fas fa-certificate"></i> Mis certificados</button>
           </div>
           <div>
             <div class="section-header"><span class="section-title">Mis inscripciones</span></div>
@@ -335,23 +316,6 @@
     </div>
   </div>
 
-  <!-- CERTIFICATE MODAL -->
-  <div class="overlay-modal hidden" id="certificateModal">
-    <div class="overlay-card">
-      <div class="certificate-preview">
-        <h2 style="font-family:'Sora',sans-serif;color:#92400e">CERTIFICADO</h2>
-        <p style="font-size:18px">Otorgado a</p>
-        <h3 id="certName" style="font-family:'Sora',sans-serif;font-size:24px"></h3>
-        <p>Por su participación en</p>
-        <h4 id="certEvent"></h4>
-        <p id="certDate" style="margin-top:10px"></p>
-        <div class="certificate-stamp">VALIDO</div>
-      </div>
-      <div class="detail-actions"><button onclick="closeCertificateModal()">Cerrar</button><button class="btn btn-primary" onclick="downloadCertificate()">Descargar</button></div>
-    </div>
-  </div>
-</div>
-
 <script>
 // ===== CONFIGURACIÓN =====
 const SUPABASE_URL = "https://hnquyvnghrqblxfunxix.supabase.co";
@@ -372,19 +336,6 @@ let notificationLog = [], selectedItems = new Set();
 let wpConfig = { siteUrl: '', webhookUrl: '', apiKey: '' };
 let advancedFiltersActive = false;
 
-// Gamificación
-let userXP = 0, userLevel = 1, userStreak = 0, userBadges = [];
-let lastLoginDate = null;
-const LEVELS = [
-    {level:1,xp:0,title:'Principiante'},
-    {level:2,xp:100,title:'Aprendiz'},
-    {level:3,xp:300,title:'Intermedio'},
-    {level:4,xp:600,title:'Avanzado'},
-    {level:5,xp:1000,title:'Experto'},
-    {level:6,xp:2000,title:'Maestro'},
-    {level:7,xp:5000,title:'Líder'},
-    {level:8,xp:10000,title:'Gurú'}
-];
 
 // Social
 let socialPosts = [];
@@ -405,65 +356,6 @@ function toast(m){ let t=document.getElementById('toast'); t.textContent=m; t.cl
 function fmtDate(d){ return d ? new Date(d).toLocaleDateString('es-ES') : '—'; }
 function generateId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2); }
 
-// ===== GAMIFICACIÓN =====
-function calculateLevel(xp){
-    let level = LEVELS[0];
-    for(let l of LEVELS){ if(xp >= l.xp) level = l; }
-    return level;
-}
-
-function addXP(amount, reason){
-    if(!currentUser) return;
-    userXP += amount;
-    const level = calculateLevel(userXP);
-    if(level.level > userLevel){
-        userLevel = level.level;
-        toast(`🎉 ¡Subiste al nivel ${level.level}: ${level.title}!`);
-        if(level.level >= 3 && !userBadges.includes('intermediate')) userBadges.push('intermediate');
-        if(level.level >= 5 && !userBadges.includes('advanced')) userBadges.push('advanced');
-    }
-    const nextLevel = LEVELS.find(l => l.level === userLevel + 1) || LEVELS[LEVELS.length-1];
-    const progress = nextLevel ? ((userXP - level.xp) / (nextLevel.xp - level.xp) * 100) : 100;
-    document.getElementById('xpProgressBar').style.width = Math.min(progress, 100) + '%';
-    document.getElementById('userPoints').textContent = userXP;
-    document.getElementById('userLevel').textContent = 'Nivel ' + userLevel;
-    document.getElementById('userTitle').textContent = level.title;
-    document.getElementById('userBadges').textContent = userBadges.length;
-    currentUser.xp = userXP;
-    currentUser.streak = userStreak;
-    currentUser.badges = userBadges;
-}
-
-function checkStreak(){
-    const today = new Date().toDateString();
-    if(lastLoginDate && lastLoginDate !== today){
-        const yesterday = new Date(Date.now() - 86400000).toDateString();
-        if(lastLoginDate === yesterday) userStreak++;
-        else userStreak = 1;
-    } else if(!lastLoginDate) userStreak = 1;
-    lastLoginDate = today;
-    document.getElementById('userStreak').textContent = userStreak;
-    if(userStreak === 7 && !userBadges.includes('week-streak')){ userBadges.push('week-streak'); toast('🔥 ¡Racha de 7 días! Nueva insignia'); }
-    if(userStreak === 30 && !userBadges.includes('month-streak')){ userBadges.push('month-streak'); toast('🔥 ¡Racha de 30 días! Nueva insignia'); }
-}
-
-function updateGamificationUI(){
-    if(!currentUser) { document.getElementById('gamificationBar').style.display = 'none'; return; }
-    document.getElementById('gamificationBar').style.display = 'block';
-    userXP = currentUser.xp || 0;
-    userLevel = currentUser.xp ? calculateLevel(currentUser.xp).level : 1;
-    userStreak = currentUser.streak || 0;
-    userBadges = currentUser.badges || [];
-    const level = calculateLevel(userXP);
-    const nextLevel = LEVELS.find(l => l.level === userLevel + 1) || LEVELS[LEVELS.length-1];
-    const progress = nextLevel ? ((userXP - level.xp) / (nextLevel.xp - level.xp) * 100) : 100;
-    document.getElementById('xpProgressBar').style.width = Math.min(progress, 100) + '%';
-    document.getElementById('userPoints').textContent = userXP;
-    document.getElementById('userLevel').textContent = 'Nivel ' + userLevel;
-    document.getElementById('userTitle').textContent = level.title;
-    document.getElementById('userStreak').textContent = userStreak;
-    document.getElementById('userBadges').textContent = userBadges.length;
-}
 
 // ===== NOTIFICACIONES Y ALARMAS =====
 function playAlarmSound(type){
