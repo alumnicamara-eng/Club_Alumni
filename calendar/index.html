@@ -1,284 +1,318 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=yes,viewport-fit=cover">
 <meta name="theme-color" content="#1e40af">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Alumni">
-<title>Alumni</title>
-<link rel="icon" type="image/x-icon" href="img/logo.jpeg">
+<title>Club Alumni</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="./css/style.css">
 <style>
-/* Solo estilos para funcionalidades que no están en style.css */
-:root {
-    --inscrito: #10b981; --inscrito-light: #d1fae5;
-    --disponible: #f59e0b; --disponible-light: #fed7aa;
-    --hoy-border: #3b82f6; --hoy-bg: #eff6ff;
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --primary:#1e40af;
+  --primary-dark:#1d4ed8;
+  --primary-light:#3b82f6;
+  --primary-bg:#eff6ff;
+  --bg:#f8fafc;
+  --surface:#ffffff;
+  --surface-2:#f1f5f9;
+  --border:#e2e8f0;
+  --ink:#0f172a;
+  --ink-light:#334155;
+  --text-muted:#64748b;
+  --success:#10b981;
+  --success-bg:#ecfdf5;
+  --warning:#f59e0b;
+  --warning-bg:#fffbeb;
+  --danger:#ef4444;
+  --danger-bg:#fef2f2;
+  --radius:16px;
+  --shadow:0 1px 2px rgba(0,0,0,0.05),0 2px 8px rgba(0,0,0,0.03);
+  --inscrito:#10b981;
+  --disponible:#f59e0b;
 }
-
-.emergency-alarm {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, #ef4444, #dc2626); color: white;
-    padding: 20px 30px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    z-index: 10000; text-align: center; animation: shake 0.5s ease-in-out;
-    min-width: 300px; max-width: 90vw;
-}
-@keyframes shake {
-    0%,100%{transform:translate(-50%,-50%) rotate(0deg)}
-    25%{transform:translate(-50%,-50%) rotate(5deg)}
-    75%{transform:translate(-50%,-50%) rotate(-5deg)}
-}
-.alarm-buttons{display:flex;gap:10px;margin-top:15px;justify-content:center}
-.alarm-btn{padding:8px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
-.alarm-btn-primary{background:white;color:#dc2626}
-.alarm-btn-secondary{background:rgba(255,255,255,0.2);color:white}
-
-.survey-option{display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px;background:#f3f4f6;border-radius:8px;cursor:pointer}
-.survey-option:hover{background:#e5e7eb}
-.survey-result{background:#e0e7ff;padding:10px;border-radius:8px;margin:10px 0}
-
+html,body{width:100%;height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--bg);}
+.shell{position:absolute;inset:0;display:flex;flex-direction:column;max-width:1400px;margin:0 auto;width:100%;}
+@media(min-width:1024px){.shell{box-shadow:0 0 40px rgba(0,0,0,0.05);border-left:1px solid var(--border);border-right:1px solid var(--border);}}
+.header{padding:10px 16px;display:flex;align-items:center;gap:12px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.logo-mark{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.logo-mark img{width:50px;height:50px;border-radius:12px;object-fit:cover;}
+.logo-text{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.notification-badge{position:relative;cursor:pointer;}
+.badge-dot{position:absolute;top:-4px;right:-4px;width:10px;height:10px;background:#ef4444;border-radius:50%;border:2px solid white;}
+.user-pill{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:30px;padding:5px 12px 5px 6px;cursor:pointer;position:relative;}
+.user-avatar{width:30px;height:30px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;}
+.user-name{font-size:13px;font-weight:600;}
+.user-dropdown{position:absolute;top:100%;right:0;background:white;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.1);border:1px solid var(--border);min-width:200px;display:none;z-index:200;margin-top:8px;}
+.user-dropdown.show{display:block;}
+.user-dropdown-item{padding:12px 16px;display:flex;gap:10px;cursor:pointer;transition:background 0.2s;}
+.user-dropdown-item:hover{background:var(--surface-2);}
+.user-dropdown-item.danger{color:var(--danger);}
+.content{flex:1;overflow-y:auto;}
+.screen{display:none;animation:fadeIn 0.25s ease;padding:16px;padding-bottom:80px;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 8px env(safe-area-inset-bottom);z-index:100;}
+@media(min-width:768px){.bottom-nav{display:none;}}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--text-muted);font-size:10px;font-weight:600;padding:6px;border-radius:12px;}
+.nav-item i{font-size:19px;}
+.nav-item.active{color:var(--primary);background:var(--primary-bg);}
+.desktop-nav{display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;}
+@media(min-width:768px){.desktop-nav{display:flex;gap:8px;justify-content:center;}}
+.desktop-nav-item{display:flex;align-items:center;gap:8px;padding:14px 20px;cursor:pointer;color:var(--text-muted);font-size:13px;font-weight:600;border-bottom:2px solid transparent;}
+.desktop-nav-item.active{color:var(--primary);border-bottom-color:var(--primary);}
+.hero-banner{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:20px;padding:24px;margin-bottom:20px;color:white;}
+.hero-name{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;}
+.hero-sub{font-size:13px;opacity:0.8;margin-top:6px;}
+.quick-stats{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.stat-mini{background:white;border-radius:12px;padding:14px;text-align:center;flex:1;min-width:100px;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:transform 0.2s;}
+.stat-mini:active{transform:scale(0.95);}
+.stat-mini-number{font-size:26px;font-weight:700;color:var(--primary);font-family:'Sora',sans-serif;}
+.stat-mini-label{font-size:12px;color:var(--text-muted);}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px;}
+.section-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;}
+.section-link{font-size:12px;color:var(--primary);font-weight:600;cursor:pointer;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;transition:transform 0.2s;}
+.card:active{transform:scale(0.98);}
+.card-green{border-left:3px solid var(--success);}
+.card-amber{border-left:3px solid var(--warning);}
+.card-blue{border-left:3px solid var(--primary);}
+.card-purple{border-left:3px solid #8b5cf6;}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:4px 10px;border-radius:30px;}
+.chip-green{background:var(--success-bg);color:var(--success);}
+.chip-amber{background:var(--warning-bg);color:var(--warning);}
+.chip-blue{background:var(--primary-bg);color:var(--primary);}
+.chip-purple{background:#f3e8ff;color:#9333ea;}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.item-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin:6px 0 4px;}
+.item-meta{font-size:11px;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;}
+.item-desc{font-size:13px;color:var(--ink-light);line-height:1.5;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:30px;border:none;font-weight:600;font-size:12px;cursor:pointer;transition:all 0.2s;}
+.btn-primary{background:var(--primary);color:white;}
+.btn-ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--border);}
+.btn-sm{padding:6px 12px;font-size:11px;}
+.btn-full{width:100%;padding:13px;}
+.filter-scroll{display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;}
+.filter-btn{padding:7px 16px;border-radius:30px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.filter-btn.active{background:var(--primary);color:white;}
+.cal-wrap{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:16px;margin-bottom:20px;}
+.cal-nav-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.cal-month{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;text-transform:capitalize;}
+.cal-arrow{width:36px;height:36px;border-radius:50%;background:var(--surface-2);border:none;cursor:pointer;}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:8px;text-align:center;font-weight:700;font-size:12px;color:var(--text-muted);}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;font-weight:500;font-size:14px;}
 .cal-day-enrolled{background:var(--inscrito-light);border:2px solid var(--inscrito);font-weight:bold}
 .cal-day-available{background:var(--disponible-light);border:1px solid var(--disponible)}
 .cal-day-today{background:var(--hoy-bg);border:3px solid var(--hoy-border);font-weight:bold;box-shadow:0 0 0 2px white,0 0 0 4px var(--hoy-border)}
-
-.csv-dropzone{border:2px dashed #cbd5e1;border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin:15px 0}
-.csv-dropzone:hover{border-color:#3b82f6;background:#f8fafc}
-
-.wp-config-panel{background:#1e293b;color:white;border-radius:12px;padding:20px;margin:15px 0}
-.wp-config-panel h4{color:#60a5fa;margin-bottom:15px}
-.wp-status-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
-.wp-status-dot.connected{background:#10b981}
-.wp-status-dot.disconnected{background:#ef4444}
-
-.quick-stats{display:flex;gap:15px;flex-wrap:wrap;margin:15px 0}
-.stat-mini{background:white;border-radius:12px;padding:16px;text-align:center;flex:1;min-width:120px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-.stat-mini-number{font-size:28px;font-weight:700;color:#1e40af;font-family:'Sora',sans-serif}
-.stat-mini-label{color:#64748b;font-size:13px;margin-top:4px}
-
-.badge-dot{position:absolute;top:-4px;right:-4px;width:10px;height:10px;background:#ef4444;border-radius:50%;border:2px solid white}
-
-/* Kanban */
-.kanban-board{display:flex;gap:12px;overflow-x:auto;padding:10px 0}
-.kanban-column{min-width:260px;background:#f8fafc;border-radius:12px;padding:10px}
-.kanban-col-todo h4{background:#e2e8f0;color:#475569;padding:8px;border-radius:8px;text-align:center;font-size:13px}
-.kanban-col-progress h4{background:#fef3c7;color:#92400e;padding:8px;border-radius:8px;text-align:center;font-size:13px}
-.kanban-col-done h4{background:#d1fae5;color:#065f46;padding:8px;border-radius:8px;text-align:center;font-size:13px}
-.kanban-card{background:white;border-radius:8px;padding:10px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,0.1);cursor:pointer}
-
-/* Gamificación */
-.gamification-bar{background:linear-gradient(135deg,#1e40af,#3b82f6);color:white;border-radius:12px;padding:18px;margin:15px 0}
-.level-badge{display:inline-block;background:#fbbf24;color:#000;padding:3px 10px;border-radius:20px;font-weight:700;font-size:13px}
-
-/* Certificados */
-.certificate-preview{background:linear-gradient(135deg,#fef3c7,#fde68a);border:8px double #d97706;border-radius:16px;padding:30px;text-align:center;margin:15px 0}
-.certificate-stamp{display:inline-block;border:3px solid #dc2626;color:#dc2626;padding:10px 20px;border-radius:50%;font-weight:700;transform:rotate(-15deg);font-size:20px}
-
-/* Foro / Comentarios */
-.comment-thread{margin:10px 0}
-.comment-item{background:#f8fafc;border-radius:8px;padding:10px;margin:6px 0;border-left:3px solid #3b82f6}
-.comment-reply{margin-left:20px}
-
-/* Chat en vivo */
-.live-chat-widget{position:fixed;bottom:80px;right:20px;z-index:999}
-.chat-bubble{width:56px;height:56px;border-radius:50%;background:#1e40af;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:24px}
-.chat-window{position:fixed;bottom:150px;right:20px;width:320px;height:400px;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.2);display:none;flex-direction:column;z-index:999}
-.chat-header{background:#1e40af;color:white;padding:12px;border-radius:16px 16px 0 0}
-.chat-messages{flex:1;overflow-y:auto;padding:10px}
-.chat-input-area{display:flex;padding:10px;border-top:1px solid #e2e8f0}
-.chat-msg{background:#f1f5f9;padding:8px 12px;border-radius:12px;margin:4px 0;max-width:80%}
-.chat-msg.mine{background:#1e40af;color:white;margin-left:auto}
-
-/* QR */
-.qr-container{text-align:center;padding:20px}
-
-/* Valoraciones */
-.star-rating{font-size:24px;color:#fbbf24;cursor:pointer}
-.star-rating .star:hover{transform:scale(1.2)}
-
-/* Red social interna */
-.social-post{background:white;border-radius:12px;padding:16px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-.social-actions{display:flex;gap:15px;margin-top:10px;color:#64748b}
-.social-actions span{cursor:pointer}
-.social-actions span:hover{color:#1e40af}
+.login-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;}
+.login-overlay.hidden{display:none;}
+.login-card{text-align:center;max-width:340px;width:100%;}
+.login-card img{border-radius:20px;margin-bottom:16px;width:80px;height:80px;object-fit:cover;}
+.login-title{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.login-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.login-input{width:100%;padding:13px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;font-size:14px;}
+.login-input:focus{border-color:var(--primary);outline:none;}
+.login-btn{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:30px;font-weight:700;cursor:pointer;}
+.demo-hint{background:var(--surface-2);border-radius:12px;padding:12px;font-size:11px;margin-top:16px;text-align:left;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:10px 20px;border-radius:40px;font-size:13px;z-index:500;opacity:0;transition:0.25s;pointer-events:none;}
+.toast.show{opacity:1;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:200;}
+.modal-bg.open{display:flex;}
+.modal-sheet{background:var(--surface);border-radius:24px;width:90%;max-width:500px;padding:20px;max-height:85vh;overflow-y:auto;}
+.modal-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin-bottom:18px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions button{flex:1;padding:12px;border-radius:30px;font-weight:600;cursor:pointer;}
+.modal-save{background:var(--primary);color:white;}
+.modal-cancel{background:var(--surface-2);border:1px solid var(--border);}
+.field-group{margin-bottom:14px;}
+.field-label{font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:5px;display:block;}
+.field-input{width:100%;padding:11px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;font-size:14px;}
+.field-input:focus{border-color:var(--primary);outline:none;}
+textarea.field-input{resize:vertical;min-height:80px;}
+.checkbox-group{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.checkbox-group label{cursor:pointer;}
+.social-input-group{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:0 12px;margin-bottom:10px;}
+.social-input-group i{color:var(--primary);font-size:18px;}
+.social-input-group input{flex:1;padding:11px 0;border:none;background:transparent;outline:none;}
+.overlay-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:400;visibility:hidden;opacity:0;transition:0.2s;}
+.overlay-modal.open{visibility:visible;opacity:1;}
+.overlay-card{background:var(--surface);border-radius:24px;max-width:500px;width:90%;padding:24px;max-height:85vh;overflow-y:auto;}
+.empty{text-align:center;padding:40px;color:var(--text-muted);}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:16px;}
+.video-card{background:var(--surface);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform 0.2s;}
+.video-card:active{transform:scale(0.98);}
+.video-thumb{width:100%;height:160px;background:linear-gradient(135deg,#1e293b,#0f172a);display:flex;align-items:center;justify-content:center;color:white;font-size:48px;}
+.video-info{padding:12px;}
+.emergency-alarm{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:24px;border-radius:20px;z-index:10000;text-align:center;min-width:300px;box-shadow:0 20px 40px rgba(0,0,0,0.3);animation:shake 0.5s ease;}
+@keyframes shake{0%,100%{transform:translate(-50%,-50%) rotate(0deg)}25%{transform:translate(-50%,-50%) rotate(5deg)}75%{transform:translate(-50%,-50%) rotate(-5deg)}}
+.alarm-buttons{display:flex;gap:10px;margin-top:15px;justify-content:center;}
+.alarm-btn{padding:8px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:600;}
+.alarm-btn-primary{background:white;color:#dc2626;}
+.profile-avatar-wrap{width:100px;height:100px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:40px;color:white;cursor:pointer;background-size:cover;background-position:center;transition:all 0.2s;}
+.profile-avatar-wrap:active{transform:scale(0.95);}
+.looking-for-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;}
+.looking-option{padding:12px;border:2px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;background:var(--surface);}
+.looking-option.selected{border-color:var(--primary);background:var(--primary-bg);color:var(--primary);}
+.looking-option i{font-size:20px;display:block;margin-bottom:5px;}
+.looking-option span{font-size:12px;font-weight:600;}
+@media(min-width:768px){
+  .desktop-grid-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  #feedList,#calendarEventList{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+  #feedList .card,#calendarEventList .card{margin-bottom:0;}
+}
 </style>
 </head>
 <body>
 <div class="shell">
   <div class="header">
-    <div class="logo-mark"><img src="img/logo.jpeg" alt="Logo"></div>
+    <div class="logo-mark" onclick="goScreen('inicio')">
+      <img src="./img/logo.jpeg" alt="Logo" width="80px">
+    </div>
     <div class="header-right">
-      <div class="notification-badge" id="notificationBadge" style="display:none;cursor:pointer;position:relative;margin-right:12px" onclick="goScreen('profile')">
-        <i class="fas fa-bell" style="font-size:20px;color:#64748b"></i>
-        <span class="badge-dot" id="badgeDot" style="display:none"></span>
-      </div>
-      <div class="user-pill" id="userBtn">
-        <div class="user-avatar" id="headerAvatar">?</div>
-        <span class="user-name" id="headerName">Acceder</span>
+      <div class="notification-badge" id="notificationBadge" style="display:none" onclick="showNotifications()"><i class="fas fa-bell" style="font-size:20px;color:#64748b"></i><span class="badge-dot" id="badgeDot" style="display:none"></span></div>
+      <div class="user-pill" id="userBtn"><div class="user-avatar" id="headerAvatar">?</div><span class="user-name" id="headerName">Acceder</span><i class="fas fa-chevron-down"></i></div>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-item" onclick="goScreen('perfil')"><i class="fas fa-user"></i> Mi Perfil</div>
+        <div class="user-dropdown-item" onclick="showMyCertificates()"><i class="fas fa-certificate"></i> Mis Certificados</div>
+        <div class="user-dropdown-item" onclick="showNotificationSettings()"><i class="fas fa-bell"></i> Configurar Alarmas</div>
+        <div class="user-dropdown-item danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</div>
       </div>
     </div>
   </div>
   
   <div class="content" id="contentArea">
-    <!-- HOME -->
-    <div class="screen" id="s-home">
-      <div class="screen-inner">
-        <div class="hero-banner">
-          <div class="hero-name" id="heroName">—</div>
-          <div class="hero-sub" id="heroSub">Tu plataforma de gestión</div>
-        </div>
-        <!-- Gamificación -->
-        <div class="gamification-bar" id="gamificationBar" style="display:none">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-            <div>
-              <span class="level-badge" id="userLevel">Nivel 1</span>
-              <span style="margin-left:8px" id="userTitle">Principiante</span>
-            </div>
-            <div style="display:flex;gap:15px">
-              <div class="gamification-stat"><div class="gamification-stat-number" id="userPoints">0</div><div class="gamification-stat-label">Puntos</div></div>
-              <div class="gamification-stat"><div class="gamification-stat-number" id="userStreak">0</div><div class="gamification-stat-label">Racha</div></div>
-              <div class="gamification-stat"><div class="gamification-stat-number" id="userBadges">0</div><div class="gamification-stat-label">Insignias</div></div>
-            </div>
-          </div>
-          <div style="margin-top:8px;background:rgba(255,255,255,0.2);border-radius:10px;height:8px">
-            <div id="xpProgressBar" style="background:#fbbf24;height:100%;border-radius:10px;width:0%;transition:width 0.5s"></div>
-          </div>
-        </div>
-        
-        <div class="quick-stats" id="quickStats"></div>
-        <div class="section-header"><span class="section-title">Próximos eventos</span><span class="section-link" onclick="goToFeedWithFilter('proximos')">Ver todo →</span></div>
-        <div id="homeEvents"></div>
-        <div class="section-header"><span class="section-title">Últimas noticias</span><span class="section-link" onclick="goToFeedWithFilter('recientes')">Ver todo →</span></div>
-        <div id="homeNews"></div>
-      </div>
+    <!-- INICIO -->
+    <div class="screen" id="s-inicio">
+      <div class="hero-banner"><div class="hero-name" id="heroName">—</div><div class="hero-sub" id="heroSub">Bienvenido a Club Alumni</div></div>
+      <div class="quick-stats" id="quickStats"></div>
+      <div class="section-header"><span class="section-title">🎙️ Próximos Alumni Talks</span><span class="section-link" onclick="goToFeedWithFilter('proximos')">Ver todo →</span></div>
+      <div id="homeEvents"></div>
+      <div class="section-header"><span class="section-title">📺 Últimas Grabaciones</span><span class="section-link" onclick="goScreen('grabaciones')">Ver todas →</span></div>
+      <div id="homeRecordings"></div>
+      <div class="section-header"><span class="section-title">📰 Noticias Alumni</span><span class="section-link" onclick="goToFeedWithFilter('recientes')">Ver todo →</span></div>
+      <div id="homeNews"></div>
     </div>
 
-    <!-- FEED -->
-    <div class="screen" id="s-feed">
-      <div class="screen-inner">
-        <div class="filter-scroll" id="feedFilters">
-          <button class="filter-btn active" data-f="recientes">Todos</button>
-          <button class="filter-btn" data-f="proximos">Próximos</button>
-          <button class="filter-btn" data-f="anteriores">Pasados</button>
-        </div>
-        <div class="advanced-filter" id="advancedFilters" style="display:none">
-          <div class="filter-group"><label>Categoría</label><select id="filterCategory" onchange="applyAdvancedFilters()"><option value="all">Todas</option></select></div>
-          <div class="filter-group"><label>Fecha desde</label><input type="date" id="filterDateFrom" onchange="applyAdvancedFilters()"></div>
-          <div class="filter-group"><label>Fecha hasta</label><input type="date" id="filterDateTo" onchange="applyAdvancedFilters()"></div>
-          <div class="filter-group"><label>Estado</label><select id="filterStatus" onchange="applyAdvancedFilters()"><option value="all">Todos</option><option value="enrolled">Inscrito</option><option value="available">Disponible</option></select></div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="toggleAdvancedFilters()" style="margin-bottom:10px"><i class="fas fa-sliders-h"></i> Filtros avanzados</button>
-        <div id="feedList"></div>
-        <div id="feedPag"></div>
+    <!-- ALUMNI TALKS -->
+    <div class="screen" id="s-eventos">
+      <div class="filter-scroll" id="feedFilters">
+        <button class="filter-btn active" data-f="proximos">🎙️ Próximos Talks</button>
+        <button class="filter-btn" data-f="anteriores">📼 Talks Pasados</button>
       </div>
+      <div id="feedList"></div>
     </div>
 
-    <!-- CALENDAR -->
-    <div class="screen" id="s-calendar">
-      <div class="screen-inner">
-        <div class="desktop-grid-layout">
-          <div>
-            <div class="cal-wrap">
-              <div class="cal-nav-row">
-                <button class="cal-arrow" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
-                <span class="cal-month" id="calMonthYear"></span>
-                <button class="cal-arrow" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
-              </div>
-              <div class="cal-weekdays"></div>
-              <div class="cal-days" id="daysGrid"></div>
-              <div class="cal-legend">
+    <!-- GRABACIONES -->
+    <div class="screen" id="s-grabaciones">
+      <div class="section-header"><span class="section-title">📹 Grabaciones de Alumni Talks</span><button class="btn btn-primary btn-sm" onclick="openAddRecordingModal()"><i class="fas fa-plus"></i> Añadir grabación</button></div>
+      <div class="video-grid" id="recordingsList"></div>
+    </div>
+
+    <!-- CALENDARIO -->
+    <div class="screen" id="s-calendario">
+      <div class="desktop-grid-layout">
+        <div>
+          <div class="cal-wrap">
+            <div class="cal-nav-row"><button class="cal-arrow" id="prevMonth"><i class="fas fa-chevron-left"></i></button><span class="cal-month" id="calMonthYear"></span><button class="cal-arrow" id="nextMonth"><i class="fas fa-chevron-right"></i></button></div>
+            <div class="cal-weekdays"><div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
+            <div class="cal-days" id="daysGrid"></div>
+            <div class="cal-legend">
                 <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--inscrito)"></div>Inscrito</div>
                 <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--disponible)"></div>Disponible</div>
                 <div class="cal-legend-item"><div class="cal-legend-dot" style="border:3px solid var(--hoy-border);background:var(--hoy-bg)"></div>Hoy</div>
-              </div>
+              </div>          
             </div>
-            <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap">
-              <button class="btn btn-primary btn-sm" onclick="exportCalendarICS()"><i class="fas fa-download"></i> ICS</button>
-              <button class="btn btn-secondary btn-sm" onclick="syncWithGoogleCalendar()"><i class="fab fa-google"></i> Google</button>
-            </div>
-          </div>
-          <div>
-            <div style="margin-bottom:10px"><button class="btn btn-sm" style="background:#8b5cf6;color:white" onclick="showKanbanView()"><i class="fas fa-columns"></i> Vista Kanban</button></div>
-            <div id="calendarEventList"></div>
-            <div id="kanbanView" style="display:none"></div>
-          </div>
+          <button class="btn btn-primary btn-sm" onclick="exportCalendarICS()"><i class="fas fa-download"></i> Exportar ICS</button>
         </div>
+        <div><div id="calendarEventList"></div></div>
       </div>
     </div>
 
-    <!-- PROFILE -->
-    <div class="screen" id="s-profile">
-      <div class="screen-inner">
-        <div class="desktop-grid-layout">
-          <div class="card">
-            <div id="profileAvatar" onclick="document.getElementById('profilePhotoInput').click()" class="profile-avatar-wrap">U</div>
-            <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhoto(this)">
-            <div class="field-group"><label class="field-label">Nombre completo</label><input class="field-input" id="profileName"></div>
-            <div class="field-group"><label class="field-label">DNI</label><input class="field-input" id="profileDni" readonly></div>
-            <div class="field-group"><label class="field-label">Email</label><input class="field-input" id="profileEmail" type="email"></div>
-            <div class="field-group"><label class="field-label">Teléfono</label><input class="field-input" id="profilePhone" type="tel"></div>
-            <div class="field-group"><label class="field-label">LinkedIn</label><input class="field-input" id="profileLinkedin" placeholder="https://linkedin.com/in/..."></div>
-            <div class="field-group"><label class="field-label">Instagram</label><input class="field-input" id="profileInstagram" placeholder="https://instagram.com/..."></div>
-            <div class="field-group"><label class="field-label">Twitter/X</label><input class="field-input" id="profileTwitter" placeholder="https://twitter.com/..."></div>
-            <div class="field-group"><label class="field-label">Descripción personal</label><textarea class="field-input" id="profileBio" rows="3"></textarea></div>
-            <div class="field-group"><label class="field-label">¿Qué estoy buscando?</label><select class="field-input" id="profileLookingFor"><option value="">Selecciona...</option><option value="empleo">Empleo</option><option value="networking">Networking</option><option value="formacion">Formación</option><option value="colaboracion">Colaboraciones</option><option value="mentoria">Mentoría</option></select></div>
-            <div class="field-group"><label class="field-label">WP URL</label><input class="field-input" id="profileWpUrl"></div>
-            <div class="field-group"><label class="field-label">Sonido alarma</label><select class="field-input" id="alarmSound"><option value="bell">Campana</option><option value="chime">🎵 Timbre</option><option value="notification">📢 Notificación</option></select></div>
-            <div class="field-group"><label class="field-label">Alarma antes</label><select class="field-input" id="alarmInterval"><option value="5">5 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 hora</option></select></div>
-            <div class="field-group"><label><input type="checkbox" id="profileReminders"> Recordatorios</label></div>
-            <div class="field-group"><label><input type="checkbox" id="profileEmailNotif"> Notificaciones email</label></div>
-            <button class="btn btn-primary btn-full" onclick="saveProfile()">Guardar</button>
-            <button class="btn btn-secondary btn-full" onclick="requestPushPermission()" style="margin-top:10px"><i class="fas fa-bell"></i> Push</button>
-            <button class="btn btn-ghost btn-full" onclick="exportMyData()" style="margin-top:5px"><i class="fas fa-download"></i> Exportar datos</button>
-            <button class="btn btn-ghost btn-full" onclick="showMyCertificates()" style="margin-top:5px"><i class="fas fa-certificate"></i> Mis certificados</button>
+    <!-- PERFIL COMPLETO -->
+    <div class="screen" id="s-perfil">
+      <div class="desktop-grid-layout">
+        <div class="card">
+          <div id="profileAvatar" onclick="document.getElementById('profilePhotoInput').click()" class="profile-avatar-wrap">U</div>
+          <input type="file" id="profilePhotoInput" accept="image/*" style="display:none">
+          
+          <div class="field-group"><label class="field-label">📝 Nombre completo</label><input class="field-input" id="profileName" placeholder="Tu nombre y apellidos"></div>
+          <div class="field-group"><label class="field-label">📧 Correo electrónico</label><input class="field-input" id="profileEmail" type="email" placeholder="tu@email.com"></div>
+          <div class="field-group"><label class="field-label">📱 Teléfono</label><input class="field-input" id="profilePhone" type="tel" placeholder="+34 600 000 000"></div>
+          
+          <div class="field-group"><label class="field-label">📝 Descripción personal</label><textarea class="field-input" id="profileBio" rows="3" placeholder="Cuéntanos sobre ti, tu experiencia, intereses..."></textarea></div>
+          
+          <div class="field-group"><label class="field-label"><i class="fab fa-linkedin"></i> LinkedIn</label><div class="social-input-group"><i class="fab fa-linkedin"></i><input class="field-input" id="profileLinkedin" placeholder="https://linkedin.com/in/tuusuario" style="border:none;background:transparent"></div></div>
+          <div class="field-group"><label class="field-label"><i class="fab fa-instagram"></i> Instagram</label><div class="social-input-group"><i class="fab fa-instagram"></i><input class="field-input" id="profileInstagram" placeholder="https://instagram.com/tuusuario" style="border:none;background:transparent"></div></div>
+          <div class="field-group"><label class="field-label"><i class="fab fa-twitter"></i> Twitter/X</label><div class="social-input-group"><i class="fab fa-twitter"></i><input class="field-input" id="profileTwitter" placeholder="https://twitter.com/tuusuario" style="border:none;background:transparent"></div></div>
+          <div class="field-group"><label class="field-label"><i class="fab fa-github"></i> GitHub</label><div class="social-input-group"><i class="fab fa-github"></i><input class="field-input" id="profileGithub" placeholder="https://github.com/tuusuario" style="border:none;background:transparent"></div></div>
+          
+          <div class="field-group"><label class="field-label">🎯 ¿Qué estoy buscando?</label>
+            <div class="looking-for-options" id="lookingForOptions">
+              <div class="looking-option" data-value="empleo"><i class="fas fa-briefcase"></i><span>💼 Empleo</span></div>
+              <div class="looking-option" data-value="networking"><i class="fas fa-users"></i><span>🤝 Networking</span></div>
+              <div class="looking-option" data-value="formacion"><i class="fas fa-graduation-cap"></i><span>📚 Formación</span></div>
+              <div class="looking-option" data-value="colaboracion"><i class="fas fa-handshake"></i><span>🤲 Colaboraciones</span></div>
+              <div class="looking-option" data-value="mentoria"><i class="fas fa-chalkboard-user"></i><span>🎓 Mentoría</span></div>
+              <div class="looking-option" data-value="inversion"><i class="fas fa-chart-line"></i><span>💰 Inversión</span></div>
+            </div>
           </div>
-          <div>
-            <div class="section-header"><span class="section-title">Mis inscripciones</span></div>
-            <div id="myEnrollments"></div>
-            <div class="section-header" style="margin-top:20px"><span class="section-title">Mis logros</span></div>
-            <div id="myAchievements"></div>
-            <div class="section-header" style="margin-top:20px"><span class="section-title">Notificaciones</span></div>
-            <div id="myNotifications"></div>
+          
+          <div class="field-group"><label class="field-label">🔔 Preferencias de notificaciones</label>
+            <div class="checkbox-group"><input type="checkbox" id="profileReminders"> <label>Activar recordatorios de eventos</label></div>
+            <div class="checkbox-group"><input type="checkbox" id="profileEmailNotif"> <label>Recibir notificaciones por correo</label></div>
+            <div class="checkbox-group"><input type="checkbox" id="profileWpNotif"> <label>Recibir novedades de WordPress</label></div>
           </div>
+          
+          <div class="field-group"><label class="field-label">🎵 Sonido de alarma</label>
+            <select class="field-input" id="alarmSound">
+              <option value="bell">🔔 Campana</option>
+              <option value="alert">⚠️ Alerta</option>
+              <option value="chime">🎵 Melodía</option>
+              <option value="silent">🔇 Silencioso</option>
+            </select>
+          </div>
+          
+          <div class="field-group"><label class="field-label">⏰ Tiempo de anticipación</label>
+            <select class="field-input" id="alarmMinutes">
+              <option value="5">5 minutos antes</option>
+              <option value="15" selected>15 minutos antes</option>
+              <option value="30">30 minutos antes</option>
+              <option value="60">1 hora antes</option>
+              <option value="1440">1 día antes</option>
+            </select>
+          </div>
+          
+          <button class="btn btn-primary btn-full" onclick="saveProfile()"><i class="fas fa-save"></i> Guardar cambios</button>
+          <button class="btn btn-ghost btn-full" onclick="exportMyData()" style="margin-top:10px"><i class="fas fa-download"></i> Exportar mis datos</button>
         </div>
-      </div>
-    </div>
-
-    <!-- SOCIAL FEED -->
-    <div class="screen" id="s-social">
-      <div class="screen-inner">
-        <div class="section-header"><span class="section-title">Red Social Alumni</span><button class="btn btn-primary btn-sm" onclick="showNewPostForm()"><i class="fas fa-plus"></i> Publicar</button></div>
-        <div id="newPostForm" style="display:none">
-          <div class="card">
-            <textarea class="field-input" id="newPostContent" rows="3" placeholder="¿Qué quieres compartir?"></textarea>
-            <input type="file" id="newPostImage" accept="image/*" style="margin:8px 0">
-            <button class="btn btn-primary btn-sm" onclick="createSocialPost()">Publicar</button>
-          </div>
+        
+        <div>
+          <div class="section-header"><span class="section-title">🎟️ Mis inscripciones</span></div>
+          <div id="myEnrollments"></div>
+          <div class="section-header"><span class="section-title">🎓 Mis certificados</span></div>
+          <div id="myAchievements"></div>
+          <div class="section-header"><span class="section-title">🔔 Notificaciones recientes</span></div>
+          <div id="recentNotifications"></div>
+          <div class="section-header"><span class="section-title">👥 Mi red</span></div>
+          <div id="myNetwork"></div>
         </div>
-        <div id="socialFeed"></div>
       </div>
     </div>
 
     <!-- FORO -->
-    <div class="screen" id="s-forum">
-      <div class="screen-inner">
-        <div class="section-header"><span class="section-title">Foro de Discusión</span><button class="btn btn-primary btn-sm" onclick="showNewTopicForm()"><i class="fas fa-plus"></i> Nuevo tema</button></div>
-        <div id="newTopicForm" style="display:none">
-          <div class="card">
-            <input class="field-input" id="newTopicTitle" placeholder="Título del tema" style="margin-bottom:8px">
-            <textarea class="field-input" id="newTopicContent" rows="4" placeholder="Contenido..."></textarea>
-            <button class="btn btn-primary btn-sm" onclick="createTopic()">Crear tema</button>
-          </div>
-        </div>
-        <div id="forumTopics"></div>
-      </div>
+    <div class="screen" id="s-foro">
+      <div class="section-header"><span class="section-title">💬 Foro de Discusión</span><button class="btn btn-primary btn-sm" onclick="showNewTopicForm()"><i class="fas fa-plus"></i> Nuevo tema</button></div>
+      <div id="newTopicForm" style="display:none"><div class="card"><input class="field-input" id="newTopicTitle" placeholder="Título"><textarea class="field-input" id="newTopicContent" rows="4" placeholder="Contenido"></textarea><button class="btn btn-primary btn-sm" onclick="createTopic()">Crear tema</button></div></div>
+      <div id="forumTopics"></div>
     </div>
 
-    <!-- ADMIN -->
+     <!-- ADMIN -->
     <div class="screen" id="s-admin">
       <div class="screen-inner">
         <div class="quick-stats" id="adminStats"></div>
@@ -337,109 +371,89 @@
       </div>
     </div>
 
-    <!-- SEARCH -->
-    <div class="screen" id="s-search">
-      <div class="screen-inner">
-        <div class="search-wrap"><i class="fas fa-search"></i><input id="searchInput" placeholder="Buscar eventos, noticias, usuarios..."></div>
-        <div id="searchResults"></div>
+    <!-- BUSCADOR -->
+    <div class="screen" id="s-buscador">
+      <div class="search-wrap"><i class="fas fa-search"></i><input id="searchInput" placeholder="Buscar talks, grabaciones, noticias, usuarios..."></div>
+      <div id="searchResults"></div>
+    </div>
+  </div>
+  
+  <div class="bottom-nav" id="bottomNav"></div>
+  <div class="desktop-nav" id="desktopNav"></div>
+  
+  <!-- LOGIN -->
+  <div class="login-overlay" id="loginModal">
+    <div class="login-card">
+      <img src="./img/logo.jpeg" alt="Logo" width="80px">      
+      <div class="login-sub">Comunidad de Antiguos Alumnos</div>
+      <input class="login-input" id="loginEmail" placeholder="DNI o Email" value="12345678">
+      <input class="login-input" type="password" id="loginPass" placeholder="Contraseña" value="user123">
+      <button class="login-btn" id="doLogin">Iniciar sesión</button>
+      <div class="demo-hint">
+        <strong>🔐 Acceso:</strong><br>
+        👤 Usuario: 12345678 / user123<br>
+        👑 Admin: admin / admin123<br>
       </div>
     </div>
   </div>
 
-  <!-- CHAT WIDGET -->
-  <div class="live-chat-widget" id="chatWidget">
-    <div class="chat-bubble" onclick="toggleChat()"><i class="fas fa-comments"></i></div>
-    <div class="chat-window" id="chatWindow">
-      <div class="chat-header"><span>Chat en vivo</span><span onclick="toggleChat()" style="cursor:pointer;float:right">✕</span></div>
-      <div class="chat-messages" id="chatMessages"></div>
-      <div class="chat-input-area"><input class="field-input" id="chatInput" placeholder="Escribe..." style="flex:1"><button class="btn btn-primary btn-sm" onclick="sendChatMessage()">Enviar</button></div>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <div class="bottom-nav" id="bottomNav"></div>
-  <div class="desktop-nav" id="desktopNav"></div>
-
-  <!-- LOGIN MODAL -->
-  <div class="login-overlay" id="loginModal">
-    <div class="login-card">
-      <img src="img/logo.jpeg" alt="Logo" width="80" style="margin:0 auto 20px;display:block">
-      <div class="login-sub">Accede a tu cuenta</div>
-      <input class="login-input" id="loginDni" placeholder="DNI / Usuario">
-      <input class="login-input" type="password" id="loginPass" placeholder="Contraseña">
-      <button class="login-btn" id="doLogin">Iniciar sesión</button>
-      <button class="btn btn-ghost" style="width:100%" id="showRegisterBtn">Crear cuenta</button>
-      <div class="demo-hint"><strong>Demo:</strong><br>User: 12345678 / user123<br>Admin: admin / admin123</div>
-    </div>
-  </div>
-
-  <!-- REGISTER MODAL -->
-  <div class="login-overlay hidden" id="registerModal">
-    <div class="login-card">
-      <div class="login-title">Crear cuenta</div>
-      <input class="login-input" id="regDni" placeholder="DNI">
-      <input class="login-input" id="regName" placeholder="Nombre completo">
-      <input class="login-input" id="regEmail" placeholder="Email">
-      <input class="login-input" type="password" id="regPass" placeholder="Contraseña">
-      <button class="login-btn" id="doRegister">Registrarse</button>
-      <button class="btn btn-ghost" style="width:100%" id="hideRegisterBtn">← Volver</button>
-    </div>
-  </div>
-
-  <!-- TOAST -->
   <div class="toast" id="toast"></div>
+  
+  <!-- Modal para grabaciones -->
+  <div class="modal-bg" id="recordingModal">
+    <div class="modal-sheet">
+      <div class="modal-title">📹 Nueva grabación</div>
+      <div class="field-group"><input class="field-input" id="recTitle" placeholder="Título del Talk"></div>
+      <div class="field-group"><input class="field-input" id="recSpeaker" placeholder="Nombre del ponente"></div>
+      <div class="field-group"><textarea class="field-input" id="recDesc" rows="3" placeholder="Descripción"></textarea></div>
+      <div class="field-group"><input class="field-input" id="recUrl" placeholder="URL del video"></div>
+      <div class="field-group"><input type="date" id="recDate" class="field-input"></div>
+      <div class="modal-actions"><button class="modal-cancel" onclick="closeRecordingModal()">Cancelar</button><button class="modal-save" onclick="saveRecording()">Guardar</button></div>
+    </div>
+  </div>
 
-  <!-- CRUD MODAL -->
+  <!-- Modal para eventos -->
   <div class="modal-bg" id="crudModal">
     <div class="modal-sheet">
-      <div class="modal-title" id="modalTitle">Nuevo</div>
-      <div class="field-group"><label class="field-label">Título</label><input class="field-input" id="modalTitleInput"></div>
-      <div class="field-group"><label class="field-label">Descripción</label><textarea class="field-input" id="modalDesc" rows="3"></textarea></div>
-      <div class="field-group"><label class="field-label">Fecha</label><input class="field-input" type="date" id="modalDate"></div>
+      <div class="modal-title" id="modalTitle">Nuevo Alumni Talk</div>
+      <div class="field-group"><input class="field-input" id="modalTitleInput" placeholder="Título del Talk"></div>
+      <div class="field-group"><textarea class="field-input" id="modalDesc" rows="3" placeholder="Descripción"></textarea></div>
+      <div class="field-group"><input type="date" id="modalDate" class="field-input"></div>
       <div id="eventFields">
-        <div class="field-row"><div class="field-group"><label>Hora</label><input class="field-input" type="time" id="modalTime"></div><div class="field-group"><label>Plazas</label><input class="field-input" type="number" id="modalSpots" value="50"></div></div>
-        <div class="field-group"><label>Ubicación</label><input class="field-input" id="modalPlace"></div>
-        <div class="field-group"><label>Categoría</label><div class="cat-grid" id="catGrid"></div></div>
-        <div class="field-group"><label><input type="checkbox" id="modalHasSurvey"> Encuesta</label></div>
-        <div id="surveyFields" style="display:none"><div class="field-group"><label>Pregunta</label><input class="field-input" id="modalSurveyQuestion"></div><div class="field-group"><label>Opciones (coma)</label><input class="field-input" id="modalSurveyOptions"></div></div>
+        <div class="field-group"><input type="time" id="modalTime" class="field-input"></div>
+        <div class="field-group"><input id="modalPlace" class="field-input" placeholder="Ubicación / Link"></div>
+        <div class="field-group"><input type="number" id="modalSpots" class="field-input" placeholder="Plazas"></div>
         <div class="field-group"><label><input type="checkbox" id="modalGenerateCert"> Generar certificado</label></div>
       </div>
       <div class="modal-actions"><button class="modal-cancel" onclick="closeModal()">Cancelar</button><button class="modal-save" onclick="saveModal()">Guardar</button></div>
     </div>
   </div>
-
-  <!-- EVENT DETAIL MODAL -->
+  
+  <!-- Detalle de evento -->
   <div class="overlay-modal" id="eventDetailModal">
     <div class="overlay-card">
       <h3 id="detailTitle"></h3>
       <div class="plazas-big"><span id="detailSpots">0</span> / <span id="detailTotalSpots">0</span> plazas</div>
       <div class="detail-info" id="detailDateInfo"></div>
       <div class="detail-desc" id="detailDesc"></div>
-      <!-- Star rating -->
-      <div class="star-rating" id="starRating" style="margin:10px 0">
-        <span onclick="rateEvent(1)">☆</span><span onclick="rateEvent(2)">☆</span><span onclick="rateEvent(3)">☆</span><span onclick="rateEvent(4)">☆</span><span onclick="rateEvent(5)">☆</span>
-        <small id="ratingInfo"></small>
+      <div class="detail-actions">
+        <button onclick="closeEventDetail()">Cerrar</button>
+        <button id="detailEnrollBtn" onclick="enrollFromDetail()">Inscribirse</button>
+        <button class="btn btn-sm" style="background:#8b5cf6;color:white" onclick="setEventReminder()"><i class="fas fa-bell"></i> Recordar</button>
       </div>
-      <div id="detailSurvey"></div>
-      <!-- Comentarios -->
-      <div style="margin:10px 0"><h4>Comentarios</h4><div id="detailComments"></div><textarea class="field-input" id="detailCommentInput" rows="2" placeholder="Añade un comentario..."></textarea><button class="btn btn-sm btn-primary" onclick="addEventComment()" style="margin-top:5px">Comentar</button></div>
-      <!-- QR -->
-      <div class="qr-container" id="detailQr" style="display:none"></div>
-      <div class="detail-actions"><button onclick="closeEventDetail()">Cerrar</button><button id="detailEnrollBtn" onclick="enrollFromDetail()">Inscribirse</button><button class="btn btn-sm" style="background:#8b5cf6;color:white" onclick="showEventQR()">QR</button></div>
     </div>
   </div>
-
-  <!-- CERTIFICATE MODAL -->
+  
+  <!-- Certificado -->
   <div class="overlay-modal hidden" id="certificateModal">
     <div class="overlay-card">
-      <div class="certificate-preview">
-        <h2 style="font-family:'Sora',sans-serif;color:#92400e">CERTIFICADO</h2>
-        <p style="font-size:18px">Otorgado a</p>
-        <h3 id="certName" style="font-family:'Sora',sans-serif;font-size:24px"></h3>
+      <div class="certificate-preview" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:8px double #d97706;border-radius:16px;padding:30px;text-align:center;">
+        <h2>🎓 CERTIFICADO</h2>
+        <p>Otorgado a</p>
+        <h3 id="certName"></h3>
         <p>Por su participación en</p>
         <h4 id="certEvent"></h4>
-        <p id="certDate" style="margin-top:10px"></p>
-        <div class="certificate-stamp">VALIDO</div>
+        <div style="margin-top:20px;border-top:1px solid #d97706;padding-top:20px">AlumniTalks</div>
       </div>
       <div class="detail-actions"><button onclick="closeCertificateModal()">Cerrar</button><button class="btn btn-primary" onclick="downloadCertificate()">Descargar</button></div>
     </div>
@@ -447,176 +461,529 @@
 </div>
 
 <script>
-// ===== CONFIGURACIÓN =====
-const SUPABASE_URL = "https://hnquyvnghrqblxfunxix.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhucXV5dm5naHJxYmx4ZnVueGl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTcxMDgsImV4cCI6MjA5MzE5MzEwOH0.znIDuH5sIAAAqSr9WogkNEeDhADbvYSfRX9LF6F83z0";
-const WORDPRESS_WEBHOOK_URL = "https://tusitio.com/wp-json/custom/v1/webhook";
-
-const CATEGORIES = [
-    {id:'networking',label:'Networking'},{id:'formacion',label:'Formación'},
-    {id:'empleo',label:'Empleo'},{id:'cultura',label:'Cultura'},
-    {id:'deporte',label:'Deporte'},{id:'tecnologia',label:'Tecnología'}
-];
-
-// ===== ESTADO GLOBAL =====
-let eventos = [], noticias = [], currentUser = null;
-let feedFilter = 'recientes', currentDate = new Date();
-let currentDetailEvent = null, modalType = null, modalEditId = null;
-let notificationLog = [], selectedItems = new Set();
-let wpConfig = { siteUrl: '', webhookUrl: '', apiKey: '' };
-let advancedFiltersActive = false;
-
-// Gamificación
-let userXP = 0, userLevel = 1, userStreak = 0, userBadges = [];
-let lastLoginDate = null;
-const LEVELS = [
-    {level:1,xp:0,title:'Principiante'},
-    {level:2,xp:100,title:'Aprendiz'},
-    {level:3,xp:300,title:'Intermedio'},
-    {level:4,xp:600,title:'Avanzado'},
-    {level:5,xp:1000,title:'Experto'},
-    {level:6,xp:2000,title:'Maestro'},
-    {level:7,xp:5000,title:'Líder'},
-    {level:8,xp:10000,title:'Gurú'}
-];
-
-// Social
-let socialPosts = [];
+//Credenciales Supabase
+const SUPABASE_URL = 'https://hnquyvnghrqblxfunxix.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhucXV5dm5naHJxYmx4ZnVueGl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTcxMDgsImV4cCI6MjA5MzE5MzEwOH0.znIDuH5sIAAAqSr9WogkNEeDhADbvYSfRX9LF6F83z0';
+// ===== DATOS =====
+let eventos = [];
+let noticias = [];
+let grabaciones = [];
+let usuarios = [];
 let forumTopics = [];
-let chatMessages = [];
-let eventComments = {};
-let eventRatings = {};
-let userCertificates = [];
+let notificationLog = [];
+let currentUser = null;
+let feedFilter = 'proximos';
+let currentDate = new Date();
+let currentDetailEvent = null;
+let modalType = 'evento';
+let modalEditId = null;
+let alarmCheckerInterval = null;
 
-// ===== USUARIOS =====
-let users = [
-    {dni:'12345678',password:'user123',name:'Usuario Demo',role:'user',email:'user@demo.com',phone:'',linkedin:'',instagram:'',twitter:'',bio:'',lookingFor:'',reminders:true,emailNotif:false,wpUrl:'',alarmSound:'bell',alarmInterval:5,xp:0,streak:0,badges:[],certificates:[]},
-    {dni:'admin',password:'admin123',name:'Administrador',role:'admin',email:'admin@demo.com',phone:'',linkedin:'',instagram:'',twitter:'',bio:'',lookingFor:'',reminders:true,emailNotif:false,wpUrl:'',alarmSound:'bell',alarmInterval:5,xp:0,streak:0,badges:[],certificates:[]}
-];
-
-// ===== UTILIDADES =====
-function toast(m){ let t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
-function fmtDate(d){ return d ? new Date(d).toLocaleDateString('es-ES') : '—'; }
-function generateId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2); }
-
-// ===== GAMIFICACIÓN =====
-function calculateLevel(xp){
-    let level = LEVELS[0];
-    for(let l of LEVELS){ if(xp >= l.xp) level = l; }
-    return level;
+// ===== DATOS INICIALES =====
+function loadInitialData() {
+  eventos = [
+    { id: 1, title: '🎙️ AlumniTalk: Innovación en IA', description: 'Charlamos sobre las últimas tendencias en Inteligencia Artificial con expertos del sector', date: '2026-06-15', time: '18:00', place: 'Online (Zoom)', spots: 100, enrolled: ['12345678'], category: 'tecnologia', generateCert: true, speaker: 'Dra. María García' },
+    { id: 2, title: '🎙️ AlumniTalk: Liderazgo Femenino', description: 'Mujeres líderes comparten sus experiencias y consejos para crecer profesionalmente', date: '2026-06-20', time: '19:00', place: 'Auditorio Principal', spots: 80, enrolled: [], generateCert: true, speaker: 'Ana Rodríguez' },
+    { id: 3, title: '🎙️ AlumniTalk: Emprendimiento Digital', description: 'Cómo lanzar tu startup con éxito en el entorno digital actual', date: '2026-06-25', time: '17:00', place: 'Online', spots: 150, enrolled: [], generateCert: true, speaker: 'Carlos López' }
+  ];
+  
+  grabaciones = [
+    { id: 1, title: 'IA y el Futuro del Trabajo', speaker: 'Dr. Martínez', date: '2026-05-10', url: '#', desc: 'Una mirada al futuro laboral con IA', views: 234 },
+    { id: 2, title: 'Networking Efectivo', speaker: 'Laura Sánchez', date: '2026-05-05', url: '#', desc: 'Aprende a conectar con profesionales', views: 189 },
+    { id: 3, title: 'Marketing Digital para Profesionales', speaker: 'Javier Ruiz', date: '2026-04-28', url: '#', desc: 'Estrategias de marketing para tu carrera', views: 312 }
+  ];
+  
+  noticias = [
+    { id: 1, title: '🎉 Nuevo ciclo de AlumniTalks 2026', content: 'Iniciamos nueva temporada con ponentes increíbles', date: '2026-05-01', author: 'Admin' },
+    { id: 2, title: '📹 Grabaciones disponibles', content: 'Ya puedes acceder a todas las grabaciones anteriores', date: '2026-05-10', author: 'Admin' }
+  ];
+  
+  usuarios = [
+    { dni: '12345678', email: 'usuario@alumnitalks.com', name: 'Usuario Demo', password: 'user123', role: 'user', phone: '600000000', bio: 'Apasionado por la tecnología y el networking', linkedin: 'https://linkedin.com/in/usuario', instagram: 'https://instagram.com/usuario', twitter: 'https://twitter.com/usuario', github: 'https://github.com/usuario', lookingFor: 'networking', alarmSound: 'bell', alarmMinutes: 15, reminders: true, emailNotif: true, wpNotif: false, certificates: [], photo: null },
+    { dni: 'admin', email: 'admin@alumnitalks.com', name: 'Administrador', password: 'admin123', role: 'admin', phone: '600000001', bio: 'Administrador de la plataforma', linkedin: '', instagram: '', twitter: '', github: '', lookingFor: '', alarmSound: 'bell', alarmMinutes: 15, reminders: true, emailNotif: false, wpNotif: false, certificates: [], photo: null }
+  ];
+  
+  forumTopics = [
+    { id: 1, title: '¡Bienvenidos a AlumniTalks!', content: 'Presentaos y compartid vuestras experiencias profesionales', author: 'Admin', date: new Date().toISOString(), replies: [] }
+  ];
 }
 
-function addXP(amount, reason){
-    if(!currentUser) return;
-    userXP += amount;
-    const level = calculateLevel(userXP);
-    if(level.level > userLevel){
-        userLevel = level.level;
-        toast(`🎉 ¡Subiste al nivel ${level.level}: ${level.title}!`);
-        if(level.level >= 3 && !userBadges.includes('intermediate')) userBadges.push('intermediate');
-        if(level.level >= 5 && !userBadges.includes('advanced')) userBadges.push('advanced');
+// ===== FUNCIONES DE UTILIDAD =====
+function toast(m) { let t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString('es-ES') : '—'; }
+function generateId() { return Date.now(); }
+function downloadFile(content, filename, mime) { const blob = new Blob([content], { type: mime }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href); }
+
+// ===== SISTEMA DE ALARMAS =====
+function playAlarmSound(type) {
+  const sound = type || currentUser?.alarmSound || 'bell';
+  if (sound === 'bell' || sound === 'alert') {
+    for(let i=0;i<2;i++){ setTimeout(()=>{ try{ new Audio().play().catch(e=>{}) }catch(e){} }, i*300); }
+  }
+  if ('vibrate' in navigator) navigator.vibrate([500,200,500]);
+}
+
+function showEmergencyAlarm(event) {
+  const alarmDiv = document.createElement('div');
+  alarmDiv.className = 'emergency-alarm';
+  alarmDiv.innerHTML = `
+    <div style="font-size:48px;margin-bottom:15px">🔔</div>
+    <div style="font-size:18px;font-weight:bold;margin-bottom:10px">¡RECORDATORIO!</div>
+    <h3>${event.title}</h3>
+    <p>Comienza en menos de ${currentUser?.alarmMinutes || 15} minutos</p>
+    <p>📍 ${event.place} | ⏰ ${event.time}h</p>
+    <div class="alarm-buttons">
+      <button class="alarm-btn alarm-btn-primary" onclick="openEventDetail(${event.id});this.closest('.emergency-alarm').remove()">Ver evento</button>
+      <button class="alarm-btn" onclick="this.closest('.emergency-alarm').remove()">Cerrar</button>
+    </div>
+  `;
+  document.body.appendChild(alarmDiv);
+  playAlarmSound();
+  
+  notificationLog.unshift({ id: Date.now(), title: event.title, message: `¡Comienza en ${currentUser?.alarmMinutes || 15} minutos!`, date: new Date().toISOString(), read: false });
+  updateNotificationBadge();
+  
+  setTimeout(() => { if(alarmDiv.parentElement) alarmDiv.remove(); }, 30000);
+  
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(`🔔 ${event.title}`, { body: `Comienza en ${currentUser?.alarmMinutes || 15} minutos` });
+  }
+}
+
+function checkEventReminders() {
+  if (!currentUser || !currentUser.reminders) return;
+  const now = new Date();
+  eventos.forEach(event => {
+    if (event.enrolled && event.enrolled.includes(currentUser.dni)) {
+      const eventDate = new Date(`${event.date}T${event.time}:00`);
+      const diffMinutes = Math.floor((eventDate - now) / (1000 * 60));
+      const alarmMinutes = parseInt(currentUser.alarmMinutes) || 15;
+      
+      if (diffMinutes <= alarmMinutes && diffMinutes > 0 && !event.alarmTriggered) {
+        event.alarmTriggered = true;
+        showEmergencyAlarm(event);
+      }
+      
+      const diffDays = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+      if (diffDays === 1 && !event.dayBeforeTriggered) {
+        event.dayBeforeTriggered = true;
+        toast(`📅 Recordatorio: "${event.title}" es MAÑANA a las ${event.time}h`);
+        notificationLog.unshift({ id: Date.now(), title: event.title, message: `Es mañana a las ${event.time}h`, date: new Date().toISOString(), read: false });
+        updateNotificationBadge();
+      }
     }
-    const nextLevel = LEVELS.find(l => l.level === userLevel + 1) || LEVELS[LEVELS.length-1];
-    const progress = nextLevel ? ((userXP - level.xp) / (nextLevel.xp - level.xp) * 100) : 100;
-    document.getElementById('xpProgressBar').style.width = Math.min(progress, 100) + '%';
-    document.getElementById('userPoints').textContent = userXP;
-    document.getElementById('userLevel').textContent = 'Nivel ' + userLevel;
-    document.getElementById('userTitle').textContent = level.title;
-    document.getElementById('userBadges').textContent = userBadges.length;
-    currentUser.xp = userXP;
-    currentUser.streak = userStreak;
-    currentUser.badges = userBadges;
+  });
 }
 
-function checkStreak(){
-    const today = new Date().toDateString();
-    if(lastLoginDate && lastLoginDate !== today){
-        const yesterday = new Date(Date.now() - 86400000).toDateString();
-        if(lastLoginDate === yesterday) userStreak++;
-        else userStreak = 1;
-    } else if(!lastLoginDate) userStreak = 1;
-    lastLoginDate = today;
-    document.getElementById('userStreak').textContent = userStreak;
-    if(userStreak === 7 && !userBadges.includes('week-streak')){ userBadges.push('week-streak'); toast('🔥 ¡Racha de 7 días! Nueva insignia'); }
-    if(userStreak === 30 && !userBadges.includes('month-streak')){ userBadges.push('month-streak'); toast('🔥 ¡Racha de 30 días! Nueva insignia'); }
+function setEventReminder() {
+  if (!currentDetailEvent) return;
+  const minutes = prompt('¿Cuántos minutos antes quieres el recordatorio? (5, 15, 30, 60, 1440)', currentUser?.alarmMinutes || 15);
+  if (minutes && !isNaN(minutes)) {
+    currentUser.alarmMinutes = parseInt(minutes);
+    saveProfile();
+    toast(`⏰ Recordatorio configurado: ${minutes} minutos antes`);
+  }
 }
 
-function updateGamificationUI(){
-    if(!currentUser) { document.getElementById('gamificationBar').style.display = 'none'; return; }
-    document.getElementById('gamificationBar').style.display = 'block';
-    userXP = currentUser.xp || 0;
-    userLevel = currentUser.xp ? calculateLevel(currentUser.xp).level : 1;
-    userStreak = currentUser.streak || 0;
-    userBadges = currentUser.badges || [];
-    const level = calculateLevel(userXP);
-    const nextLevel = LEVELS.find(l => l.level === userLevel + 1) || LEVELS[LEVELS.length-1];
-    const progress = nextLevel ? ((userXP - level.xp) / (nextLevel.xp - level.xp) * 100) : 100;
-    document.getElementById('xpProgressBar').style.width = Math.min(progress, 100) + '%';
-    document.getElementById('userPoints').textContent = userXP;
-    document.getElementById('userLevel').textContent = 'Nivel ' + userLevel;
-    document.getElementById('userTitle').textContent = level.title;
-    document.getElementById('userStreak').textContent = userStreak;
-    document.getElementById('userBadges').textContent = userBadges.length;
+function showNotifications() {
+  const notifList = notificationLog.slice(0, 20).map(n => 
+    `<div class="card" style="cursor:pointer" onclick="markNotificationRead('${n.id}')">
+      <div class="item-title">${n.read ? '📖' : '🔵'} ${n.title}</div>
+      <div class="item-meta">${new Date(n.date).toLocaleString()}</div>
+      <div class="item-desc">${n.message}</div>
+    </div>`
+  ).join('');
+  
+  const modal = document.createElement('div');
+  modal.className = 'overlay-modal open';
+  modal.innerHTML = `<div class="overlay-card"><h3>🔔 Notificaciones</h3>${notifList || '<div class="empty">No hay notificaciones</div>'}<div class="detail-actions"><button onclick="this.closest(\'.overlay-modal\').remove()">Cerrar</button></div></div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => { notificationLog.forEach(n => n.read = true); updateNotificationBadge(); }, 100);
 }
 
-// ===== NOTIFICACIONES Y ALARMAS =====
-function playAlarmSound(type){
-    const sound = type || (currentUser?.alarmSound || 'bell');
-    if(sound === 'bell'){ for(let i=0;i<3;i++){ setTimeout(()=>{ new Audio('data:audio/wav;base64,U3RlYWx0aCB3YXZlIGZpbGU=').play().catch(e=>{}) }, i*500); } }
-    else if(sound === 'chime'){ new Audio('data:audio/wav;base64,U3RlYWx0aCB3YXZlIGZpbGU=').play().catch(e=>{}); }
-    if('vibrate' in navigator) navigator.vibrate(500);
+function markNotificationRead(id) {
+  const notif = notificationLog.find(n => n.id == id);
+  if (notif) notif.read = true;
+  updateNotificationBadge();
 }
 
-function showEmergencyAlarm(event){
-    const alarmDiv = document.createElement('div');
-    alarmDiv.className = 'emergency-alarm';
-    alarmDiv.innerHTML = `<i class="fas fa-bell" style="font-size:48px;margin-bottom:15px"></i><h2>¡ALERTA!</h2><h3>${event.title}</h3><p>Comienza en menos de ${currentUser?.alarmInterval||5} minutos</p><p>📍 ${event.place} | ⏰ ${event.time}h</p><div class="alarm-buttons"><button class="alarm-btn alarm-btn-primary" onclick="window.openEventDetail(${event.id});this.parentElement.parentElement.remove()">Ver</button><button class="alarm-btn alarm-btn-secondary" onclick="this.parentElement.parentElement.remove()">Cerrar</button></div>`;
-    document.body.appendChild(alarmDiv);
-    playAlarmSound();
-    setTimeout(()=>{ if(alarmDiv.parentElement) alarmDiv.remove() }, 30000);
-    notificationLog.unshift({title:event.title,message:`Comienza en ${currentUser?.alarmInterval||5} min`,date:new Date().toISOString(),type:'alarm',read:false});
-    if(notificationLog.length>50) notificationLog.pop();
+function updateNotificationBadge() {
+  const unread = notificationLog.filter(n => !n.read).length;
+  document.getElementById('badgeDot').style.display = unread > 0 ? 'block' : 'none';
+  document.getElementById('notificationBadge').style.display = currentUser ? 'block' : 'none';
+}
+
+// ===== FUNCIONES PRINCIPALES =====
+function buildEventCard(ev) {
+  const isEnrolled = currentUser && ev.enrolled?.includes(currentUser.dni);
+  const spotsLeft = Math.max(0, ev.spots - (ev.enrolled?.length || 0));
+  return `<div class="card ${isEnrolled ? 'card-green' : 'card-amber'}" onclick="openEventDetail(${ev.id})">
+    <div class="chip-row">
+      <span class="chip ${isEnrolled ? 'chip-green' : 'chip-amber'}">${isEnrolled ? '✅ Inscrito' : '🎙️ Disponible'}</span>
+      <span class="chip chip-purple">🎤 ${ev.speaker || 'Ponente invitado'}</span>
+    </div>
+    <div class="item-title">${ev.title}</div>
+    <div class="item-meta"><span>📅 ${fmtDate(ev.date)} · ${ev.time}h</span><span>📍 ${ev.place}</span><span>🎟️ ${spotsLeft}/${ev.spots}</span></div>
+    <div class="item-desc">${ev.description?.substring(0, 100) || ''}${ev.description?.length > 100 ? '...' : ''}</div>
+    <div class="btn-row" onclick="event.stopPropagation()">
+      <button class="btn ${isEnrolled ? 'btn-ghost' : 'btn-primary'} btn-sm" onclick="toggleEnroll(${ev.id})">${isEnrolled ? 'Cancelar' : 'Inscribirse'}</button>
+    </div>
+  </div>`;
+}
+
+function buildRecordingCard(rec) {
+  return `<div class="video-card" onclick="window.open('${rec.url}', '_blank')">
+    <div class="video-thumb"><i class="fas fa-play-circle"></i></div>
+    <div class="video-info">
+      <div class="item-title">${rec.title}</div>
+      <div class="item-meta">🎤 ${rec.speaker} · ${fmtDate(rec.date)} · 👁️ ${rec.views || 0} vistas</div>
+      <div class="item-desc">${rec.desc?.substring(0, 80) || ''}</div>
+    </div>
+  </div>`;
+}
+
+function buildNewsCard(n) {
+  return `<div class="card card-blue">
+    <div class="chip">📰 Noticia</div>
+    <div class="item-title">${n.title}</div>
+    <div class="item-meta">${fmtDate(n.date)} · ${n.author}</div>
+    <div class="item-desc">${n.content?.substring(0, 120) || ''}</div>
+  </div>`;
+}
+
+async function toggleEnroll(id) {
+  if (!currentUser) { toast('Inicia sesión primero'); return; }
+  const ev = eventos.find(e => e.id === id);
+  if (!ev) return;
+  if (!ev.enrolled) ev.enrolled = [];
+  const idx = ev.enrolled.indexOf(currentUser.dni);
+  
+  if (idx !== -1) {
+    ev.enrolled.splice(idx, 1);
+    toast('Cancelaste la inscripción');
+  } else {
+    if (ev.enrolled.length >= ev.spots) { toast('No hay plazas disponibles'); return; }
+    ev.enrolled.push(currentUser.dni);
+    if (ev.generateCert) {
+      currentUser.certificates = currentUser.certificates || [];
+      currentUser.certificates.push({ eventTitle: ev.title, date: fmtDate(ev.date) });
+      toast('🎓 ¡Certificado generado!');
+    }
+    toast('¡Te has inscrito correctamente!');
+    notificationLog.unshift({ id: Date.now(), title: ev.title, message: 'Te has inscrito correctamente', date: new Date().toISOString(), read: false });
     updateNotificationBadge();
+  }
+  refreshAll();
 }
 
-async function requestPushPermission(){
-    if(!('Notification' in window)){ toast('No soporta notificaciones'); return; }
-    const permission = await Notification.requestPermission();
-    if(permission==='granted'){ toast('Notificaciones activadas'); if('serviceWorker' in navigator){ try{await navigator.serviceWorker.register('/sw.js')}catch(e){}} }
-    else toast('Permiso denegado');
+function openEventDetail(id) {
+  currentDetailEvent = eventos.find(e => e.id === id);
+  if (!currentDetailEvent) return;
+  const isEnrolled = currentUser && currentDetailEvent.enrolled?.includes(currentUser.dni);
+  const spotsLeft = Math.max(0, currentDetailEvent.spots - (currentDetailEvent.enrolled?.length || 0));
+  document.getElementById('detailTitle').textContent = currentDetailEvent.title;
+  document.getElementById('detailDateInfo').innerHTML = `${fmtDate(currentDetailEvent.date)} · ${currentDetailEvent.time}h<br>📍 ${currentDetailEvent.place}<br>🎤 Ponente: ${currentDetailEvent.speaker || 'Invitado especial'}`;
+  document.getElementById('detailDesc').textContent = currentDetailEvent.description || '';
+  document.getElementById('detailSpots').textContent = spotsLeft;
+  document.getElementById('detailTotalSpots').textContent = currentDetailEvent.spots;
+  const btn = document.getElementById('detailEnrollBtn');
+  btn.textContent = isEnrolled ? 'Cancelar inscripción' : 'Inscribirse';
+  btn.style.background = isEnrolled ? '#ef4444' : '#1e40af';
+  document.getElementById('eventDetailModal').classList.add('open');
 }
 
-function showNotification(title,body,eventId){
-    if('Notification' in window && Notification.permission==='granted'){ const n=new Notification(title,{body:body,icon:'img/logo.jpeg'}); n.onclick=()=>{window.openEventDetail(eventId)} }
-    toast(body);
-    notificationLog.unshift({title,message:body,date:new Date().toISOString(),type:'push',read:false});
-    if(notificationLog.length>50) notificationLog.pop();
-    updateNotificationBadge();
+function closeEventDetail() { document.getElementById('eventDetailModal').classList.remove('open'); currentDetailEvent = null; }
+function enrollFromDetail() { if (currentDetailEvent) { toggleEnroll(currentDetailEvent.id); closeEventDetail(); } }
+
+// ===== FORO =====
+function showNewTopicForm() { document.getElementById('newTopicForm').style.display = 'block'; }
+function createTopic() { const title = document.getElementById('newTopicTitle').value.trim(); const content = document.getElementById('newTopicContent').value.trim(); if (!title || !content) { toast('Completa los campos'); return; } forumTopics.unshift({ id: generateId(), title, content, author: currentUser.name, date: new Date().toISOString(), replies: [] }); document.getElementById('newTopicTitle').value = ''; document.getElementById('newTopicContent').value = ''; document.getElementById('newTopicForm').style.display = 'none'; renderForum(); toast('Tema creado'); }
+function replyTopic(topicId) { const reply = prompt('Tu respuesta:'); if (!reply) return; const topic = forumTopics.find(t => t.id === topicId); if (topic) { topic.replies.push({ author: currentUser.name, content: reply, date: new Date().toISOString() }); renderForum(); toast('Respuesta añadida'); } }
+function renderForum() { document.getElementById('forumTopics').innerHTML = forumTopics.map(t => `<div class="card"><div class="item-title">${t.title}</div><div class="item-meta">${t.author} · ${new Date(t.date).toLocaleString()} · ${t.replies.length} respuestas</div><div class="item-desc">${t.content}</div>${t.replies.map(r => `<div style="background:#f1f5f9;border-radius:8px;padding:10px;margin:6px 0;border-left:3px solid #3b82f6;"><strong>${r.author}</strong>: ${r.content}<br><small>${new Date(r.date).toLocaleString()}</small></div>`).join('')}<button class="btn btn-ghost btn-sm" onclick="replyTopic('${t.id}')">Responder</button></div>`).join('') || '<div class="empty">No hay temas</div>'; }
+
+// ===== GRABACIONES =====
+function renderRecordings() {
+  document.getElementById('recordingsList').innerHTML = grabaciones.map(buildRecordingCard).join('') || '<div class="empty">No hay grabaciones disponibles</div>';
+  document.getElementById('homeRecordings').innerHTML = grabaciones.slice(0, 3).map(buildRecordingCard).join('') || '<div class="empty">No hay grabaciones</div>';
 }
 
-function updateNotificationBadge(){
-    const unread = notificationLog.filter(n=>!n.read).length;
-    document.getElementById('notificationBadge').style.display = currentUser ? 'block' : 'none';
-    document.getElementById('badgeDot').style.display = unread>0 ? 'block' : 'none';
+function openAddRecordingModal() {
+  document.getElementById('recTitle').value = '';
+  document.getElementById('recSpeaker').value = '';
+  document.getElementById('recDesc').value = '';
+  document.getElementById('recUrl').value = '';
+  document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('recordingModal').classList.add('open');
 }
 
-function checkEventReminders(){
-    if(!currentUser||!currentUser.reminders) return;
-    const now = new Date();
-    eventos.forEach(e=>{
-        if(!e.enrolled) e.enrolled=[];
-        if(e.enrolled.includes(currentUser.dni)){
-            const evDate = new Date(`${e.date}T${e.time}:00`);
-            const diffMs = evDate - now;
-            const diffMinutes = Math.floor(diffMs/(1000*60));
-            const alarmInterval = currentUser.alarmInterval||5;
-            if(diffMinutes<=alarmInterval && diffMinutes>0 && !e.alarmTriggered){ e.alarmTriggered=true; showEmergencyAlarm(e); showNotification(`🔔 ${e.title}`,`Comienza en ${alarmInterval} min`,e.id); }
-            const diffDays = Math.ceil(diffMs/(1000*60*60*24));
-            if(diffDays===1&&!e.reminded1day){ e.reminded1day=true; showNotification(`📅 ${e.title}`,`Es MAÑANA a las ${e.time}h`,e.id) }
-            if(diffDays===0&&!e.remindedToday&&diffMinutes>60){ e.remindedToday=true; showNotification(`🔔 ${e.title}`,`Es HOY a las ${e.time}h`,e.id) }
-        }
-    });
+function closeRecordingModal() { document.getElementById('recordingModal').classList.remove('open'); }
+
+function saveRecording() {
+  const title = document.getElementById('recTitle').value.trim();
+  const speaker = document.getElementById('recSpeaker').value.trim();
+  const desc = document.getElementById('recDesc').value.trim();
+  const url = document.getElementById('recUrl').value.trim();
+  const date = document.getElementById('recDate').value;
+  
+  if (!title || !speaker || !url) { toast('Completa los campos obligatorios'); return; }
+  
+  grabaciones.unshift({ id: generateId(), title, speaker, date, url, desc, views: 0 });
+  closeRecordingModal();
+  renderRecordings();
+  if (currentUser?.role === 'admin') renderAdmin();
+  toast('📹 Grabación añadida');
 }
+
+function deleteRecording(id) {
+  if (confirm('¿Eliminar esta grabación?')) {
+    grabaciones = grabaciones.filter(g => g.id !== id);
+    renderRecordings();
+    if (currentUser?.role === 'admin') renderAdmin();
+    toast('Grabación eliminada');
+  }
+}
+
+// ===== PERFIL COMPLETO =====
+function renderProfile() {
+  if (!currentUser) return;
+  
+  document.getElementById('profileName').value = currentUser.name || '';
+  document.getElementById('profileEmail').value = currentUser.email || '';
+  document.getElementById('profilePhone').value = currentUser.phone || '';
+  document.getElementById('profileBio').value = currentUser.bio || '';
+  document.getElementById('profileLinkedin').value = currentUser.linkedin || '';
+  document.getElementById('profileInstagram').value = currentUser.instagram || '';
+  document.getElementById('profileTwitter').value = currentUser.twitter || '';
+  document.getElementById('profileGithub').value = currentUser.github || '';
+  document.getElementById('profileReminders').checked = currentUser.reminders !== false;
+  document.getElementById('profileEmailNotif').checked = currentUser.emailNotif || false;
+  document.getElementById('profileWpNotif').checked = currentUser.wpNotif || false;
+  document.getElementById('alarmSound').value = currentUser.alarmSound || 'bell';
+  document.getElementById('alarmMinutes').value = currentUser.alarmMinutes || 15;
+  
+  // Looking for selector
+  document.querySelectorAll('.looking-option').forEach(opt => {
+    if (opt.dataset.value === currentUser.lookingFor) {
+      opt.classList.add('selected');
+    } else {
+      opt.classList.remove('selected');
+    }
+    opt.onclick = () => {
+      document.querySelectorAll('.looking-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      currentUser.lookingFor = opt.dataset.value;
+    };
+  });
+  
+  const avatar = document.getElementById('profileAvatar');
+  if (currentUser.photo) {
+    avatar.style.backgroundImage = `url(${currentUser.photo})`;
+    avatar.style.backgroundSize = 'cover';
+    avatar.textContent = '';
+  } else {
+    avatar.style.backgroundImage = 'none';
+    avatar.textContent = currentUser.name?.charAt(0).toUpperCase() || 'U';
+  }
+  
+  const myEvents = eventos.filter(e => e.enrolled?.includes(currentUser.dni));
+  document.getElementById('myEnrollments').innerHTML = myEvents.length ? myEvents.map(ev => `<div class="card card-green"><div class="item-title">${ev.title}</div><div class="item-meta">${fmtDate(ev.date)} · ${ev.place}</div><button class="btn btn-ghost btn-sm" onclick="toggleEnroll(${ev.id})">Cancelar</button></div>`).join('') : '<div class="empty">Sin inscripciones</div>';
+  
+  document.getElementById('myAchievements').innerHTML = `<div class="stat-mini"><div class="stat-mini-number">${currentUser.certificates?.length || 0}</div><div class="stat-mini-label">Certificados obtenidos</div></div>`;
+  
+  document.getElementById('recentNotifications').innerHTML = notificationLog.slice(0, 5).map(n => `<div class="card"><div class="item-title">${n.title}</div><div class="item-meta">${new Date(n.date).toLocaleString()}</div><div class="item-desc">${n.message}</div></div>`).join('') || '<div class="empty">Sin notificaciones</div>';
+  
+  // Red de contactos similares (basado en lookingFor)
+  const similarUsers = usuarios.filter(u => u.dni !== currentUser.dni && u.lookingFor === currentUser.lookingFor && u.lookingFor);
+  document.getElementById('myNetwork').innerHTML = similarUsers.length ? similarUsers.map(u => `<div class="card card-purple"><div class="item-title">${u.name}</div><div class="item-meta">${u.lookingFor ? '🎯 ' + u.lookingFor : ''} ${u.bio ? '· ' + u.bio.substring(0, 50) : ''}</div><button class="btn btn-primary btn-sm" onclick="toast('🔗 Conectando con ${u.name}...')">Conectar</button></div>`).join('') : '<div class="empty">No hay contactos similares aún</div>';
+}
+
+function saveProfile() {
+  if (!currentUser) return;
+  
+  currentUser.name = document.getElementById('profileName').value;
+  currentUser.email = document.getElementById('profileEmail').value;
+  currentUser.phone = document.getElementById('profilePhone').value;
+  currentUser.bio = document.getElementById('profileBio').value;
+  currentUser.linkedin = document.getElementById('profileLinkedin').value;
+  currentUser.instagram = document.getElementById('profileInstagram').value;
+  currentUser.twitter = document.getElementById('profileTwitter').value;
+  currentUser.github = document.getElementById('profileGithub').value;
+  currentUser.reminders = document.getElementById('profileReminders').checked;
+  currentUser.emailNotif = document.getElementById('profileEmailNotif').checked;
+  currentUser.wpNotif = document.getElementById('profileWpNotif').checked;
+  currentUser.alarmSound = document.getElementById('alarmSound').value;
+  currentUser.alarmMinutes = parseInt(document.getElementById('alarmMinutes').value);
+  
+  const selectedLooking = document.querySelector('.looking-option.selected');
+  if (selectedLooking) currentUser.lookingFor = selectedLooking.dataset.value;
+  
+  const idx = usuarios.findIndex(u => u.dni === currentUser.dni);
+  if (idx !== -1) usuarios[idx] = currentUser;
+  
+  updateHeader();
+  toast('✅ Perfil actualizado correctamente');
+}
+
+function handleProfilePhoto(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      if (currentUser) {
+        currentUser.photo = e.target.result;
+        saveProfile();
+        renderProfile();
+        toast('📸 Foto de perfil actualizada');
+      }
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function exportMyData() {
+  const myData = {
+    usuario: {
+      nombre: currentUser.name,
+      email: currentUser.email,
+      telefono: currentUser.phone,
+      bio: currentUser.bio,
+      redes: { linkedin: currentUser.linkedin, instagram: currentUser.instagram, twitter: currentUser.twitter, github: currentUser.github },
+      buscando: currentUser.lookingFor,
+      certificados: currentUser.certificates
+    },
+    inscripciones: eventos.filter(e => e.enrolled?.includes(currentUser.dni)).map(e => ({ titulo: e.title, fecha: e.date })),
+    notificaciones: notificationLog
+  };
+  downloadFile(JSON.stringify(myData, null, 2), 'mis_datos_alumnitalks.json', 'application/json');
+  toast('📥 Datos exportados');
+}
+
+// ===== RENDERIZADO =====
+function renderHome() {
+  if (!currentUser) return;
+  document.getElementById('heroName').textContent = `¡Hola, ${currentUser.name?.split(' ')[0] || 'Usuario'}!`;
+  const myCount = eventos.filter(e => e.enrolled?.includes(currentUser.dni)).length;
+  document.getElementById('quickStats').innerHTML = `
+    <div class="stat-mini" onclick="goScreen('eventos')"><div class="stat-mini-number">${eventos.length}</div><div class="stat-mini-label">🎙️ Alumni Talks</div></div>
+    <div class="stat-mini" onclick="goScreen('grabaciones')"><div class="stat-mini-number">${grabaciones.length}</div><div class="stat-mini-label">📹 Grabaciones</div></div>
+    <div class="stat-mini" onclick="goScreen('perfil')"><div class="stat-mini-number">${myCount}</div><div class="stat-mini-label">Mis inscripciones</div></div>
+  `;
+  const proximos = eventos.filter(e => new Date(e.date) >= new Date()).slice(0, 3);
+  document.getElementById('homeEvents').innerHTML = proximos.length ? proximos.map(buildEventCard).join('') : '<div class="empty">No hay próximos talks</div>';
+  const recientes = [...noticias].reverse().slice(0, 3);
+  document.getElementById('homeNews').innerHTML = recientes.length ? recientes.map(buildNewsCard).join('') : '<div class="empty">No hay noticias</div>';
+  renderRecordings();
+}
+
+function renderFeed() {
+  let items = feedFilter === 'proximos' ? eventos.filter(e => new Date(e.date) >= new Date()) : eventos.filter(e => new Date(e.date) < new Date());
+  document.getElementById('feedList').innerHTML = items.length ? items.map(buildEventCard).join('') : '<div class="empty">No hay resultados</div>';
+}
+
+function renderCalendar() {
+  const y = currentDate.getFullYear(), m = currentDate.getMonth();
+  document.getElementById('calMonthYear').textContent = `${currentDate.toLocaleString('es', { month: 'long' })} ${y}`;
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  let html = '';
+  const today = new Date();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dayEvents = eventos.filter(e => e.date === ds);
+    let cls = 'cal-day';
+    if (dayEvents.length) {
+      const enrolled = dayEvents.some(ev => ev.enrolled?.includes(currentUser?.dni));
+      cls += enrolled ? ' cal-day-enrolled' : ' cal-day-available';
+    }
+    if (d === today.getDate() && m === today.getMonth() && y === today.getFullYear()) cls += ' cal-day-today';
+    html += `<div class="${cls}" onclick="openDateEvents('${ds}')">${d}</div>`;
+  }
+  document.getElementById('daysGrid').innerHTML = html;
+  document.getElementById('calendarEventList').innerHTML = eventos.map(buildEventCard).join('');
+}
+
+function openDateEvents(date) { const evs = eventos.filter(e => e.date === date); if (evs.length === 1) openEventDetail(evs[0].id); else if (evs.length > 1) toast(`${evs.length} eventos ese día`); }
+
+function renderAdmin() {
+  if (!currentUser || currentUser.role !== 'admin') return;
+  document.getElementById('adminStats').innerHTML = `<div class="stat-mini"><div class="stat-mini-number">${eventos.length}</div><div class="stat-mini-label">Alumni Talks</div></div><div class="stat-mini"><div class="stat-mini-number">${grabaciones.length}</div><div class="stat-mini-label">Grabaciones</div></div><div class="stat-mini"><div class="stat-mini-number">${noticias.length}</div><div class="stat-mini-label">Noticias</div></div><div class="stat-mini"><div class="stat-mini-number">${usuarios.length}</div><div class="stat-mini-label">Usuarios</div></div>`;
+  
+  document.getElementById('adminEvents').innerHTML = eventos.map(e => `<div class="admin-row"><div><strong>${e.title}</strong><br><small>${fmtDate(e.date)} · ${e.enrolled?.length || 0}/${e.spots}</small></div><div><button class="icon-btn" onclick="editEvent(${e.id})"><i class="fas fa-edit"></i></button><button class="icon-btn danger" onclick="deleteEvent(${e.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
+  document.getElementById('adminGrabaciones').innerHTML = grabaciones.map(g => `<div class="admin-row"><div><strong>${g.title}</strong><br><small>🎤 ${g.speaker} · ${fmtDate(g.date)}</small></div><div><button class="icon-btn danger" onclick="deleteRecording(${g.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
+  document.getElementById('adminNews').innerHTML = noticias.map(n => `<div class="admin-row"><div><strong>${n.title}</strong><br><small>${fmtDate(n.date)}</small></div><div><button class="icon-btn" onclick="editNews(${n.id})"><i class="fas fa-edit"></i></button><button class="icon-btn danger" onclick="deleteNews(${n.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
+  document.getElementById('adminUsers').innerHTML = usuarios.map(u => `<div class="admin-row"><div><strong>${u.name}</strong><br><small>${u.dni} · ${u.role} · ${u.lookingFor ? '🎯 ' + u.lookingFor : ''}</small></div><div><button class="icon-btn" onclick="toggleRole('${u.dni}')"><i class="fas fa-user-tag"></i></button></div></div>`).join('');
+}
+
+function toggleRole(dni) { const u = usuarios.find(u => u.dni === dni); if (u) { u.role = u.role === 'admin' ? 'user' : 'admin'; renderAdmin(); toast(`Rol cambiado a: ${u.role}`); } }
+
+// ===== CRUD =====
+function openCreateModal() { modalType = 'evento'; modalEditId = null; document.getElementById('modalTitle').textContent = 'Nuevo Alumni Talk'; document.getElementById('modalTitleInput').value = ''; document.getElementById('modalDesc').value = ''; document.getElementById('modalDate').value = ''; document.getElementById('modalTime').value = '18:00'; document.getElementById('modalPlace').value = ''; document.getElementById('modalSpots').value = '100'; document.getElementById('modalGenerateCert').checked = true; document.getElementById('crudModal').classList.add('open'); }
+function editEvent(id) { const ev = eventos.find(e => e.id === id); if (ev) { modalType = 'evento'; modalEditId = id; document.getElementById('modalTitle').textContent = 'Editar Talk'; document.getElementById('modalTitleInput').value = ev.title; document.getElementById('modalDesc').value = ev.description; document.getElementById('modalDate').value = ev.date; document.getElementById('modalTime').value = ev.time; document.getElementById('modalPlace').value = ev.place; document.getElementById('modalSpots').value = ev.spots; document.getElementById('modalGenerateCert').checked = ev.generateCert || false; document.getElementById('crudModal').classList.add('open'); } }
+function editNews(id) { const n = noticias.find(n => n.id === id); if (n) { modalType = 'noticia'; modalEditId = id; document.getElementById('modalTitle').textContent = 'Editar noticia'; document.getElementById('modalTitleInput').value = n.title; document.getElementById('modalDesc').value = n.content; document.getElementById('modalDate').value = n.date; document.getElementById('crudModal').classList.add('open'); } }
+function deleteEvent(id) { if (confirm('¿Eliminar este talk?')) { eventos = eventos.filter(e => e.id !== id); refreshAll(); toast('Talk eliminado'); } }
+function deleteNews(id) { if (confirm('¿Eliminar esta noticia?')) { noticias = noticias.filter(n => n.id !== id); refreshAll(); toast('Noticia eliminada'); } }
+function saveModal() { const title = document.getElementById('modalTitleInput').value.trim(); const desc = document.getElementById('modalDesc').value.trim(); const date = document.getElementById('modalDate').value; if (!title || !date) { toast('Título y fecha requeridos'); return; } if (modalType === 'noticia') { const noticiaData = { id: modalEditId || generateId(), title, content: desc, date, author: currentUser?.name || 'Admin' }; if (modalEditId) { const idx = noticias.findIndex(n => n.id === modalEditId); if (idx !== -1) noticias[idx] = noticiaData; } else { noticias.unshift(noticiaData); } } else { const time = document.getElementById('modalTime').value || '18:00'; const place = document.getElementById('modalPlace').value || 'Online'; const spots = parseInt(document.getElementById('modalSpots').value) || 100; const genCert = document.getElementById('modalGenerateCert').checked; const eventoData = { id: modalEditId || generateId(), title, description: desc, date, time, place, spots, enrolled: modalEditId ? eventos.find(e => e.id === modalEditId)?.enrolled || [] : [], generateCert: genCert, speaker: 'Invitado especial' }; if (modalEditId) { const idx = eventos.findIndex(e => e.id === modalEditId); if (idx !== -1) eventos[idx] = eventoData; } else { eventos.push(eventoData); } } closeModal(); refreshAll(); toast('Guardado correctamente'); }
+function closeModal() { document.getElementById('crudModal').classList.remove('open'); modalEditId = null; }
+
+function exportCalendarICS() { let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\n'; eventos.forEach(e => { if (e.enrolled?.includes(currentUser?.dni)) { const d = new Date(`${e.date}T${e.time}:00`); ics += `BEGIN:VEVENT\nDTSTART:${d.toISOString().replace(/[-:]/g, '').split('.')[0]}Z\nSUMMARY:${e.title}\nLOCATION:${e.place}\nEND:VEVENT\n`; } }); ics += 'END:VCALENDAR'; downloadFile(ics, 'alumnitalks.ics', 'text/calendar'); toast('📅 Calendario exportado'); }
+
+function showMyCertificates() { if (!currentUser?.certificates?.length) { toast('No tienes certificados'); return; } const cert = currentUser.certificates[0]; document.getElementById('certName').textContent = currentUser.name; document.getElementById('certEvent').textContent = cert.eventTitle; document.getElementById('certificateModal').classList.remove('hidden'); }
+function closeCertificateModal() { document.getElementById('certificateModal').classList.add('hidden'); }
+function downloadCertificate() { const content = document.querySelector('.certificate-preview').innerHTML; const html = `<html><body style="text-align:center;padding:40px;font-family:Arial">${content}</body></html>`; downloadFile(html, 'certificado.html', 'text/html'); }
+function showNotificationSettings() { goScreen('perfil'); toast('⚙️ Configura tus alarmas en la sección Perfil'); }
+
+// ===== NAVEGACIÓN =====
+function goScreen(s) { document.querySelectorAll('.screen').forEach(el => el.classList.remove('active')); document.getElementById(`s-${s}`)?.classList.add('active'); if (s === 'perfil') renderProfile(); if (s === 'calendario') renderCalendar(); if (s === 'admin') renderAdmin(); if (s === 'grabaciones') renderRecordings(); if (s === 'foro') renderForum(); }
+
+function buildNav() {
+  const items = ['inicio', 'eventos', 'grabaciones', 'calendario', 'foro', 'perfil', 'buscador'];
+  if (currentUser?.role === 'admin') items.push('admin');
+  const icons = { inicio: 'fa-home', eventos: 'fa-microphone-alt', grabaciones: 'fa-video', calendario: 'fa-calendar-alt', foro: 'fa-comments', perfil: 'fa-user', buscador: 'fa-search', admin: 'fa-cog' };
+  const labels = { inicio: 'Inicio', eventos: 'Alumni Talks', grabaciones: 'Grabaciones', calendario: 'Calendario', foro: 'Foro', perfil: 'Perfil', buscador: 'Buscar', admin: 'Admin' };
+  document.getElementById('bottomNav').innerHTML = items.map(id => `<div class="nav-item" data-screen="${id}"><i class="fas ${icons[id]}"></i><span>${labels[id]}</span></div>`).join('');
+  document.querySelectorAll('.nav-item').forEach(el => el.onclick = () => goScreen(el.dataset.screen));
+  document.getElementById('desktopNav').innerHTML = items.map(id => `<div class="desktop-nav-item" data-screen="${id}"><i class="fas ${icons[id]}"></i><span>${labels[id]}</span></div>`).join('');
+  document.querySelectorAll('.desktop-nav-item').forEach(el => el.onclick = () => goScreen(el.dataset.screen));
+}
+
+function updateHeader() {
+  const avatar = document.getElementById('headerAvatar');
+  if (currentUser) {
+    if (currentUser.photo) {
+      avatar.style.backgroundImage = `url(${currentUser.photo})`;
+      avatar.style.backgroundSize = 'cover';
+      avatar.textContent = '';
+    } else {
+      avatar.style.backgroundImage = 'none';
+      avatar.textContent = currentUser.name?.charAt(0).toUpperCase() || 'U';
+    }
+    document.getElementById('headerName').textContent = currentUser.name?.split(' ')[0] || 'Usuario';
+  } else {
+    avatar.style.backgroundImage = 'none';
+    avatar.textContent = '?';
+    document.getElementById('headerName').textContent = 'Acceder';
+  }
+}
+
+function login(email, pass) {
+  const user = usuarios.find(u => (u.dni === email || u.email === email) && u.password === pass);
+  if (user) { currentUser = user; document.getElementById('loginModal').classList.add('hidden'); updateHeader(); buildNav(); refreshAll(); if (Notification.permission !== 'granted') Notification.requestPermission(); goScreen(user.role === 'admin' ? 'admin' : 'inicio'); toast(`✅ Bienvenido, ${user.name}`); if (alarmCheckerInterval) clearInterval(alarmCheckerInterval); alarmCheckerInterval = setInterval(checkEventReminders, 30000); } else { toast('❌ Credenciales incorrectas'); }
+}
+
+function logout() { currentUser = null; if (alarmCheckerInterval) clearInterval(alarmCheckerInterval); document.getElementById('loginModal').classList.remove('hidden'); updateHeader(); buildNav(); refreshAll(); toast('🔓 Sesión cerrada'); }
+
+function refreshAll() { renderHome(); renderFeed(); renderCalendar(); if (currentUser?.role === 'admin') renderAdmin(); }
+
+// ===== BÚSQUEDA =====
+document.getElementById('searchInput')?.addEventListener('input', function() { 
+  const query = this.value.toLowerCase(); 
+  if (!query) { document.getElementById('searchResults').innerHTML = ''; return; } 
+  const results = []; 
+  eventos.forEach(e => { if (e.title.toLowerCase().includes(query) || e.description?.toLowerCase().includes(query)) results.push({ type: 'Talk', item: e }); }); 
+  grabaciones.forEach(g => { if (g.title.toLowerCase().includes(query) || g.speaker.toLowerCase().includes(query)) results.push({ type: 'Grabación', item: g }); }); 
+  noticias.forEach(n => { if (n.title.toLowerCase().includes(query) || n.content?.toLowerCase().includes(query)) results.push({ type: 'Noticia', item: n }); });
+  usuarios.forEach(u => { if (u.name.toLowerCase().includes(query) && u.dni !== currentUser?.dni) results.push({ type: 'Usuario', item: u }); });
+  document.getElementById('searchResults').innerHTML = results.length ? results.map(r => { if (r.type === 'Grabación') return buildRecordingCard(r.item); if (r.type === 'Noticia') return buildNewsCard(r.item); if (r.type === 'Usuario') return `<div class="card card-purple"><div class="item-title">👤 ${r.item.name}</div><div class="item-meta">${r.item.role} · ${r.item.lookingFor ? '🎯 ' + r.item.lookingFor : ''}</div><div class="item-desc">${r.item.bio?.substring(0, 80) || ''}</div><button class="btn btn-primary btn-sm" onclick="toast('🔗 Conectando con ${r.item.name}...')">Conectar</button></div>`; return buildEventCard(r.item); }).join('') : '<div class="empty">No se encontraron resultados</div>'; 
+});
+
 
 // ===== WORDPRESS =====
 async function testWpConnection(){
@@ -684,600 +1051,58 @@ function exportCalendarICS(){
 function syncWithGoogleCalendar(){ window.open('https://calendar.google.com/calendar/r','_blank'); toast('Importa el ICS en Google Calendar'); }
 function downloadFile(content,filename,mimeType){ const blob=new Blob([content],{type:mimeType}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
 
-// ===== KANBAN =====
-function showKanbanView(){
-    const kanban = document.getElementById('kanbanView');
-    const list = document.getElementById('calendarEventList');
-    if(kanban.style.display==='none'){
-        kanban.style.display='block'; list.style.display='none';
-        const todo = eventos.filter(e=>new Date(e.date)>=new Date()&&!(e.enrolled||[]).includes(currentUser?.dni));
-        const progress = eventos.filter(e=>new Date(e.date)>=new Date()&&(e.enrolled||[]).includes(currentUser?.dni));
-        const done = eventos.filter(e=>new Date(e.date)<new Date()&&(e.enrolled||[]).includes(currentUser?.dni));
-        kanban.innerHTML = `<div class="kanban-board">
-            <div class="kanban-column kanban-col-todo"><h4>📋 Por hacer (${todo.length})</h4>${todo.map(buildKanbanCard).join('')||'<small>Vacío</small>'}</div>
-            <div class="kanban-column kanban-col-progress"><h4>🔄 En progreso (${progress.length})</h4>${progress.map(buildKanbanCard).join('')||'<small>Vacío</small>'}</div>
-            <div class="kanban-column kanban-col-done"><h4>✅ Completado (${done.length})</h4>${done.map(buildKanbanCard).join('')||'<small>Vacío</small>'}</div>
-        </div>`;
-    } else { kanban.style.display='none'; list.style.display='block'; }
-}
-
-function buildKanbanCard(ev){ return `<div class="kanban-card" onclick="openEventDetail(${ev.id})"><strong>${ev.title}</strong><br><small>${fmtDate(ev.date)} · ${ev.place}</small></div>`; }
-
-// ===== SOCIAL =====
-function showNewPostForm(){ document.getElementById('newPostForm').style.display='block'; }
-function createSocialPost(){
-    const content = document.getElementById('newPostContent').value.trim();
-    if(!content){ toast('Escribe algo'); return; }
-    socialPosts.unshift({id:generateId(),author:currentUser.name,content,date:new Date().toISOString(),likes:[],comments:[]});
-    document.getElementById('newPostContent').value=''; document.getElementById('newPostForm').style.display='none';
-    renderSocialFeed(); addXP(10,'Publicación'); toast('Publicado');
-}
-
-function likePost(postId){
-    const post = socialPosts.find(p=>p.id===postId);
-    if(!post||!currentUser) return;
-    const idx = post.likes.indexOf(currentUser.dni);
-    if(idx!==-1) post.likes.splice(idx,1); else post.likes.push(currentUser.dni);
-    renderSocialFeed();
-}
-
-function renderSocialFeed(){
-    document.getElementById('socialFeed').innerHTML = socialPosts.map(p=>`
-        <div class="social-post">
-            <strong>${p.author}</strong> · <small>${new Date(p.date).toLocaleString()}</small>
-            <p style="margin:8px 0">${p.content}</p>
-            <div class="social-actions">
-                <span onclick="likePost('${p.id}')">❤️ ${p.likes.length}</span>
-                <span>💬 ${p.comments.length}</span>
-            </div>
-        </div>
-    `).join('') || '<div class="empty">No hay publicaciones</div>';
-}
-
-// ===== FORO =====
-function showNewTopicForm(){ document.getElementById('newTopicForm').style.display='block'; }
-function createTopic(){
-    const title = document.getElementById('newTopicTitle').value.trim();
-    const content = document.getElementById('newTopicContent').value.trim();
-    if(!title||!content){ toast('Completa los campos'); return; }
-    forumTopics.unshift({id:generateId(),title,content,author:currentUser.name,date:new Date().toISOString(),replies:[]});
-    document.getElementById('newTopicTitle').value=''; document.getElementById('newTopicContent').value=''; document.getElementById('newTopicForm').style.display='none';
-    renderForum(); addXP(20,'Tema en foro'); toast('Tema creado');
-}
-
-function replyTopic(topicId){
-    const reply = prompt('Tu respuesta:');
-    if(!reply) return;
-    const topic = forumTopics.find(t=>t.id===topicId);
-    if(topic){ topic.replies.push({author:currentUser.name,content:reply,date:new Date().toISOString()}); renderForum(); addXP(5,'Respuesta'); toast('Respuesta añadida'); }
-}
-
-function renderForum(){
-    document.getElementById('forumTopics').innerHTML = forumTopics.map(t=>`
-        <div class="card">
-            <div class="item-title">${t.title}</div>
-            <div class="item-meta">${t.author} · ${new Date(t.date).toLocaleString()} · ${t.replies.length} respuestas</div>
-            <div class="item-desc">${t.content}</div>
-            ${t.replies.map(r=>`<div class="comment-reply"><div class="comment-item"><strong>${r.author}</strong>: ${r.content}<br><small>${new Date(r.date).toLocaleString()}</small></div></div>`).join('')}
-            <button class="btn btn-ghost btn-sm" onclick="replyTopic('${t.id}')">Responder</button>
-        </div>
-    `).join('') || '<div class="empty">No hay temas</div>';
-}
-
-// ===== CHAT =====
-function toggleChat(){ const w=document.getElementById('chatWindow'); w.style.display=w.style.display==='flex'?'none':'flex'; }
-function sendChatMessage(){
-    const input = document.getElementById('chatInput');
-    const msg = input.value.trim();
-    if(!msg||!currentUser) return;
-    chatMessages.push({author:currentUser.name,content:msg,date:new Date().toISOString()});
-    document.getElementById('chatMessages').innerHTML = chatMessages.map(m=>`<div class="chat-msg${m.author===currentUser.name?' mine':''}"><strong>${m.author}:</strong> ${m.content}</div>`).join('');
-    input.value='';
-}
-
-// ===== COMENTARIOS Y VALORACIONES =====
-function rateEvent(stars){
-    if(!currentUser||!currentDetailEvent) return;
-    if(!eventRatings[currentDetailEvent.id]) eventRatings[currentDetailEvent.id] = [];
-    const existing = eventRatings[currentDetailEvent.id].find(r=>r.user===currentUser.dni);
-    if(existing) existing.stars = stars; else eventRatings[currentDetailEvent.id].push({user:currentUser.dni,stars});
-    updateStarDisplay(); addXP(5,'Valoración'); toast('⭐ ¡Gracias por valorar!');
-}
-
-function updateStarDisplay(){
-    if(!currentDetailEvent) return;
-    const ratings = eventRatings[currentDetailEvent.id] || [];
-    const myRating = ratings.find(r=>r.user===currentUser?.dni);
-    const avg = ratings.length ? (ratings.reduce((s,r)=>s+r.stars,0)/ratings.length).toFixed(1) : 0;
-    let starsHtml = '';
-    for(let i=1;i<=5;i++) starsHtml += `<span class="star" onclick="rateEvent(${i})" style="color:${i<=(myRating?.stars||0)?'#fbbf24':'#d1d5db'}">★</span>`;
-    document.getElementById('starRating').innerHTML = starsHtml + ` <small>(${avg}) · ${ratings.length} votos</small>`;
-}
-
-function addEventComment(){
-    if(!currentUser||!currentDetailEvent) return;
-    const input = document.getElementById('detailCommentInput');
-    const comment = input.value.trim();
-    if(!comment) return;
-    if(!eventComments[currentDetailEvent.id]) eventComments[currentDetailEvent.id] = [];
-    eventComments[currentDetailEvent.id].push({author:currentUser.name,content:comment,date:new Date().toISOString()});
-    input.value='';
-    renderEventComments(); addXP(3,'Comentario');
-}
-
-function renderEventComments(){
-    if(!currentDetailEvent) return;
-    const comments = eventComments[currentDetailEvent.id] || [];
-    document.getElementById('detailComments').innerHTML = comments.map(c=>`<div class="comment-item"><strong>${c.author}</strong>: ${c.content}<br><small>${new Date(c.date).toLocaleString()}</small></div>`).join('');
-}
-
-// ===== QR =====
-function showEventQR(){
-    if(!currentDetailEvent) return;
-    const qrData = JSON.stringify({event:currentDetailEvent.id,title:currentDetailEvent.title,date:currentDetailEvent.date});
-    document.getElementById('detailQr').style.display='block';
-    document.getElementById('detailQr').innerHTML = `<p>QR del evento:</p><canvas id="qrCanvas"></canvas>`;
-    // QR simple con texto
-    const canvas = document.getElementById('qrCanvas');
-    if(canvas){
-        const ctx = canvas.getContext('2d');
-        canvas.width=150; canvas.height=150;
-        ctx.fillStyle='white'; ctx.fillRect(0,0,150,150);
-        ctx.fillStyle='black'; ctx.font='12px monospace';
-        ctx.fillText('EVENTO QR',10,75);
-        ctx.fillText(currentDetailEvent.title.substring(0,20),10,95);
-    }
-}
-
-// ===== CERTIFICADOS =====
-function showMyCertificates(){
-    if(!currentUser) return;
-    const certs = currentUser.certificates || [];
-    if(!certs.length){ toast('No tienes certificados aún'); return; }
-    const cert = certs[0];
-    document.getElementById('certName').textContent = currentUser.name;
-    document.getElementById('certEvent').textContent = cert.eventTitle;
-    document.getElementById('certDate').textContent = cert.date;
-    document.getElementById('certificateModal').classList.remove('hidden');
-}
-
-function closeCertificateModal(){ document.getElementById('certificateModal').classList.add('hidden'); }
-
-function downloadCertificate(){
-    const content = document.querySelector('.certificate-preview').innerHTML;
-    const html = `<html><body style="text-align:center;padding:40px">${content}</body></html>`;
-    downloadFile(html,'certificado.html','text/html');
-    toast('📜 Certificado descargado');
-}
-
-// ===== ANALYTICS =====
-function generateReport(){
-    document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
-    document.querySelector('[data-tab="analytics"]').classList.add('active');
-    ['adminEvents','adminNews','adminUsers','adminWp'].forEach(id=>document.getElementById(id).style.display='none');
-    document.getElementById('adminAnalytics').style.display='block';
-    
-    document.getElementById('analyticsStats').innerHTML = `
-        <div class="stat-mini"><div class="stat-mini-number">${eventos.length}</div><div class="stat-mini-label">Eventos</div></div>
-        <div class="stat-mini"><div class="stat-mini-number">${eventos.reduce((s,e)=>s+(e.enrolled?.length||0),0)}</div><div class="stat-mini-label">Inscripciones</div></div>
-        <div class="stat-mini"><div class="stat-mini-number">${Object.values(eventRatings).flat().length}</div><div class="stat-mini-label">Valoraciones</div></div>
-        <div class="stat-mini"><div class="stat-mini-number">${socialPosts.length+forumTopics.length}</div><div class="stat-mini-label">Interacciones</div></div>
-    `;
-    
-    const topEvents = [...eventos].sort((a,b)=>(b.enrolled?.length||0)-(a.enrolled?.length||0)).slice(0,5);
-    document.getElementById('topEvents').innerHTML = topEvents.map(e=>`<div>🏆 ${e.title} - ${e.enrolled?.length||0} inscritos</div>`).join('')||'Sin datos';
-    
-    document.getElementById('monthlyActivity').innerHTML = '<div>📊 Actividad registrada</div>';
-}
-
-// ===== DATA FETCHING =====
-async function fetchEventsFromSupabase(){
-    try{
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/eventos?select=*`,{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`}});
-        if(res.ok){ const data=await res.json(); if(data.length){ eventos=data.map(ev=>({id:ev.id,title:ev.titulo||ev.title,description:ev.descripcion||ev.description,date:ev.fecha||ev.date,time:ev.hora||ev.time||'18:00',place:ev.ubicacion||ev.place||'Online',spots:ev.plazas||ev.spots||50,enrolled:ev.inscritos?JSON.parse(ev.inscritos||'[]'):[],category:ev.categoria||ev.category||'networking',survey:ev.encuesta?JSON.parse(ev.encuesta):null})); return; } }
-    }catch(e){}
-    if(!eventos.length) eventos=[{id:1,title:'Networking Tech',description:'Evento networking profesional',date:'2026-06-15',time:'18:00',place:'Madrid',spots:50,enrolled:[],category:'networking'},{id:2,title:'Curso Liderazgo',description:'Habilidades directivas',date:'2026-05-20',time:'10:00',place:'Online',spots:30,enrolled:[],category:'formacion'}];
-}
-
-async function fetchNewsFromSupabase(){
-    try{
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/noticias?select=*`,{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`}});
-        if(res.ok){ const data=await res.json(); if(data.length){ noticias=data.map(n=>({id:n.id,title:n.titulo||n.title,content:n.contenido||n.content,date:n.fecha||n.date,author:'Admin'})); return; } }
-    }catch(e){}
-    if(!noticias.length) noticias=[{id:1,title:'Bienvenidos a Alumni FP',content:'Iniciamos nuevas actividades',date:'2026-05-01',author:'Admin'}];
-}
-
-// ===== EVENT CARD =====
-function buildEventCard(ev){
-    const isEnrolled = currentUser && (ev.enrolled||[]).includes(currentUser.dni);
-    const spotsLeft = Math.max(0,(ev.spots||9999)-(ev.enrolled?.length||0));
-    const cat = CATEGORIES.find(c=>c.id===ev.category)||{label:ev.category||'Evento'};
-    const avgRating = eventRatings[ev.id]?.length ? (eventRatings[ev.id].reduce((s,r)=>s+r.stars,0)/eventRatings[ev.id].length).toFixed(1) : '';
-    return `<div class="card ${isEnrolled?'card-green':'card-amber'}" onclick="openEventDetail(${ev.id})">
-        <div class="chip-row"><span class="chip ${isEnrolled?'chip-green':'chip-amber'}">${isEnrolled?'✅ Inscrito':'📌 Disponible'}</span><span class="chip chip-cat">${cat.label}</span>${ev.survey?.active?'<span class="chip chip-purple">📊 Encuesta</span>':''}${avgRating?`<span class="chip">⭐ ${avgRating}</span>`:''}</div>
-        ${currentUser?.role==='admin'?`<input type="checkbox" style="float:right" onclick="event.stopPropagation();toggleItemSelection(${ev.id},'evento')">`:''}
-        <div class="item-title">${ev.title}</div>
-        <div class="item-meta"><span>📅 ${fmtDate(ev.date)} · ${ev.time}h</span><span>📍 ${ev.place}</span><span>🎟️ ${spotsLeft}/${ev.spots||'∞'}</span></div>
-        <div class="item-desc">${ev.description}</div>
-        <div class="btn-row" onclick="event.stopPropagation()"><button class="btn ${isEnrolled?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleEnroll(${ev.id})">${isEnrolled?'Cancelar':'Inscribirse'}</button></div>
-    </div>`;
-}
-
-function buildNewsCard(n){
-    return `<div class="card card-blue"><div class="chip chip-blue">Noticia</div>${currentUser?.role==='admin'?`<input type="checkbox" style="float:right" onclick="event.stopPropagation();toggleItemSelection(${n.id},'noticia')">`:''}<div class="item-title">${n.title}</div><div class="item-meta">${fmtDate(n.date)} · ${n.author}</div><div class="item-desc">${n.content}</div></div>`;
-}
-
-function toggleEnroll(id){
-    if(!currentUser){ toast('Inicia sesión'); return; }
-    const ev = eventos.find(e=>e.id===id);
-    if(!ev) return;
-    if(!ev.enrolled) ev.enrolled=[];
-    const idx = ev.enrolled.indexOf(currentUser.dni);
-    if(idx!==-1){ ev.enrolled.splice(idx,1); toast('Cancelaste inscripción'); }
-    else{ if(ev.enrolled.length>=ev.spots&&ev.spots>0){ toast('No hay plazas'); return; } ev.enrolled.push(currentUser.dni); addXP(50,'Inscripción a evento'); toast('¡Inscrito!'); }
-    refreshAll();
-}
-
-// ===== EVENT DETAIL =====
-function openEventDetail(id){
-    currentDetailEvent = eventos.find(e=>e.id===id);
-    if(!currentDetailEvent) return;
-    const isEnrolled = currentUser && (currentDetailEvent.enrolled||[]).includes(currentUser.dni);
-    const spotsLeft = Math.max(0,(currentDetailEvent.spots||9999)-(currentDetailEvent.enrolled?.length||0));
-    document.getElementById('detailTitle').textContent = currentDetailEvent.title;
-    document.getElementById('detailDateInfo').innerHTML = `${fmtDate(currentDetailEvent.date)} · ${currentDetailEvent.time}h<br>📍 ${currentDetailEvent.place}`;
-    document.getElementById('detailDesc').textContent = currentDetailEvent.description;
-    document.getElementById('detailSpots').textContent = spotsLeft;
-    document.getElementById('detailTotalSpots').textContent = currentDetailEvent.spots||'∞';
-    
-    document.getElementById('detailSurvey').innerHTML = currentDetailEvent.survey?.active ? showSurveyInDetail(currentDetailEvent) : '';
-    document.getElementById('detailQr').style.display = 'none';
-    
-    const btn = document.getElementById('detailEnrollBtn');
-    btn.textContent = isEnrolled ? 'Cancelar' : 'Inscribirse';
-    btn.style.background = isEnrolled ? '#ef4444' : '#1e40af';
-    
-    updateStarDisplay();
-    renderEventComments();
-    document.getElementById('eventDetailModal').classList.add('open');
-}
-
-window.openEventDetail = openEventDetail;
-function closeEventDetail(){ document.getElementById('eventDetailModal').classList.remove('open'); currentDetailEvent=null; }
-function enrollFromDetail(){ if(currentDetailEvent){ toggleEnroll(currentDetailEvent.id); closeEventDetail(); } }
-
-// ===== SURVEYS =====
-function showSurveyInDetail(event){
-    if(!event.survey?.active) return '';
-    const userVote = event.survey.results?.find(r=>r.userId===currentUser?.dni);
-    if(userVote){
-        const total = event.survey.results.length;
-        return `<div><h4>Resultados</h4>${event.survey.options.map(opt=>{const c=event.survey.results.filter(r=>r.vote===opt).length;return`<div class="survey-result"><strong>${opt}:</strong> ${c} votos (${total>0?(c/total*100).toFixed(1):0}%)</div>`}).join('')}<p>Total: ${total}</p></div>`;
-    }
-    return `<div><h4>${event.survey.question}</h4>${event.survey.options.map(opt=>`<div class="survey-option" onclick="voteSurvey(${event.id},'${opt}')">📊 ${opt}</div>`).join('')}</div>`;
-}
-
-function voteSurvey(eventId,vote){
-    const event = eventos.find(e=>e.id===eventId);
-    if(!event?.survey) return;
-    if(!event.survey.results) event.survey.results=[];
-    if(event.survey.results.find(r=>r.userId===currentUser?.dni)){ toast('Ya votaste'); return; }
-    event.survey.results.push({userId:currentUser.dni,vote});
-    addXP(5,'Voto en encuesta'); toast('¡Voto registrado!');
-    if(currentDetailEvent?.id===eventId) openEventDetail(eventId);
-}
-
-function toggleItemSelection(id,type){ const key=`${type}_${id}`; selectedItems.has(key)?selectedItems.delete(key):selectedItems.add(key); updateBulkUI(); }
-function updateBulkUI(){ document.getElementById('bulkActions').style.display=selectedItems.size>0?'flex':'none'; }
-
-// ===== PROFILE =====
-function handleProfilePhoto(input){
-    if(input.files&&input.files[0]){ const reader=new FileReader(); reader.onload=e=>{if(currentUser){currentUser.photo=e.target.result;updateHeader();renderProfile();toast('Foto actualizada')}}; reader.readAsDataURL(input.files[0]); }
-}
-
-function renderProfile(){
-    if(!currentUser) return;
-    ['profileName','profileDni','profileEmail','profilePhone','profileLinkedin','profileInstagram','profileTwitter','profileBio','profileLookingFor','profileWpUrl','alarmSound','alarmInterval'].forEach(id=>{
-        const el=document.getElementById(id);
-        if(el) el.value = currentUser[id.replace('profile','').toLowerCase()] || '';
-    });
-    document.getElementById('profileReminders').checked = currentUser.reminders!==false;
-    document.getElementById('profileEmailNotif').checked = currentUser.emailNotif||false;
-    
-    const avatar = document.getElementById('profileAvatar');
-    if(currentUser.photo){ avatar.style.backgroundImage=`url(${currentUser.photo})`; avatar.style.backgroundSize='cover'; avatar.textContent=''; }
-    else{ avatar.style.backgroundImage='none'; avatar.textContent=currentUser.name?.charAt(0).toUpperCase()||'U'; }
-    
-    const myEvents = eventos.filter(e=>(e.enrolled||[]).includes(currentUser.dni));
-    document.getElementById('myEnrollments').innerHTML = myEvents.length ? myEvents.map(ev=>`<div class="card card-green"><div class="item-title">${ev.title}</div><div class="item-meta">${fmtDate(ev.date)} · ${ev.place}</div><button class="btn btn-ghost btn-sm" onclick="toggleEnroll(${ev.id})">Cancelar</button></div>`).join('') : '<div class="empty">Sin inscripciones</div>';
-    
-    document.getElementById('myAchievements').innerHTML = `
-        <div class="stat-mini"><div class="stat-mini-number">${currentUser.xp||0}</div><div class="stat-mini-label">XP</div></div>
-        <div class="stat-mini"><div class="stat-mini-number">${currentUser.badges?.length||0}</div><div class="stat-mini-label">Insignias</div></div>
-        <div class="stat-mini"><div class="stat-mini-number">${currentUser.certificates?.length||0}</div><div class="stat-mini-label">Certificados</div></div>
-    `;
-    
-    document.getElementById('myNotifications').innerHTML = notificationLog.slice(0,20).map(n=>`<div class="card" style="${n.read?'opacity:0.6':''}" onclick="markNotifRead('${n.date}')"><div class="item-title">${n.read?'':'🔵 '}${n.title}</div><div class="item-meta">${new Date(n.date).toLocaleString()}</div><div class="item-desc">${n.message}</div></div>`).join('')||'<div class="empty">Sin notificaciones</div>';
-}
-
-function markNotifRead(date){ const n=notificationLog.find(n=>n.date===date); if(n) n.read=true; updateNotificationBadge(); renderProfile(); }
-
-function saveProfile(){
-    if(!currentUser) return;
-    currentUser.name = document.getElementById('profileName').value;
-    currentUser.email = document.getElementById('profileEmail').value;
-    currentUser.phone = document.getElementById('profilePhone').value;
-    currentUser.linkedin = document.getElementById('profileLinkedin').value;
-    currentUser.instagram = document.getElementById('profileInstagram').value;
-    currentUser.twitter = document.getElementById('profileTwitter').value;
-    currentUser.bio = document.getElementById('profileBio').value;
-    currentUser.reminders = document.getElementById('profileReminders').checked;
-    currentUser.emailNotif = document.getElementById('profileEmailNotif').checked;
-    currentUser.wpUrl = document.getElementById('profileWpUrl').value;
-    currentUser.alarmSound = document.getElementById('alarmSound').value;
-    currentUser.alarmInterval = parseInt(document.getElementById('alarmInterval').value);
-    const idx = users.findIndex(u=>u.dni===currentUser.dni);
-    if(idx!==-1) users[idx]=currentUser;
-    updateHeader(); toast('Perfil actualizado');
-}
-
-// ===== RENDERING =====
-function renderHome(){
-    if(!currentUser) return;
-    document.getElementById('heroName').textContent = currentUser.name?.split(' ')[0]||'Usuario';
-    const myCount = eventos.filter(e=>(e.enrolled||[]).includes(currentUser.dni)).length;
-    document.getElementById('heroSub').textContent = `Inscrito en ${myCount} evento${myCount!==1?'s':''}`;
-    document.getElementById('quickStats').innerHTML = `<div class="stat-mini"><div class="stat-mini-number">${eventos.length}</div><div class="stat-mini-label">Eventos</div></div><div class="stat-mini"><div class="stat-mini-number">${myCount}</div><div class="stat-mini-label">Inscripciones</div></div><div class="stat-mini"><div class="stat-mini-number">${noticias.length}</div><div class="stat-mini-label">Noticias</div></div>`;
-    document.getElementById('homeEvents').innerHTML = eventos.filter(e=>new Date(e.date)>=new Date()).slice(0,3).map(buildEventCard).join('')||'<div class="empty">Sin eventos</div>';
-    document.getElementById('homeNews').innerHTML = [...noticias].reverse().slice(0,3).map(buildNewsCard).join('')||'<div class="empty">Sin noticias</div>';
-}
-
-function renderFeed(){
-    let items = feedFilter==='recientes'?noticias:(feedFilter==='proximos'?eventos.filter(e=>new Date(e.date)>=new Date()):eventos.filter(e=>new Date(e.date)<new Date()));
-    document.getElementById('feedList').innerHTML = items.length?items.map(i=>i.content?buildNewsCard(i):buildEventCard(i)).join(''):'<div class="empty">Sin resultados</div>';
-}
-
-function renderCalendar(){
-    const y=currentDate.getFullYear(),m=currentDate.getMonth(),daysInMonth=new Date(y,m+1,0).getDate();
-    document.getElementById('calMonthYear').textContent=`${currentDate.toLocaleString('es',{month:'long'})} ${y}`;
-    document.querySelector('.cal-weekdays').innerHTML=['L','M','X','J','V','S','D'].map(d=>`<div class="cal-wd">${d}</div>`).join('');
-    let html=''; const today=new Date();
-    for(let d=1;d<=daysInMonth;d++){
-        const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const dayEvents=eventos.filter(e=>e.date===ds);
-        let cls='cal-day';
-        if(dayEvents.length){ const enrolled=dayEvents.some(ev=>(ev.enrolled||[]).includes(currentUser?.dni)); cls+=enrolled?' cal-day-enrolled':' cal-day-available'; }
-        if(d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear()) cls+=' cal-day-today';
-        html+=`<div class="${cls}" data-date="${ds}">${d}</div>`;
-    }
-    document.getElementById('daysGrid').innerHTML=html;
-    document.querySelectorAll('.cal-day[data-date]').forEach(el=>el.addEventListener('click',()=>{const evs=eventos.filter(e=>e.date===el.dataset.date);if(evs.length===1)openEventDetail(evs[0].id);else if(evs.length>1)toast(`${evs.length} eventos`)}));
-    document.getElementById('calendarEventList').innerHTML=eventos.map(buildEventCard).join('');
-}
-
-function renderAdmin(){
-    if(!currentUser||currentUser.role!=='admin') return;
-    document.getElementById('adminStats').innerHTML=`<div class="stat-mini"><div class="stat-mini-number">${eventos.length}</div><div class="stat-mini-label">Eventos</div></div><div class="stat-mini"><div class="stat-mini-number">${noticias.length}</div><div class="stat-mini-label">Noticias</div></div><div class="stat-mini"><div class="stat-mini-number">${users.length}</div><div class="stat-mini-label">Usuarios</div></div><div class="stat-mini"><div class="stat-mini-number">${eventos.reduce((s,e)=>s+(e.enrolled?.length||0),0)}</div><div class="stat-mini-label">Inscripciones</div></div>`;
-    document.getElementById('adminEvents').innerHTML=eventos.map(e=>`<div class="admin-row"><input type="checkbox" onchange="toggleItemSelection(${e.id},'evento')"><div class="admin-row-info"><div class="admin-row-title">${e.title}</div><div class="admin-row-sub">${fmtDate(e.date)} · ${e.enrolled?.length||0}/${e.spots||'∞'}</div></div><div class="admin-row-btns"><button class="icon-btn" onclick="editEvent(${e.id})"><i class="fas fa-pen"></i></button><button class="icon-btn danger" onclick="deleteEvent(${e.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
-    document.getElementById('adminNews').innerHTML=noticias.map(n=>`<div class="admin-row"><input type="checkbox" onchange="toggleItemSelection(${n.id},'noticia')"><div class="admin-row-info"><div class="admin-row-title">${n.title}</div><div class="admin-row-sub">${fmtDate(n.date)} · ${n.author}</div></div><div class="admin-row-btns"><button class="icon-btn" onclick="editNews(${n.id})"><i class="fas fa-pen"></i></button><button class="icon-btn danger" onclick="deleteNews(${n.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
-    document.getElementById('adminUsers').innerHTML=users.map(u=>`<div class="admin-row"><div class="admin-row-info"><div class="admin-row-title">${u.name}</div><div class="admin-row-sub">${u.dni} · ${u.role} · ${u.email}</div></div><div class="admin-row-btns"><button class="icon-btn" onclick="toggleRole('${u.dni}')"><i class="fas fa-user-tag"></i></button><button class="icon-btn danger" onclick="deleteUser('${u.dni}')" ${u.dni===currentUser?.dni?'disabled':''}><i class="fas fa-trash"></i></button></div></div>`).join('');
-}
-
-// ===== CRUD =====
-function openCreateModal(){
-    modalType='evento'; modalEditId=null;
-    document.getElementById('modalTitle').textContent='Nuevo evento';
-    ['modalTitleInput','modalDesc','modalDate','modalTime','modalPlace','modalSpots'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('modalTime').value='18:00'; document.getElementById('modalSpots').value='50';
-    document.getElementById('catGrid').innerHTML=CATEGORIES.map(c=>`<div class="cat-option" data-cat="${c.id}" onclick="selectCat('${c.id}')">${c.label}</div>`).join('');
-    document.getElementById('modalHasSurvey').checked=false;
-    document.getElementById('surveyFields').style.display='none';
-    document.getElementById('eventFields').style.display='block';
-    document.getElementById('crudModal').classList.add('open');
-}
-
-function deleteEvent(id){ eventos=eventos.filter(e=>e.id!==id); selectedItems.delete(`evento_${id}`); refreshAll(); toast('Eliminado'); }
-function deleteNews(id){ noticias=noticias.filter(n=>n.id!==id); selectedItems.delete(`noticia_${id}`); refreshAll(); toast('Eliminado'); }
-
-function editEvent(id){
-    const ev=eventos.find(e=>e.id===id);
-    if(ev){
-        modalType='evento'; modalEditId=id;
-        document.getElementById('modalTitle').textContent='Editar evento';
-        document.getElementById('modalTitleInput').value=ev.title;
-        document.getElementById('modalDesc').value=ev.description;
-        document.getElementById('modalDate').value=ev.date;
-        document.getElementById('modalTime').value=ev.time;
-        document.getElementById('modalPlace').value=ev.place;
-        document.getElementById('modalSpots').value=ev.spots;
-        document.getElementById('catGrid').innerHTML=CATEGORIES.map(c=>`<div class="cat-option${ev.category===c.id?' selected':''}" data-cat="${c.id}" onclick="selectCat('${c.id}')">${c.label}</div>`).join('');
-        document.getElementById('eventFields').style.display='block';
-        document.getElementById('crudModal').classList.add('open');
-    }
-}
-
-function editNews(id){
-    const n=noticias.find(n=>n.id===id);
-    if(n){ modalType='noticia'; modalEditId=id; document.getElementById('modalTitle').textContent='Editar noticia'; document.getElementById('modalTitleInput').value=n.title; document.getElementById('modalDesc').value=n.content; document.getElementById('modalDate').value=n.date; document.getElementById('eventFields').style.display='none'; document.getElementById('crudModal').classList.add('open'); }
-}
-
-function saveModal(){
-    const title=document.getElementById('modalTitleInput').value.trim();
-    const desc=document.getElementById('modalDesc').value.trim();
-    const date=document.getElementById('modalDate').value;
-    if(!title||!date){ toast('Título y fecha requeridos'); return; }
-    
-    if(modalType==='noticia'){
-        if(modalEditId){ const idx=noticias.findIndex(n=>n.id===modalEditId); if(idx!==-1) noticias[idx]={...noticias[idx],title,content:desc,date}; }
-        else noticias.push({id:generateId(),title,content:desc,date,author:currentUser?.name||'Admin'});
-    } else {
-        const time=document.getElementById('modalTime').value||'18:00';
-        const place=document.getElementById('modalPlace').value||'Online';
-        const spots=parseInt(document.getElementById('modalSpots').value)||50;
-        const selectedCat=document.querySelector('.cat-option.selected');
-        const category=selectedCat?selectedCat.dataset.cat:'networking';
-        let survey=null;
-        if(document.getElementById('modalHasSurvey').checked){
-            const q=document.getElementById('modalSurveyQuestion').value;
-            const opts=document.getElementById('modalSurveyOptions').value.split(',').map(s=>s.trim());
-            if(q&&opts.length) survey={active:true,question:q,options:opts,results:[]};
-        }
-        const genCert = document.getElementById('modalGenerateCert')?.checked;
-        if(modalEditId){
-            const idx=eventos.findIndex(e=>e.id===modalEditId);
-            if(idx!==-1){ eventos[idx]={...eventos[idx],title,description:desc,date,time,place,spots,category,survey}; syncToWordPress(eventos[idx],'update'); }
-        } else {
-            const newEvent={id:generateId(),title,description:desc,date,time,place,spots,enrolled:[],category,survey};
-            eventos.push(newEvent);
-            syncToWordPress(newEvent,'create');
-            if(genCert && currentUser){
-                currentUser.certificates = currentUser.certificates || [];
-                currentUser.certificates.push({eventTitle:title,date:fmtDate(date)});
-            }
-        }
-    }
-    closeModal(); refreshAll();
-}
-
-function closeModal(){ document.getElementById('crudModal').classList.remove('open'); modalEditId=null; }
-function selectCat(id){ document.querySelectorAll('.cat-option').forEach(el=>el.classList.toggle('selected',el.dataset.cat===id)); }
-function toggleRole(dni){ const u=users.find(u=>u.dni===dni); if(u){ u.role=u.role==='admin'?'user':'admin'; renderAdmin(); toast(`Rol: ${u.role}`); } }
-function deleteUser(dni){ if(dni===currentUser?.dni){ toast('No puedes eliminarte'); return; } users=users.filter(u=>u.dni!==dni); renderAdmin(); toast('Usuario eliminado'); }
-
-// ===== ADVANCED FILTERS =====
-function toggleAdvancedFilters(){ advancedFiltersActive=!advancedFiltersActive; document.getElementById('advancedFilters').style.display=advancedFiltersActive?'flex':'none'; if(!advancedFiltersActive){ document.getElementById('filterCategory').value='all'; document.getElementById('filterDateFrom').value=''; document.getElementById('filterDateTo').value=''; document.getElementById('filterStatus').value='all'; renderFeed(); } }
-
-function applyAdvancedFilters(){
-    const cat=document.getElementById('filterCategory').value;
-    const dateFrom=document.getElementById('filterDateFrom').value;
-    const dateTo=document.getElementById('filterDateTo').value;
-    const status=document.getElementById('filterStatus').value;
-    let items=feedFilter==='recientes'?noticias:(feedFilter==='proximos'?eventos.filter(e=>new Date(e.date)>=new Date()):eventos.filter(e=>new Date(e.date)<new Date()));
-    if(cat!=='all'&&feedFilter!=='recientes') items=items.filter(i=>i.category===cat);
-    if(dateFrom) items=items.filter(i=>i.date>=dateFrom);
-    if(dateTo) items=items.filter(i=>i.date<=dateTo);
-    if(status==='enrolled'&&currentUser) items=items.filter(i=>(i.enrolled||[]).includes(currentUser.dni));
-    else if(status==='available'&&currentUser) items=items.filter(i=>!(i.enrolled||[]).includes(currentUser.dni));
-    document.getElementById('feedList').innerHTML=items.length?items.map(i=>i.content?buildNewsCard(i):buildEventCard(i)).join(''):'<div class="empty">Sin resultados</div>';
-}
-
-// ===== NAVIGATION =====
-function refreshAll(){ renderHome(); renderFeed(); renderCalendar(); if(currentUser?.role==='admin') renderAdmin(); updateGamificationUI(); updateNotificationBadge(); checkEventReminders(); }
-
-function goScreen(s){
-    document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
-    const screen = document.getElementById(`s-${s}`);
-    if(screen) screen.classList.add('active');
-    if(s==='profile') renderProfile();
-    if(s==='calendar') renderCalendar();
-    if(s==='admin') renderAdmin();
-    if(s==='social') renderSocialFeed();
-    if(s==='forum') renderForum();
-}
-
-function buildNav(){
-    const items = ['home','feed','calendar','social','forum','profile','search'];
-    if(currentUser?.role==='admin') items.push('admin');
-    const icons = {home:'fa-home',feed:'fa-newspaper',calendar:'fa-calendar-alt',social:'fa-users',forum:'fa-comments',profile:'fa-user',search:'fa-search',admin:'fa-cog'};
-    
-    document.getElementById('bottomNav').innerHTML = items.map(id=>`<div class="nav-item" data-screen="${id}"><i class="fas ${icons[id]}"></i><span>${id.charAt(0).toUpperCase()+id.slice(1)}</span></div>`).join('');
-    document.querySelectorAll('.nav-item').forEach(el=>el.onclick=()=>goScreen(el.dataset.screen));
-    
-    document.getElementById('desktopNav').innerHTML = items.map(id=>`<div class="desktop-nav-item" data-screen="${id}"><i class="fas ${icons[id]}"></i><span>${id.charAt(0).toUpperCase()+id.slice(1)}</span></div>`).join('');
-    document.querySelectorAll('.desktop-nav-item').forEach(el=>el.onclick=()=>goScreen(el.dataset.screen));
-}
-
-function updateHeader(){
-    const avatar=document.getElementById('headerAvatar');
-    if(currentUser){
-        if(currentUser.photo){ avatar.style.backgroundImage=`url(${currentUser.photo})`; avatar.style.backgroundSize='cover'; avatar.textContent=''; }
-        else{ avatar.style.backgroundImage='none'; avatar.textContent=currentUser.name?.charAt(0).toUpperCase()||'?'; }
-        document.getElementById('headerName').textContent=currentUser.name?.split(' ')[0]||'Tú';
-    } else { avatar.style.backgroundImage='none'; avatar.textContent='?'; document.getElementById('headerName').textContent='Acceder'; }
-}
-
-function login(dni,pass){
-    const user=users.find(u=>u.dni===dni&&u.password===pass);
-    if(user){
-        currentUser=user;
-        userXP=user.xp||0; userLevel=user.xp?calculateLevel(user.xp).level:1; userStreak=user.streak||0; userBadges=user.badges||[];
-        document.getElementById('loginModal').classList.add('hidden');
-        updateHeader(); buildNav(); refreshAll(); updateGamificationUI(); checkStreak();
-        goScreen(user.role==='admin'?'admin':'home');
-        requestPushPermission(); toast(`Bienvenido ${user.name}`);
-    } else toast('Credenciales incorrectas');
-}
-
-function register(){
-    const dni=document.getElementById('regDni').value.trim(),name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPass').value;
-    if(!dni||!name||!pass){ toast('Completa todos los campos'); return; }
-    if(users.find(u=>u.dni===dni)){ toast('DNI ya registrado'); return; }
-    users.push({dni,password:pass,name,role:'user',email,phone:'',linkedin:'',instagram:'',twitter:'',bio:'',lookingFor:'',reminders:true,emailNotif:false,wpUrl:'',alarmSound:'bell',alarmInterval:5,xp:0,streak:0,badges:[],certificates:[]});
-    toast('Cuenta creada');
-    document.getElementById('registerModal').classList.add('hidden');
-    document.getElementById('loginModal').classList.remove('hidden');
-}
 
 // ===== EVENT LISTENERS =====
-document.getElementById('doLogin').onclick=()=>login(document.getElementById('loginDni').value,document.getElementById('loginPass').value);
-document.getElementById('doRegister').onclick=register;
-document.getElementById('showRegisterBtn').onclick=()=>{document.getElementById('loginModal').classList.add('hidden');document.getElementById('registerModal').classList.remove('hidden')};
-document.getElementById('hideRegisterBtn').onclick=()=>{document.getElementById('registerModal').classList.add('hidden');document.getElementById('loginModal').classList.remove('hidden')};
-document.getElementById('userBtn').onclick=()=>{if(currentUser){currentUser=null;document.getElementById('loginModal').classList.remove('hidden');updateHeader();buildNav();toast('Sesión cerrada')}else document.getElementById('loginModal').classList.remove('hidden')};
-document.getElementById('prevMonth').onclick=()=>{currentDate.setMonth(currentDate.getMonth()-1);renderCalendar()};
-document.getElementById('nextMonth').onclick=()=>{currentDate.setMonth(currentDate.getMonth()+1);renderCalendar()};
+document.getElementById('doLogin').onclick = () => login(document.getElementById('loginEmail').value, document.getElementById('loginPass').value);
+document.getElementById('userBtn').onclick = () => document.getElementById('userDropdown').classList.toggle('show');
+document.getElementById('logoutBtn').onclick = logout;
+document.addEventListener('click', (e) => { if (!e.target.closest('#userBtn')) document.getElementById('userDropdown').classList.remove('show'); });
+document.getElementById('prevMonth').onclick = () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); };
+document.getElementById('nextMonth').onclick = () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); };
+document.querySelectorAll('#feedFilters .filter-btn').forEach(btn => btn.onclick = () => { feedFilter = btn.dataset.f; document.querySelectorAll('#feedFilters .filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderFeed(); });
+document.querySelectorAll('.admin-tab').forEach(btn => btn.onclick = () => { const tab = btn.dataset.tab; document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.getElementById('adminEvents').style.display = tab === 'eventos' ? 'block' : 'none'; document.getElementById('adminGrabaciones').style.display = tab === 'grabaciones' ? 'block' : 'none'; document.getElementById('adminNews').style.display = tab === 'noticias' ? 'block' : 'none'; document.getElementById('adminUsers').style.display = tab === 'usuarios' ? 'block' : 'none'; });
+document.getElementById('profilePhotoInput').onchange = (e) => handleProfilePhoto(e.target);
 
-document.querySelectorAll('#feedFilters .filter-btn').forEach(btn=>btn.onclick=()=>{feedFilter=btn.dataset.f;document.querySelectorAll('#feedFilters .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderFeed()});
-
-document.querySelectorAll('.admin-tab').forEach(btn=>btn.onclick=()=>{
-    const tab=btn.dataset.tab;
-    document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    ['adminEvents','adminNews','adminUsers','adminWp','adminAnalytics'].forEach(id=>document.getElementById(id).style.display='none');
-    if(tab==='eventos') document.getElementById('adminEvents').style.display='block';
-    else if(tab==='noticias') document.getElementById('adminNews').style.display='block';
-    else if(tab==='usuarios') document.getElementById('adminUsers').style.display='block';
-    else if(tab==='wp') document.getElementById('adminWp').style.display='block';
-    else if(tab==='analytics'){ document.getElementById('adminAnalytics').style.display='block'; generateReport(); }
-});
-
-document.getElementById('modalHasSurvey').onchange=function(){document.getElementById('surveyFields').style.display=this.checked?'block':'none'};
-
-document.getElementById('csvDropzone').onclick=()=>document.getElementById('csvFileInput').click();
-document.getElementById('csvDropzone').ondragover=(e)=>{e.preventDefault();e.currentTarget.style.borderColor='#3b82f6'};
-document.getElementById('csvDropzone').ondragleave=(e)=>{e.currentTarget.style.borderColor='#cbd5e1'};
-document.getElementById('csvDropzone').ondrop=(e)=>{e.preventDefault();e.currentTarget.style.borderColor='#cbd5e1';const file=e.dataTransfer.files[0];if(file){const dt=new DataTransfer();dt.items.add(file);document.getElementById('csvFileInput').files=dt.files;handleCsvImport(document.getElementById('csvFileInput'))}};
-
-document.getElementById('searchInput').oninput=function(){
-    const query=this.value.toLowerCase();
-    if(!query){document.getElementById('searchResults').innerHTML='';return}
-    const results=[];
-    eventos.forEach(e=>{if(e.title.toLowerCase().includes(query)||e.description.toLowerCase().includes(query)) results.push({type:'Evento',item:e})});
-    noticias.forEach(n=>{if(n.title.toLowerCase().includes(query)||n.content.toLowerCase().includes(query)) results.push({type:'Noticia',item:n})});
-    if(currentUser?.role==='admin') users.forEach(u=>{if(u.name.toLowerCase().includes(query)||u.dni.includes(query)) results.push({type:'Usuario',item:u})});
-    document.getElementById('searchResults').innerHTML=results.length?results.map(r=>r.type==='Usuario'?`<div class="card"><div class="item-title">👤 ${r.item.name}</div><div class="item-meta">${r.item.dni} · ${r.item.role}</div></div>`:r.type==='Evento'?buildEventCard(r.item):buildNewsCard(r.item)).join(''):'<div class="empty">Sin resultados</div>';
-};
-
-// ===== GLOBAL =====
-window.goToFeedWithFilter=(f)=>{feedFilter=f;renderFeed();goScreen('feed')};
-window.exportCsv=exportCsv;
-window.downloadCsvTemplate=downloadCsvTemplate;
-window.handleCsvImport=handleCsvImport;
-window.generateReport=generateReport;
+// ===== VARIABLES GLOBALES =====
+window.goToFeedWithFilter = (f) => { feedFilter = f; renderFeed(); goScreen('eventos'); };
+window.openEventDetail = openEventDetail;
+window.toggleEnroll = toggleEnroll;
+window.editEvent = editEvent;
+window.editNews = editNews;
+window.deleteEvent = deleteEvent;
+window.deleteNews = deleteNews;
+window.toggleRole = toggleRole;
+window.openCreateModal = openCreateModal;
+window.saveModal = saveModal;
+window.closeModal = closeModal;
+window.closeEventDetail = closeEventDetail;
+window.enrollFromDetail = enrollFromDetail;
+window.saveProfile = saveProfile;
+window.goScreen = goScreen;
+window.showMyCertificates = showMyCertificates;
+window.closeCertificateModal = closeCertificateModal;
+window.downloadCertificate = downloadCertificate;
+window.showNewTopicForm = showNewTopicForm;
+window.createTopic = createTopic;
+window.replyTopic = replyTopic;
+window.setEventReminder = setEventReminder;
+window.showNotifications = showNotifications;
+window.markNotificationRead = markNotificationRead;
+window.exportCalendarICS = exportCalendarICS;
+window.openAddRecordingModal = openAddRecordingModal;
+window.closeRecordingModal = closeRecordingModal;
+window.saveRecording = saveRecording;
+window.deleteRecording = deleteRecording;
+window.showNotificationSettings = showNotificationSettings;
+window.exportMyData = exportMyData;
 
 // ===== INIT =====
-async function init(){
-    await fetchEventsFromSupabase();
-    await fetchNewsFromSupabase();
-    // Datos demo
-    socialPosts = [{id:'1',author:'Admin',content:'¡Bienvenidos a la red social de Alumni! 🎉',date:new Date().toISOString(),likes:[],comments:[]}];
-    forumTopics = [{id:'1',title:'Presentaciones',content:'¡Preséntate a la comunidad!',author:'Admin',date:new Date().toISOString(),replies:[]}];
-    buildNav();
-    setInterval(checkEventReminders,10000);
-    toast('✅ App lista - Kanban, Social, Foro, Chat, QR, Certificados, Gamificación');
-}
-
-init();
+loadInitialData();
+buildNav();
+refreshAll();
+toast('🎓 Bienvenido a AlumniTalks - Completa tu perfil');
+if (Notification.permission === 'default') Notification.requestPermission();
+alarmCheckerInterval = setInterval(checkEventReminders, 30000);
 </script>
 </body>
 </html>
