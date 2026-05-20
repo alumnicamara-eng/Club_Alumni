@@ -27,7 +27,6 @@ function bindTabsAndFilters() {
     const id = tab.dataset.tab;
     $$('.admin-panel').forEach(p => p.classList.toggle('hidden', p.id !== 'adminPanel-' + id));
   });
-  bindFilterRow('#newsFilters',  'tag', v => { State.filters.news    = v; renderNews(); });
   bindFilterRow('#talksFilters', 'cat', v => { State.filters.talks   = v; renderTalks(); });
   bindFilterRow('#postFilters',  'cat', v => { State.filters.posts   = v; renderPosts(); });
 }

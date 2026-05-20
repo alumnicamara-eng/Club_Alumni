@@ -1,14 +1,8 @@
 /* ==========================================================
-   Noticias — listado, abre el artículo en WordPress.
+   Noticias — solo aparecen en Inicio. El artículo se abre en WordPress.
    ========================================================== */
 
 const NEWS_TAGS = { club:'Vida del club', empleo:'Empleo', formacion:'Formación', eventos:'Eventos' };
-
-function renderNews() {
-  const filter = State.filters.news;
-  const list = DATA.news.filter(n => filter === 'todas' || n.tag === filter);
-  $('#newsList').innerHTML = list.map(newsCard).join('') || emptyMsg('No hay noticias en esta categoría', 'newspaper');
-}
 
 function newsCard(n) {
   const tagLabel = NEWS_TAGS[n.tag] || n.tag;

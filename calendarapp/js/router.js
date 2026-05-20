@@ -4,7 +4,6 @@
 
 const ROUTES = {
   inicio:     () => renderHome(),
-  noticias:   () => renderNews(),
   calendario: () => renderCalendar(),
   talks:      () => renderTalks(),
   mentoria:   () => renderMentors(),

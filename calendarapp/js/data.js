@@ -9,7 +9,6 @@ const State = {
   calDate: new Date(),
   calSelected: null,
   filters: {
-    news: 'todas',
     talks: 'todas',
     posts: 'todas',
     mentorCiclo: '',
@@ -19,7 +18,6 @@ const State = {
 
 const NAV = [
   { id: 'inicio',     label: 'Inicio',        icon: 'fa-house' },
-  { id: 'noticias',   label: 'Noticias',      icon: 'fa-newspaper' },
   { id: 'calendario', label: 'Calendario',    icon: 'fa-calendar-days' },
   { id: 'talks',      label: 'Conferencias',  icon: 'fa-video' },
   { id: 'mentoria',   label: 'Mentoría',      icon: 'fa-user-graduate' },
