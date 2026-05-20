@@ -30,7 +30,6 @@ function bindTabsAndFilters() {
   bindFilterRow('#newsFilters',  'tag', v => { State.filters.news    = v; renderNews(); });
   bindFilterRow('#talksFilters', 'cat', v => { State.filters.talks   = v; renderTalks(); });
   bindFilterRow('#postFilters',  'cat', v => { State.filters.posts   = v; renderPosts(); });
-  bindFilterRow('#jobsFilters',  'type',v => { State.filters.jobsType = v; renderJobs(); });
 }
 
 function bindFilterRow(sel, attr, cb) {

@@ -36,12 +36,6 @@ function renderAdmin() {
     </div>`;
   }).join('') || emptyMsg('No hay mentores registrados', 'user-graduate');
 
-  $('#adminJobsList').innerHTML = DATA.jobs.map(j => `<div class="card">
-    <div class="card-title">${escapeHtml(j.title)}</div>
-    <div class="card-meta"><span>${escapeHtml(j.company)}</span><span>${escapeHtml(j.type)}</span><span>${fmtRel(j.date)}</span></div>
-    <div class="card-actions"><button class="btn btn-ghost btn-sm" onclick="deleteJob(${j.id})"><i class="fas fa-trash"></i> Eliminar</button></div>
-  </div>`).join('') || emptyMsg('No hay ofertas publicadas', 'briefcase');
-
   $('#adminUsersList').innerHTML = DATA.users.filter(u => u.role !== 'admin').map(alumniCard).join('');
 
   renderProposals();

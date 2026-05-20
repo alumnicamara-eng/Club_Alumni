@@ -83,11 +83,6 @@
             <h1 class="hero-title">Tu comunidad de antiguos alumnos</h1>
             <p class="hero-sub">Eventos, conferencias, mentoría y oportunidades exclusivas para alumni Cámara FP. Mantente conectado con tu promoción.</p>
           </div>
-          <div class="hero-actions">
-            <button class="btn btn-accent" onclick="route('calendario')"><i class="fas fa-calendar-days"></i> Ver calendario</button>
-            <button class="btn btn-outline" onclick="route('talks')"><i class="fas fa-play"></i> Conferencias</button>
-          </div>
-          <div class="hero-highlights" id="heroHighlights"></div>
         </div>
 
         <div class="section-header">
@@ -251,33 +246,10 @@
         <div id="postsList"></div>
       </section>
 
-      <!-- ============ EMPLEO ============ -->
-      <section class="screen" id="s-empleo">
-        <div class="page-header">
-          <div class="flex-between gap-12" style="flex-wrap:wrap">
-            <div>
-              <div class="page-title">Bolsa de empleo</div>
-              <div class="page-subtitle">Ofertas publicadas por alumnis y empresas colaboradoras de Cámara FP.</div>
-            </div>
-            <button class="btn btn-accent btn-sm" onclick="openJobForm()"><i class="fas fa-plus"></i> Publicar oferta</button>
-          </div>
-        </div>
-
-        <div class="filter-row" id="jobsFilters">
-          <button class="filter-btn active" data-type="todas">Todas</button>
-          <button class="filter-btn" data-type="Indefinido">Indefinido</button>
-          <button class="filter-btn" data-type="Prácticas">Prácticas</button>
-          <button class="filter-btn" data-type="Temporal">Temporal</button>
-          <button class="filter-btn" data-type="Freelance">Freelance</button>
-        </div>
-
-        <div class="grid grid-2" id="jobsList"></div>
-      </section>
-
-      <!-- ============ DIRECTORIO ============ -->
+      <!-- ============ DESCUBRE ALUMNIS ============ -->
       <section class="screen" id="s-directorio">
         <div class="page-header">
-          <div class="page-title">Directorio</div>
+          <div class="page-title">Descubre Alumnis</div>
           <div class="page-subtitle">Encuentra a antiguos compañeros por ciclo, promoción o sector.</div>
         </div>
 
@@ -408,7 +380,6 @@
           <button class="admin-tab" data-tab="talks">Conferencias</button>
           <button class="admin-tab" data-tab="propuestas">Propuestas <span id="proposalsBadge" class="chip chip-warn hidden" style="margin-left:6px">0</span></button>
           <button class="admin-tab" data-tab="mentoria">Mentoría</button>
-          <button class="admin-tab" data-tab="empleo">Empleo</button>
           <button class="admin-tab" data-tab="usuarios">Usuarios</button>
           <button class="admin-tab" data-tab="config">Configuración</button>
         </div>
@@ -449,11 +420,6 @@
         <div id="adminPanel-mentoria" class="admin-panel hidden">
           <div class="card-title mt-8">Programa de mentoría</div>
           <div class="grid grid-2 mt-12" id="adminMentorsList"></div>
-        </div>
-
-        <div id="adminPanel-empleo" class="admin-panel hidden">
-          <div class="card-title mt-8">Ofertas de empleo publicadas</div>
-          <div class="grid grid-2 mt-12" id="adminJobsList"></div>
         </div>
 
         <div id="adminPanel-usuarios" class="admin-panel hidden">
@@ -523,7 +489,6 @@
 <script src="./js/screens/mentors.js"></script>
 <script src="./js/screens/community.js"></script>
 <script src="./js/screens/directory.js"></script>
-<script src="./js/screens/jobs.js"></script>
 <script src="./js/screens/profile.js"></script>
 <script src="./js/screens/admin.js"></script>
 <script src="./js/app.js"></script>

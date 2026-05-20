@@ -9,7 +9,6 @@ const ROUTES = {
   talks:      () => renderTalks(),
   mentoria:   () => renderMentors(),
   comunidad:  () => renderPosts(),
-  empleo:     () => renderJobs(),
   directorio: () => renderDirectory(),
   perfil:     () => renderProfile(),
   admin:      () => renderAdmin(),

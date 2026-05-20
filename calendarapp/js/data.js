@@ -13,7 +13,6 @@ const State = {
     talks: 'todas',
     posts: 'todas',
     mentorCiclo: '',
-    jobsType: 'todas',
   },
   notifications: [],
 };
@@ -25,8 +24,7 @@ const NAV = [
   { id: 'talks',      label: 'Conferencias',  icon: 'fa-video' },
   { id: 'mentoria',   label: 'Mentoría',      icon: 'fa-user-graduate' },
   { id: 'comunidad',  label: 'Comunidad',     icon: 'fa-comments' },
-  { id: 'empleo',     label: 'Empleo',        icon: 'fa-briefcase' },
-  { id: 'directorio', label: 'Directorio',    icon: 'fa-address-book' },
+  { id: 'directorio', label: 'Descubre Alumnis', icon: 'fa-address-book' },
 ];
 const MOBILE_NAV_IDS = ['inicio', 'calendario', 'talks', 'mentoria', 'comunidad'];
 
@@ -99,11 +97,4 @@ const DATA = {
     { id:4, authorDni:'55667788', cat:'recurso',  body:'Os dejo un curso gratuito de Kubernetes que me ha gustado mucho: https://kubernetes.io/training — para perfiles ASIR/DAM principalmente.', date:Date.now()-2*86400e3, likes:['12345678'], comments:[] },
   ],
 
-  jobs: [
-    { id:1, title:'Frontend Developer Junior (React)',         company:'Banco Sabadell',  location:'Valencia',  type:'Indefinido', remote:'Híbrido',     ciclos:['DAW','DAM'], description:'Buscamos a un alumni DAW/DAM para incorporarse al equipo de canales digitales. Stack: React, TypeScript, GraphQL.', salary:'24-28k€', contact:'rrhh@sabadell.com', postedBy:'12345678', date:Date.now()-2*86400e3 },
-    { id:2, title:'DevOps Engineer Junior',                    company:'Telefónica Tech', location:'Madrid',    type:'Indefinido', remote:'Remoto',      ciclos:['ASIR','DAM'], description:'Equipo de plataforma cloud. Trabajamos con AWS, Kubernetes, Terraform. Plan de carrera definido.', salary:'26-32k€', contact:'careers@telefonicatech.com', postedBy:'55667788', date:Date.now()-5*86400e3 },
-    { id:3, title:'Auditor/a Junior',                          company:'PwC',             location:'Valencia',  type:'Indefinido', remote:'Presencial',  ciclos:['Administración'], description:'Programa Talento PwC con formación remunerada y carrera estructurada.', salary:'22-25k€', contact:'talento.es@pwc.com', postedBy:'99887766', date:Date.now()-7*86400e3 },
-    { id:4, title:'Becario/a Marketing Digital',               company:'Estudio creativo Lemon', location:'Valencia', type:'Prácticas', remote:'Presencial', ciclos:['Marketing'], description:'Prácticas remuneradas. Tareas de redes, contenido y analítica para clientes locales.', salary:'600€/mes', contact:'hola@lemon.studio', postedBy:'11223344', date:Date.now()-10*86400e3 },
-    { id:5, title:'Especialista en compras internacionales',   company:'Mercadona', location:'Albalat dels Sorells', type:'Indefinido', remote:'Presencial', ciclos:['Comercio Internacional','Administración'], description:'Negociación con proveedores asiáticos y logística internacional.', salary:'28-34k€', contact:'rrhh@mercadona.es', postedBy:'44556677', date:Date.now()-12*86400e3 },
-  ],
 };

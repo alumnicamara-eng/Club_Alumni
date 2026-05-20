@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alumni-camarafp-v2';
+const CACHE_NAME = 'alumni-camarafp-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -21,7 +21,6 @@ const ASSETS = [
   './js/screens/mentors.js',
   './js/screens/community.js',
   './js/screens/directory.js',
-  './js/screens/jobs.js',
   './js/screens/profile.js',
   './js/screens/admin.js'
 ];
