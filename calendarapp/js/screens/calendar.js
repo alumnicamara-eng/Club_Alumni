@@ -138,3 +138,199 @@ function exportICS() {
   URL.revokeObjectURL(a.href);
   toast('Calendario descargado');
 }
+
+// ==================== CALENDAR.JS ====================
+
+let calDate = new Date();
+
+function loadCalendar() {
+    renderCalDays();
+    renderCalEvents();
+}
+
+function renderCalDays() {
+    const year = calDate.getFullYear();
+    const month = calDate.getMonth();
+    
+    document.getElementById('calMonth').textContent = calDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+    
+    const daysContainer = document.getElementById('calDays');
+    daysContainer.innerHTML = '';
+    
+    // Días vacíos inicio
+    for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'cal-day empty';
+        daysContainer.appendChild(empty);
+    }
+    
+    // Días del mes
+    const today = new Date();
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'cal-day';
+        
+        const currentDate = new Date(year, month, d);
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        
+        // Ver si tiene eventos
+        const hasEvent = data.events.some(e => e.date === dateStr);
+        if (hasEvent) dayEl.classList.add('has-event');
+        
+        // Ver si está inscrito
+        const isEnrolled = currentUser?.enrolled?.includes(dateStr);
+        if (isEnrolled) dayEl.classList.add('enrolled');
+        
+        // Es hoy
+        if (today.toDateString() === currentDate.toDateString()) {
+            dayEl.classList.add('today');
+        }
+        
+        dayEl.textContent = d;
+        dayEl.onclick = () => selectCalDate(dateStr);
+        
+        daysContainer.appendChild(dayEl);
+    }
+}
+
+function renderCalEvents() {
+    const year = calDate.getFullYear();
+    const month = calDate.getMonth();
+    const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+    
+    document.getElementById('calEventsTitle').textContent = `Eventos de ${calDate.toLocaleDateString('es-ES', { month: 'long' })}`;
+    
+    const events = data.events.filter(e => e.date.startsWith(monthStr));
+    const container = document.getElementById('calEvents');
+    container.innerHTML = '';
+    
+    if (events.length === 0) {
+        container.innerHTML = '<div class="empty-state">No hay eventos este mes</div>';
+        return;
+    }
+    
+    events.forEach(event => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+            <div class="card-title">${event.title}</div>
+            <div class="card-meta">
+                <i class="fas fa-calendar"></i> ${event.date} 
+                <i class="fas fa-clock" style="margin-left:8px"></i> ${event.time}
+            </div>
+            <div class="card-desc">${event.location}</div>
+        `;
+        
+        const isEnrolled = currentUser?.enrolled?.includes(event.date);
+        
+        if (isEnrolled) {
+            div.innerHTML += `<button class="btn btn-ghost btn-sm mt-8" onclick="unenrollEvent('${event.date}')"><i class="fas fa-times"></i> Cancelar inscripción</button>`;
+        } else {
+            div.innerHTML += `<button class="btn btn-primary btn-sm mt-8" onclick="enrollEvent('${event.date}')"><i class="fas fa-check"></i> Apuntarse</button>`;
+        }
+        
+        container.appendChild(div);
+    });
+}
+
+function selectCalDate(dateStr) {
+    // Aquí puedes filtrar o mostrar detalles
+    console.log('Seleccionado:', dateStr);
+}
+
+function enrollEvent(dateStr) {
+    if (!currentUser) return;
+    if (!currentUser.enrolled) currentUser.enrolled = [];
+    currentUser.enrolled.push(dateStr);
+    toast('¡Inscrito!');
+    renderCalDays();
+    renderCalEvents();
+    saveData();
+}
+
+function unenrollEvent(dateStr) {
+    if (!currentUser || !currentUser.enrolled) return;
+    currentUser.enrolled = currentUser.enrolled.filter(d => d !== dateStr);
+    toast('Inscripción cancelada');
+    renderCalDays();
+    renderCalEvents();
+    saveData();
+}
+
+// ==================== EXPORTAR A CALENDARIO (ICS) ====================
+
+function exportICS() {
+    let eventsToExport = [];
+    
+    // Exportar todos los eventos futuros
+    const today = new Date().toISOString().split('T')[0];
+    if (data.events) {
+        eventsToExport = data.events.filter(e => e.date >= today);
+    }
+    
+    if (eventsToExport.length === 0) {
+        toast('No hay eventos para exportar');
+        return;
+    }
+    
+    // Crear contenido ICS
+    let icsMsg = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Alumni Camara FP//NONSGML v1.0//ES",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        "X-WR-CALNAME:Alumni Cámara FP",
+        "X-WR-TIMEZONE:Europe/Madrid"
+    ];
+    
+    eventsToExport.forEach(event => {
+        // Formato fecha: YYYYMMDDTHHMMSS
+        const startDate = event.date.replace(/-/g, '') + 'T' + (event.time || '180000').replace(/:/g, '') + '00';
+        const endDate = event.date.replace(/-/g, '') + 'T' + (event.timeEnd || '200000').replace(/:/g, '') + '00';
+        
+        icsMsg.push(
+            "BEGIN:VEVENT",
+            "UID:" + Date.now() + "@alumnicamarfp.es",
+            "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + "Z",
+            "DTSTART:" + startDate,
+            "DTEND:" + endDate,
+            "SUMMARY:" + event.title,
+            "DESCRIPTION:" + (event.desc || 'Evento Alumni Cámara FP'),
+            "LOCATION:" + (event.location || 'Cámara de Comercio'),
+            "END:VEVENT"
+        );
+    });
+    
+    icsMsg.push("END:VCALENDAR");
+    
+    // Descargar archivo
+    const blob = new Blob([icsMsg.join("\r\n")], { 
+        type: 'text/calendar;charset=utf-8;method=PUBLISH' 
+    });
+    
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = 'alumni-calendar.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast('📅 Calendario exportado. Abre el archivo para añadirlo a tu calendario.');
+}
+
+document.getElementById('calPrev').addEventListener('click', () => {
+    calDate.setMonth(calDate.getMonth() - 1);
+    renderCalDays();
+    renderCalEvents();
+});
+
+document.getElementById('calNext').addEventListener('click', () => {
+    calDate.setMonth(calDate.getMonth() + 1);
+    renderCalDays();
+    renderCalEvents();
+});
