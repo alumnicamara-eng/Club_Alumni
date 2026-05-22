@@ -8,6 +8,7 @@ const ASSETS = [
   './css/layout.css',
   './css/components.css',
   './css/screens.css',
+  './js/calendar-notifications.js',
   './js/data.js',
   './js/utils.js',
   './js/ui.js',
