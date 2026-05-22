@@ -8,7 +8,6 @@ const ASSETS = [
   './css/layout.css',
   './css/components.css',
   './css/screens.css',
-  './js/calendar-notifications.js',
   './js/data.js',
   './js/utils.js',
   './js/ui.js',
@@ -75,86 +74,4 @@ self.addEventListener('push', e => {
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil(clients.openWindow(e.notification.data || './'));
-});
-
-/* ================================================================
-   Alumni Cámara FP — Service Worker
-   Gestiona: Push Notifications + Alarmas offline de eventos
-   ================================================================ */
-
-const CACHE_NAME = "alumni-fp-v1";
-
-// ── Instalación ──────────────────────────────────────────────
-self.addEventListener("install", (e) => {
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", (e) => {
-  e.waitUntil(clients.claim());
-});
-
-// ── Push recibido desde servidor ─────────────────────────────
-self.addEventListener("push", (e) => {
-  let data = { title: "Alumni Cámara FP", body: "Tienes una novedad en la comunidad.", icon: "./img/logo.jpeg", badge: "./img/logo.jpeg" };
-
-  try { data = { ...data, ...e.data.json() }; } catch (_) {}
-
-  e.waitUntil(
-    self.registration.showNotification(data.title, {
-      body:    data.body,
-      icon:    data.icon    || "./img/logo.jpeg",
-      badge:   data.badge   || "./img/logo.jpeg",
-      tag:     data.tag     || "alumni-push",
-      data:    { url: data.url || "/" },
-      actions: [
-        { action: "open",    title: "Ver evento" },
-        { action: "dismiss", title: "Cerrar"     },
-      ],
-      vibrate: [200, 100, 200],
-      requireInteraction: true,
-    })
-  );
-});
-
-// ── Alarma programada (via postMessage desde la app) ─────────
-self.addEventListener("message", (e) => {
-  if (e.data?.type === "SCHEDULE_ALARM") {
-    const { eventId, title, body, fireAt } = e.data;
-    const delay = new Date(fireAt).getTime() - Date.now();
-    if (delay <= 0) return;
-
-    // Usamos setTimeout en el SW (sólo fiable cuando la app está abierta/background)
-    setTimeout(() => {
-      self.registration.showNotification(`🔔 ${title}`, {
-        body,
-        icon:  "./img/logo.jpeg",
-        badge: "./img/logo.jpeg",
-        tag:   `alarm-${eventId}`,
-        data:  { url: "/", eventId },
-        vibrate: [300, 150, 300, 150, 300],
-        requireInteraction: true,
-      });
-    }, delay);
-  }
-});
-
-// ── Click en notificación ────────────────────────────────────
-self.addEventListener("notificationclick", (e) => {
-  e.notification.close();
-
-  if (e.action === "dismiss") return;
-
-  const url = e.notification.data?.url || "/";
-
-  e.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && "focus" in client) {
-          client.postMessage({ type: "NAV_TO", url });
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) return clients.openWindow(url);
-    })
-  );
 });
