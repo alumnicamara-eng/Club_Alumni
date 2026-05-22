@@ -82,28 +82,25 @@
           <div>
             <div class="hero-eyebrow">Alumni Cámara FP</div>
             <h1 class="hero-title">Tu comunidad de antiguos alumnos</h1>
-            <p class="hero-sub">Eventos, conferencias, mentoría y oportunidades exclusivas para alumni Cámara FP. Mantente conectado con tu promoción.</p>
+            <p class="hero-sub">Eventos, conferencias, mentoría y oportunidades exclusivas para alumni Cámara FP.</p>
           </div>
         </div>
-
-        <div class="section-header">
-          <span class="section-title">Próximos eventos</span>
-          <span class="section-link" onclick="route('calendario')">Ver calendario <i class="fas fa-arrow-right" style="font-size:11px"></i></span>
-        </div>
-        <div class="grid grid-2" id="homeEvents"></div>
-
-        <div class="section-header">
-          <span class="section-title">Últimas conferencias grabadas</span>
-          <span class="section-link" onclick="route('talks')">Ver todas</span>
-        </div>
-        <div class="grid grid-3" id="homeTalks"></div>
-
         <div class="section-header">
           <span class="section-title">Noticias del club</span>
+          <span class="section-link" onclick="route('noticias')">Ver todas <i class="fas fa-arrow-right" style="font-size:11px"></i></span>
         </div>
         <div class="grid grid-2" id="homeNews"></div>
       </section>
 
+      <!-- ============ NOTICIAS ============ -->
+      <section class="screen" id="s-noticias">
+        <div class="page-header">
+          <div class="page-title">Noticias</div>
+          <div class="page-subtitle">Últimas noticias del club.</div>
+        </div>
+        <div class="grid grid-2" id="newsList"></div>
+      </section>
+      
       <!-- ============ CALENDARIO ============ -->
       <section class="screen" id="s-calendario">
         <div class="page-header">
