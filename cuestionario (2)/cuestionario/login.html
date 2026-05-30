@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Cuestionario Cámara FP | Encuesta de valoración</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div class="form-container">
+    <div class="form-header">
+        <div class="header-top">
+           <img src="./imag/logo.png" alt="Cámara FP">
+            <div class="header-title">
+                <h1>Encuesta de valoración</h1>
+                <p class="subtitle">Queremos conocer tus preferencias</p>
+            </div>
+            <button type="button" class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i> Modo oscuro
+            </button>
+        </div>
+        <div class="progress-bar-container" style="background: #e0e0e0; width: 100%; margin: 10px 0;">
+            <div class="progress-bar" id="progressBar" style="width: 25%;"></div>
+        </div>
+    </div>
+
+    <form id="encuestaForm">
+        <div class="step active" data-step="1">
+            <h3>Paso 1: Sobre ti</h3>
+            <div class="question">
+                <label>Email *</label>
+                <input type="email" id="email" placeholder="ejemplo@correo.com" required>
+            </div>
+            <div class="question">
+                <label>Nombre y Apellidos</label>
+                <input type="text" id="nombre" placeholder="Tu nombre completo">
+            </div>
+            <div class="question">
+                <label>¿Qué ciclo o curso has estudiado?</label>
+                <select id="ciclo">
+                    <option value="">--Selecciona--</option>
+                    <option value="DAM">Desarrollo de Aplicaciones Multiplataforma (DAM)</option>
+                    <option value="DAW">Desarrollo de Aplicaciones Web (DAW)</option>
+                    <option value="Marketing">Marketing y Publicidad</option>
+                    <option value="Comercio">Comercio Internacional</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+            <div class="question">
+                <label>¿Cuál es tu situación profesional actual?</label>
+                <select id="situacion_profesional">
+                    <option value="Buscando primer empleo">Buscando mi primer empleo</option>
+                    <option value="Buscando cambio">Buscando cambio profesional</option>
+                    <option value="Trabajando estable">Trabajando de forma estable</option>
+                    <option value="Emprendedor">Emprendedor / Autónomo</option>
+                    <option value="Estudiando">Continuando estudios</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="step" data-step="2">
+            <h3>Paso 2: Valoración del centro</h3>
+            <div class="question">
+                <label>¿Qué te gustaría conseguir con tus estudios?</label>
+                <textarea id="objetivos" placeholder="Metas profesionales..."></textarea>
+            </div>
+            <div class="question">
+                <label>¿Qué has echado de menos en Cámara FP?</label>
+                <textarea id="feedback_negativo" placeholder="Herramientas, contenidos..."></textarea>
+            </div>
+            <div class="question">
+                <label>¿En qué podríamos ayudarte ahora mismo?</label>
+                <textarea id="ayuda_centro" placeholder="¿Cómo podemos impulsarte?"></textarea>
+            </div>
+        </div>
+
+        <div class="step" data-step="3">
+            <h3>Paso 3: Intereses</h3>
+            <div class="question">
+                <label>Opportunity Board: bolsa de empleo exclusiva</label>
+                <div class="rating-container">
+                    <input type="range" min="1" max="10" value="5" id="rating_opp" class="rating-slider">
+                    <span class="rating-value">5</span>
+                </div>
+            </div>
+            <div class="question">
+                <label>Comunidad y Tardeos: eventos y networking</label>
+                <div class="rating-container">
+                    <input type="range" min="1" max="10" value="5" id="rating_com" class="rating-slider">
+                    <span class="rating-value">5</span>
+                </div>
+            </div>
+            <div class="question">
+                <label>Ligas Deportivas: torneos entre exalumnos</label>
+                <div class="rating-container">
+                    <input type="range" min="1" max="10" value="5" id="rating_dep" class="rating-slider">
+                    <span class="rating-value">5</span>
+                </div>
+            </div>
+            <div class="question">
+                <label>Ventajas Premium: descuentos y merchandising</label>
+                <div class="rating-container">
+                    <input type="range" min="1" max="10" value="5" id="rating_pre" class="rating-slider">
+                    <span class="rating-value">5</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="step" data-step="4">
+            <h3>Paso 4: Participación</h3>
+            <div class="question">
+                <label>Programa de Embajadores: ¿participarías?</label>
+                <select id="embajadoresSelect">
+                    <option value="">--Selecciona--</option>
+                    <option value="Sí">Sí, me encantaría</option>
+                    <option value="No">No, no me interesa</option>
+                    <option value="Depende">Depende de las condiciones</option>
+                </select>
+            </div>
+            <div class="question">
+                <label>Mentoring: ¿serías mentor para nuevos alumnos?</label>
+                <select id="mentoringSelect">
+                    <option value="">--Selecciona--</option>
+                    <option value="Sí">Sí, me gustaría ayudar</option>
+                    <option value="No">No tengo disponibilidad</option>
+                </select>
+            </div>
+            <div class="question">
+                <label>¿En qué stack tecnológico o lenguaje te has especializado?</label>
+                <textarea id="tech_stack" placeholder="Ej: React, Python, Java..."></textarea>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button type="button" id="prevBtn" disabled>Anterior</button>
+            <button type="button" id="nextBtn">Siguiente</button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = "https://fkwaqdhlyiyqgjuurbwo.supabase.co";
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrd2FxZGhseWl5cWdqdXVyYndvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTU0MzgsImV4cCI6MjA4OTgzMTQzOH0.C_dXY4_Je7ntYW0xAKIrQ8O__5mt_zxaNuW7sAllJSc';
+    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentStep = 1;
+    const totalSteps = 4; // Corregido a 4 pasos
+
+    const steps = document.querySelectorAll(".step");
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const progressBar = document.getElementById("progressBar");
+
+    function updateUI() {
+        steps.forEach((s, i) => s.classList.toggle('active', i + 1 === currentStep));
+        const percentage = (currentStep / totalSteps) * 100;
+        progressBar.style.width = percentage + "%";
+        prevBtn.disabled = currentStep === 1;
+        nextBtn.textContent = currentStep === totalSteps ? 'Enviar Encuesta ✅' : 'Siguiente';
+    }
+
+    // Actualizar números de los sliders en tiempo real
+    document.querySelectorAll('.rating-slider').forEach(slider => {
+        slider.addEventListener('input', (e) => {
+            e.target.nextElementSibling.textContent = e.target.value;
+        });
+    });
+
+    nextBtn.addEventListener('click', async () => {
+        if (currentStep === 1) {
+            const email = document.getElementById('email').value;
+            if (!email || !email.includes('@')) return alert("Introduce un email válido.");
+        }
+        
+        if (currentStep < totalSteps) {
+            currentStep++;
+            updateUI();
+        } else {
+            await enviarEncuesta();
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 1) { currentStep--; updateUI(); }
+    });
+
+    async function enviarEncuesta() {
+    nextBtn.disabled = true;
+    nextBtn.textContent = "Enviando...";
+
+    const data = {
+        email: document.getElementById('email').value,
+        nombre: document.getElementById('nombre').value,
+        ciclo: document.getElementById('ciclo').value,
+        situacion_profesional: document.getElementById('situacion_profesional').value,
+        objetivos: document.getElementById('objetivos').value,
+        feedback_negativo: document.getElementById('feedback_negativo').value,
+        ayuda_centro: document.getElementById('ayuda_centro').value,
+        punt_opportunity: parseInt(document.getElementById('rating_opp').value),
+        punt_comunidad: parseInt(document.getElementById('rating_com').value),
+        punt_deportes: parseInt(document.getElementById('rating_dep').value),
+        punt_premium: parseInt(document.getElementById('rating_pre').value),
+        embajadores: document.getElementById('embajadoresSelect').value,
+        mentoring: document.getElementById('mentoringSelect').value,
+        tech_stack: document.getElementById('tech_stack').value,
+        created_at: new Date().toISOString()
+    };
+
+    try {
+        // Guardar o actualizar alumno
+        await _supabase.from('alumnos').upsert({ 
+            email: data.email, 
+            nombre: data.nombre,
+            ciclo: data.ciclo 
+        }, { onConflict: 'email' });
+
+        // Insertar respuesta
+        const { error } = await _supabase.from('respuestas').insert([data]);
+        if (error) throw error;
+
+        // ÉXITO: Alerta y Redirección
+        alert("¡Muchas gracias! Tus respuestas se han guardado correctamente.");
+        window.location.href = 'index.html'; // <--- CAMBIO AQUÍ
+        
+    } catch (err) {
+        alert("Error al guardar: " + err.message);
+        nextBtn.disabled = false;
+        nextBtn.textContent = "Reintentar";
+    }
+}
+    
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "Cámara FP Encuesta",
+  "short_name": "Encuesta FP",
+  "description": "Plataforma de encuestas para exalumnos de Cámara FP",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#495057",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "imag/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "imag/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

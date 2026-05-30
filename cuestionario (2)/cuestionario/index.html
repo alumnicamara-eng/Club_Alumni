@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Cámara FP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- Reset y estilos base --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        .auth-container { 
+            width: 100%; 
+            max-width: 450px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1); 
+            text-align: center;
+        }
+        .auth-container img { max-width: 180px; margin-bottom: 20px; }
+
+        /* Tabs */
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #666; background: none; border: none; font-size: 16px; transition: 0.3s; border-bottom: 2px solid transparent; }
+        .tab.active { color: #495057; border-bottom-color: #495057; font-weight: bold; }
+
+        /* Formularios */
+        form { display: flex; flex-direction: column; gap: 15px; }
+        .form-group input { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 6px; 
+            border: 1px solid #ddd; 
+            font-size: 14px; 
+        }
+        .form-group input:focus { outline: none; border-color: #495057; }
+        .btn { padding: 12px; background: #495057; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px; transition: 0.3s; }
+        .btn:hover { background: #343a40; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Alerts */
+        .alert { padding: 12px; border-radius: 6px; font-size: 14px; margin-bottom: 15px; text-align: left; }
+        .alert-error { background: #fdecea; color: #b02a37; border: 1px solid #f5c2c7; }
+        .alert-success { background: #e6f4ea; color: #2d6a4f; border: 1px solid #c3e6cb; }
+
+        /* Role selector */
+        .role-selector { display: flex; gap: 10px; margin-bottom: 5px; }
+        .role-btn { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 6px; cursor: pointer; transition: 0.3s; font-size: 14px; }
+        .role-btn.active { border-color: #495057; background: #495057; color: white; }
+
+        /* Spinner */
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .role-selector { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-container">
+    <img src="./imag/logo.png" alt="Cámara FP">
+    <div class="tabs">
+        <button class="tab active" data-tab="login">Iniciar Sesión</button>
+        <button class="tab" data-tab="register">Registro</button>
+    </div>
+
+    <div id="alertMessage"></div>
+
+    <form id="loginForm">
+        <div class="role-selector">
+            <div class="role-btn active" data-role="alumno">👨‍🎓 Alumno</div>
+            <div class="role-btn" data-role="admin">👑 Administrador</div>
+        </div>
+        <div class="form-group">
+            <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
+        </div>
+        <div class="form-group">
+            <input type="password" id="loginPassword" placeholder="Contraseña" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn" id="loginBtn">Iniciar Sesión</button>
+    </form>
+
+    <form id="registerForm" style="display:none;">
+        <div class="form-group">
+            <input type="text" id="regName" placeholder="Nombre completo" required autocomplete="name">
+        </div>
+        <div class="form-group">
+            <input type="email" id="regEmail" placeholder="Email" required autocomplete="email">
+        </div>
+        <div class="form-group">
+            <input type="password" id="regPassword" placeholder="Contraseña (mínimo 6 caracteres)" required autocomplete="new-password" minlength="6">
+        </div>
+        <button type="submit" class="btn" id="registerBtn">Registrarse</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// --- Configuración Supabase ---
+const SUPABASE_URL = 'https://fkwaqdhlyiyqgjuurbwo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrd2FxZGhseWl5cWdqdXVyYndvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTU0MzgsImV4cCI6MjA4OTgzMTQzOH0.C_dXY4_Je7ntYW0xAKIrQ8O__5mt_zxaNuW7sAllJSc';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const alertDiv = document.getElementById('alertMessage');
+
+function showAlert(message, type) {
+    alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    // No quitamos el éxito rápido para que el usuario lea, pero el error sí
+    if (type === 'error') setTimeout(() => { alertDiv.innerHTML = ''; }, 5000);
+}
+
+// --- Manejo de Tabs ---
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const isLogin = tab.dataset.tab === 'login';
+        document.getElementById('loginForm').style.display = isLogin ? 'flex' : 'none';
+        document.getElementById('registerForm').style.display = isLogin ? 'none' : 'flex';
+        alertDiv.innerHTML = '';
+    });
+});
+
+// --- Selección de Rol ---
+let selectedRole = 'alumno';
+document.querySelectorAll('.role-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedRole = btn.dataset.role;
+    });
+});
+
+// --- LOGIN ---
+document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const loginBtn = document.getElementById('loginBtn');
+    
+    try {
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<span class="spinner"></span> Verificando...';
+
+        if (selectedRole === 'alumno') {
+           const response = await fetch("login_usuario.php", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        email,
+        password
+    })
+});
+
+const result = await response.json();
+
+if (!result.success) {
+    throw new Error(result.message);
+}
+
+sessionStorage.setItem('userRole', result.rol);
+
+showAlert('✅ Acceso concedido. Entrando...', 'success');
+
+setTimeout(() => {
+    window.location.href = 'login.html';
+}, 1000);
+        } else {
+            // Lógica Admin (Hardcoded según tu ejemplo)
+            if (email === 'admin@camarafp.com' && password === 'admin123') {
+                sessionStorage.setItem('userRole', 'admin');
+                showAlert('✅ Modo Administrador Activo', 'success');
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+            } else {
+                throw new Error('Credenciales de administrador no válidas');
+            }
+        }
+    } catch (err) { 
+        showAlert(err.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : err.message, 'error'); 
+    } finally { 
+        loginBtn.disabled = false; 
+        loginBtn.innerHTML = 'Iniciar Sesión'; 
+    }
+});
+
+// --- REGISTRO ---
+document.getElementById('registerForm').addEventListener('submit', async e => {
+
+    e.preventDefault();
+
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+
+    const registerBtn = document.getElementById('registerBtn');
+
+    try {
+
+        registerBtn.disabled = true;
+        registerBtn.innerHTML = '<span class="spinner"></span> Registrando...';
+
+        const response = await fetch("registro.php", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                nombre: name,
+                email: email,
+                password: password
+            })
+
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+
+            showAlert(
+                '✅ Usuario registrado correctamente',
+                'success'
+            );
+
+            document.getElementById('registerForm').reset();
+
+            setTimeout(() => {
+
+                document
+                    .querySelector('[data-tab="login"]')
+                    .click();
+
+            }, 1500);
+
+        } else {
+
+            showAlert(
+                result.message,
+                'error'
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        showAlert(
+            'Error de conexión con el servidor',
+            'error'
+        );
+
+    } finally {
+
+        registerBtn.disabled = false;
+        registerBtn.innerHTML = 'Registrarse';
+
+    }
+
+});
+
+// --- Verificación de Sesión ---
+async function checkActiveSession() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (session) {
+        const role = sessionStorage.getItem('userRole');
+        // Get the current filename
+        const currentPage = window.location.pathname.split("/").pop();
+
+        // Prevent redirecting if we are already at the destination
+        if (role === 'alumno' && currentPage !== 'index.html') {
+            window.location.href = 'login.html';
+        } else if (role === 'admin' && currentPage !== 'index.html') {
+            window.location.href = 'dashboard.html';
+        }
+    }
+}
+checkActiveSession();
+</script>
+</body>
+</html>
