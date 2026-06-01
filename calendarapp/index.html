@@ -77,7 +77,7 @@
     <main class="content" id="content">
 
       <!-- ============ INICIO ============ -->
-      <section class="screen active" id="s-inicio">
+     <section class="screen active" id="s-inicio">
         <div class="hero">
           <div>
             <div class="hero-eyebrow">Alumni Cámara FP</div>
@@ -457,21 +457,491 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ===================== SCRIPTS ===================== -->
-<script src="./js/data.js"></script>
-<script src="./js/utils.js"></script>
-<script src="./js/ui.js"></script>
-<script src="./js/auth.js"></script>
-<script src="./js/router.js"></script>
-<script src="./js/screens/home.js"></script>
-<script src="./js/screens/news.js"></script>
-<script src="./js/screens/calendar.js"></script>
-<script src="./js/screens/talks.js"></script>
-<script src="./js/screens/mentors.js"></script>
-<script src="./js/screens/community.js"></script>
-<script src="./js/screens/directory.js"></script>
-<script src="./js/screens/profile.js"></script>
-<script src="./js/screens/admin.js"></script>
-<script src="./js/app.js"></script>
+<script>
+// ==================== CONFIGURACIÓN SUPABASE ====================
+// ¡CAMBIAR POR TUS CREDENCIALES DE SUPABASE!
+const SUPABASE_CONFIG = {
+  url: 'https://tuproyecto.supabase.co',
+  anonKey: 'tu-anon-key'
+};
+
+let supabaseClient = null;
+
+function initSupabase() {
+  try {
+    const savedUrl = localStorage.getItem('supabase_url');
+    const savedKey = localStorage.getItem('supabase_key');
+    const url = savedUrl || SUPABASE_CONFIG.url;
+    const key = savedKey || SUPABASE_CONFIG.anonKey;
+    
+    if (url && key && url !== 'https://tuproyecto.supabase.co' && key !== 'tu-anon-key') {
+      supabaseClient = supabase.createClient(url, key);
+      console.log('✅ Supabase conectado');
+      return true;
+    }
+    console.warn('⚠️ Configura Supabase en el panel de administración');
+    return false;
+  } catch (e) {
+    console.error('Error Supabase:', e);
+    return false;
+  }
+}
+
+function saveSupabaseConfig() {
+  const url = document.getElementById('cfgSupabaseUrl').value;
+  const key = document.getElementById('cfgSupabaseKey').value;
+  if (url && key) {
+    localStorage.setItem('supabase_url', url);
+    localStorage.setItem('supabase_key', key);
+    initSupabase();
+    closeModal();
+    showToast('Configuración guardada. Recarga la página.');
+  } else {
+    showToast('Completa ambos campos');
+  }
+}
+
+// ==================== DATOS LOCALES (FALLBACK) ====================
+window.appData = {
+  currentUser: null,
+  users: [
+    { id: 1, username: "12345678", password: "user123", name: "María García", email: "maria@example.com", role: "alumni", ciclo: "DAW", year: 2022, company: "Google", position: "Frontend Developer", phone: "666111222", avatar: "M", bio: "" },
+    { id: 2, username: "admin", password: "admin123", name: "Admin User", email: "admin@camarafp.es", role: "admin", ciclo: "ASIR", year: 2020, company: "Cámara FP", position: "Administrador", phone: "666000111", avatar: "A", bio: "" }
+  ],
+  news: [
+    { id: 1, title: "🎉 Nueva edición del Networking Alumni", summary: "Conecta con antiguos compañeros el 25 de enero", date: "2026-01-15", image: "🎉" },
+    { id: 2, title: "💼 Ofertas de empleo exclusivas", summary: "Empresas partner buscan talento tecnológico", date: "2026-01-10", image: "💼" },
+    { id: 3, title: "📊 Webinar: Cómo destacar en LinkedIn", summary: "Optimiza tu perfil profesional", date: "2026-01-05", image: "📊" }
+  ],
+  events: [
+    { id: 1, title: "Networking Alumni 2026", date: "2026-01-20", time: "18:00", location: "Online", description: "Conecta con antiguos compañeros" },
+    { id: 2, title: "Charla: IA en el trabajo", date: "2026-01-25", time: "19:00", location: "Auditorio", description: "Inteligencia Artificial aplicada" },
+    { id: 3, title: "Taller de empleabilidad", date: "2026-02-01", time: "17:00", location: "Online", description: "Mejora tu CV" }
+  ],
+  talks: [
+    { id: 1, title: "El futuro del desarrollo web", speaker: "Juan Pérez", category: "tecnologia", youtubeId: "dQw4w9WgXcQ", description: "Tendencias 2026" },
+    { id: 2, title: "Cómo emprender con éxito", speaker: "Ana López", category: "emprendimiento", youtubeId: "dQw4w9WgXcQ", description: "Claves para startups" }
+  ],
+  mentors: [
+    { id: 1, name: "Carlos Ruiz", ciclo: "DAW", company: "Microsoft", experience: "5 años", available: true, maxMentees: 5, currentMentees: 2 },
+    { id: 2, name: "Laura Martínez", ciclo: "DAM", company: "Amazon", experience: "7 años", available: true, maxMentees: 5, currentMentees: 1 }
+  ],
+  posts: [],
+  proposals: [],
+  userEvents: []
+};
+
+// ==================== UTILIDADES ====================
+function showToast(message, duration = 3000) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function openModal(title, body) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeVideo() {
+  document.getElementById('videoOverlay').style.display = 'none';
+  document.getElementById('videoFrame').src = '';
+}
+
+function exportICS() {
+  let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Alumni Cámara FP//ES\n";
+  window.appData.events.forEach(event => {
+    const date = event.date.replace(/-/g, '');
+    icsContent += `BEGIN:VEVENT\nSUMMARY:${event.title}\nDTSTART:${date}T${event.time.replace(':', '')}00\nDTEND:${date}T${(parseInt(event.time.split(':')[0])+1).toString().padStart(2,'0')}:${event.time.split(':')[1]}00\nLOCATION:${event.location}\nDESCRIPTION:${event.description}\nEND:VEVENT\n`;
+  });
+  icsContent += "END:VCALENDAR";
+  const blob = new Blob([icsContent], {type: "text/calendar"});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = "calendario_alumni.ics";
+  link.click();
+  showToast("Calendario exportado");
+}
+
+// ==================== AUTENTICACIÓN ====================
+async function login() {
+  const username = document.getElementById('authUser').value;
+  const password = document.getElementById('authPass').value;
+  
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .single();
+      
+      if (data && !error) {
+        window.appData.currentUser = data;
+        localStorage.setItem('currentUser', JSON.stringify(data));
+        afterLogin(data);
+        return;
+      }
+    } catch (e) {}
+  }
+  
+  const user = window.appData.users.find(u => u.username === username && u.password === password);
+  if (user) {
+    window.appData.currentUser = user;
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    afterLogin(user);
+  } else {
+    showToast('Credenciales incorrectas');
+  }
+}
+
+function afterLogin(user) {
+  document.getElementById('authOverlay').classList.add('hidden');
+  document.getElementById('appShell').classList.remove('hidden');
+  document.getElementById('userName').textContent = user.name.split(' ')[0];
+  document.getElementById('userAvatar').textContent = user.avatar || user.name.charAt(0);
+  document.getElementById('profilePhotoText').textContent = user.avatar || user.name.charAt(0);
+  if (user.role === 'admin') {
+    document.getElementById('dropdownAdmin').classList.remove('hidden');
+  }
+  renderSidebar();
+  loadDataFromSupabase();
+  route('inicio');
+  showToast(`Bienvenido, ${user.name}`);
+}
+
+function logout() {
+  window.appData.currentUser = null;
+  localStorage.removeItem('currentUser');
+  document.getElementById('authOverlay').classList.remove('hidden');
+  document.getElementById('appShell').classList.add('hidden');
+}
+
+async function checkSession() {
+  const saved = localStorage.getItem('currentUser');
+  if (saved) {
+    const user = JSON.parse(saved);
+    window.appData.currentUser = user;
+    document.getElementById('authOverlay').classList.add('hidden');
+    document.getElementById('appShell').classList.remove('hidden');
+    document.getElementById('userName').textContent = user.name.split(' ')[0];
+    document.getElementById('userAvatar').textContent = user.avatar || user.name.charAt(0);
+    if (user.role === 'admin') {
+      document.getElementById('dropdownAdmin').classList.remove('hidden');
+    }
+    renderSidebar();
+    await loadDataFromSupabase();
+    return true;
+  }
+  return false;
+}
+
+// ==================== CARGA DE DATOS DESDE SUPABASE ====================
+async function loadDataFromSupabase() {
+  if (!supabaseClient) return;
+  
+  try {
+    const { data: newsData } = await supabaseClient.from('news').select('*').order('date', { ascending: false });
+    if (newsData && newsData.length) window.appData.news = newsData;
+    
+    const { data: eventsData } = await supabaseClient.from('events').select('*').order('date', { ascending: true });
+    if (eventsData && eventsData.length) window.appData.events = eventsData;
+    
+    const { data: talksData } = await supabaseClient.from('talks').select('*');
+    if (talksData && talksData.length) window.appData.talks = talksData;
+    
+    const { data: mentorsData } = await supabaseClient.from('mentors').select('*');
+    if (mentorsData && mentorsData.length) window.appData.mentors = mentorsData;
+    
+    const { data: postsData } = await supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
+    if (postsData && postsData.length) window.appData.posts = postsData;
+    
+    renderHomeNews();
+    renderCalendar();
+    renderTalks();
+    renderMentors();
+    renderDirectory();
+    renderPosts();
+  } catch (e) {
+    console.log('Error cargando datos:', e);
+  }
+}
+
+// ==================== ROUTER ====================
+function route(screenId) {
+  document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+  const target = document.getElementById(`s-${screenId}`);
+  if (target) target.classList.add('active');
+  
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  const activeNav = document.querySelector(`[data-route="${screenId}"]`);
+  if (activeNav) activeNav.classList.add('active');
+  
+  switch(screenId) {
+    case 'inicio': renderHomeNews(); break;
+    case 'noticias': renderNews(); break;
+    case 'calendario': renderCalendar(); break;
+    case 'talks': renderTalks(); break;
+    case 'mentoria': renderMentors(); break;
+    case 'comunidad': renderPosts(); break;
+    case 'directorio': renderDirectory(); break;
+    case 'perfil': loadProfile(); break;
+    case 'admin': if (window.appData.currentUser?.role === 'admin') renderAdmin(); else route('inicio'); break;
+  }
+}
+
+function renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const items = [
+    { icon: '🏠', label: 'Inicio', route: 'inicio' },
+    { icon: '📰', label: 'Noticias', route: 'noticias' },
+    { icon: '📅', label: 'Calendario', route: 'calendario' },
+    { icon: '🎥', label: 'Conferencias', route: 'talks' },
+    { icon: '🤝', label: 'Mentoría', route: 'mentoria' },
+    { icon: '💬', label: 'Comunidad', route: 'comunidad' },
+    { icon: '👥', label: 'Directorio', route: 'directorio' },
+    { icon: '👤', label: 'Mi perfil', route: 'perfil' }
+  ];
+  sidebar.innerHTML = `<div class="nav-menu">${items.map(item => `<div class="nav-item" data-route="${item.route}" onclick="route('${item.route}')"><span>${item.icon}</span><span>${item.label}</span></div>`).join('')}</div>`;
+}
+
+// ==================== NOTICIAS ====================
+function renderHomeNews() {
+  const container = document.getElementById('homeNews');
+  if (!container) return;
+  const latestNews = window.appData.news.slice(0, 2);
+  container.innerHTML = latestNews.map(news => `<div class="card"><div style="font-size: 40px;">${news.image || '📰'}</div><div class="card-title">${news.title}</div><div class="card-desc">${news.summary}</div><div style="font-size: 12px; color: #64748b;">📅 ${news.date}</div></div>`).join('');
+}
+
+function renderNews() {
+  const container = document.getElementById('newsList');
+  container.innerHTML = window.appData.news.map(news => `<div class="card"><div style="font-size: 40px;">${news.image || '📰'}</div><div class="card-title">${news.title}</div><div class="card-desc">${news.summary}</div><div style="font-size: 12px; color: #64748b;">📅 ${news.date}</div></div>`).join('');
+}
+
+// ==================== CALENDARIO CON GOOGLE CALENDAR ====================
+let currentDate = new Date();
+
+function renderCalendar() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const startDay = firstDay.getDay() || 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  
+  document.getElementById('calMonth').textContent = `${firstDay.toLocaleString('es', { month: 'long' })} ${year}`;
+  
+  let daysHtml = '';
+  for (let i = 1; i < startDay; i++) daysHtml += '<div></div>';
+  
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hasEvent = window.appData.events.some(e => e.date === dateStr);
+    const isToday = dateStr === new Date().toISOString().split('T')[0];
+    let classes = 'cal-day';
+    if (hasEvent) classes += ' has-event';
+    if (isToday) classes += ' today';
+    daysHtml += `<div class="${classes}" onclick="showDayEvents('${dateStr}')">${d}</div>`;
+  }
+  document.getElementById('calDays').innerHTML = daysHtml;
+  
+  const monthEvents = window.appData.events.filter(e => e.date.startsWith(`${year}-${String(month+1).padStart(2,'0')}`));
+  const eventsContainer = document.getElementById('calEvents');
+  eventsContainer.innerHTML = `<div class="card"><div class="card-title">Eventos de ${firstDay.toLocaleString('es', { month: 'long' })}</div>${monthEvents.map(event => `<div style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;"><div style="font-weight: 600;">${event.title}</div><div style="font-size: 13px; color: #64748b;">📅 ${event.date} - ${event.time} | 📍 ${event.location}</div><button class="btn btn-primary btn-sm" style="margin-top: 8px;" onclick="addToGoogleCalendar('${event.title}', '${event.date}', '${event.time}', '${event.location}', '${event.description || ''}')"><i class="fab fa-google"></i> Añadir a Google Calendar</button></div>`).join('')}${monthEvents.length === 0 ? '<div style="color: #64748b;">No hay eventos este mes</div>' : ''}</div>`;
+}
+
+function addToGoogleCalendar(title, date, time, location, description) {
+  const startDateTime = new Date(`${date}T${time}:00`);
+  const endDateTime = new Date(startDateTime.getTime() + 3600000);
+  const formatDate = (d) => d.toISOString().replace(/-|:|\.\d+/g, '');
+  const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDateTime)}/${formatDate(endDateTime)}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}&sf=true&output=xml`;
+  window.open(url, '_blank');
+  showToast('Abriendo Google Calendar...');
+}
+
+function showDayEvents(dateStr) {
+  const events = window.appData.events.filter(e => e.date === dateStr);
+  if (events.length === 0) { openModal('Eventos', '<div>No hay eventos este día</div>'); return; }
+  openModal(`Eventos del ${dateStr}`, events.map(event => `<div style="margin-bottom: 16px; padding: 12px; background: #f0f4f8; border-radius: 12px;"><div style="font-weight: 600;">${event.title}</div><div>🕒 ${event.time}</div><div>📍 ${event.location}</div><div>📝 ${event.description}</div><button class="btn btn-primary btn-sm" style="margin-top: 8px;" onclick="addToGoogleCalendar('${event.title}', '${event.date}', '${event.time}', '${event.location}', '${event.description}')"><i class="fab fa-google"></i> Añadir a Google Calendar</button></div>`).join(''));
+}
+
+// ==================== CONFERENCIAS ====================
+function renderTalks() {
+  const container = document.getElementById('talksList');
+  container.innerHTML = window.appData.talks.map(talk => `<div class="card"><div class="card-title">${talk.title}</div><div class="card-desc">🎤 ${talk.speaker}</div><div class="card-desc">${talk.description}</div><button class="btn btn-primary btn-sm" onclick="playVideo('${talk.youtubeId}')"><i class="fas fa-play"></i> Ver conferencia</button></div>`).join('');
+}
+
+function playVideo(youtubeId) { window.open(`https://www.youtube.com/watch?v=${youtubeId}`, '_blank'); }
+function openProposeTalk() { openModal('Proponer Alumni Talk', `<div class="field"><label>Nombre</label><input class="field-input" id="proposeName" value="${window.appData.currentUser?.name || ''}"></div><div class="field"><label>Título</label><input class="field-input" id="proposeTitle"></div><div class="field"><label>Descripción</label><textarea id="proposeDesc"></textarea></div><button class="btn btn-primary" onclick="submitProposal()">Enviar</button>`); }
+function submitProposal() { const title = document.getElementById('proposeTitle')?.value; if (title) { window.appData.proposals.push({ title }); closeModal(); showToast('Propuesta enviada'); } else showToast('Completa los campos'); }
+
+// ==================== MENTORÍA ====================
+function renderMentors() {
+  const container = document.getElementById('mentorsList');
+  container.innerHTML = window.appData.mentors.map(mentor => `<div class="card"><div class="card-title">${mentor.name}</div><div>🎓 ${mentor.ciclo}</div><div>🏢 ${mentor.company}</div><div>⭐ ${mentor.experience}</div><div>👥 ${mentor.currentMentees}/${mentor.maxMentees}</div>${mentor.available && mentor.currentMentees < mentor.maxMentees ? `<button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="requestMentorship(${mentor.id})">Solicitar</button>` : '<div style="margin-top:12px;color:#ef4444">Sin plazas</div>'}</div>`).join('');
+}
+function requestMentorship(id) { showToast('Solicitud enviada'); }
+function openMentorForm() { openModal('Postular como mentor', `<div class="field"><label>Nombre</label><input class="field-input" id="mentorName"></div><div class="field"><label>Ciclo</label><input class="field-input" id="mentorCiclo"></div><button class="btn btn-primary" onclick="submitMentor()">Enviar</button>`); }
+function submitMentor() { showToast('Solicitud enviada'); closeModal(); }
+
+// ==================== COMUNIDAD ====================
+function publishPost() {
+  const text = document.getElementById('composerText').value;
+  if (!text.trim()) { showToast('Escribe algo'); return; }
+  const post = { id: Date.now(), text, author: window.appData.currentUser?.name || 'Anónimo', authorAvatar: window.appData.currentUser?.avatar || '?', date: new Date().toISOString(), likes: 0, comments: [] };
+  window.appData.posts.unshift(post);
+  document.getElementById('composerText').value = '';
+  renderPosts();
+  showToast('Publicado');
+  if (supabaseClient) {
+    supabaseClient.from('posts').insert([{ text, author: window.appData.currentUser?.name, user_id: window.appData.currentUser?.id }]).then();
+  }
+}
+
+function renderPosts() {
+  const container = document.getElementById('postsList');
+  if (!container) return;
+  container.innerHTML = window.appData.posts.map(post => `<div class="post-card"><div class="post-header"><div class="post-avatar">${post.authorAvatar}</div><div><div class="post-author">${post.author}</div><div class="post-date">${new Date(post.date).toLocaleDateString()}</div></div></div><div>${post.text}</div><div style="margin-top:12px;color:#64748b"><span><i class="far fa-heart"></i> ${post.likes}</span> <span style="margin-left:16px"><i class="far fa-comment"></i> ${post.comments.length}</span></div></div>`).join('');
+}
+
+// ==================== DIRECTORIO ====================
+function renderDirectory() {
+  const searchTerm = document.getElementById('dirSearch')?.value.toLowerCase() || '';
+  const filtered = window.appData.users.filter(u => u.role !== 'admin' && u.name.toLowerCase().includes(searchTerm));
+  const container = document.getElementById('dirList');
+  container.innerHTML = filtered.map(user => `<div class="card"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div class="user-avatar" style="width:48px;height:48px;font-size:20px">${user.avatar || user.name.charAt(0)}</div><div><div style="font-weight:600">${user.name}</div><div style="font-size:13px;color:#64748b">${user.ciclo || ''} • ${user.year || ''}</div></div></div><div>🏢 ${user.company || 'No especificado'}</div><div>💼 ${user.position || ''}</div><button class="btn btn-outline btn-sm" style="margin-top:12px" onclick="showToast('Contactar')">Contactar</button></div>`).join('');
+}
+
+// ==================== PERFIL ====================
+function loadProfile() {
+  const user = window.appData.currentUser;
+  if (!user) return;
+  document.getElementById('pfName').value = user.name || '';
+  document.getElementById('pfEmail').value = user.email || '';
+  document.getElementById('pfPhone').value = user.phone || '';
+  document.getElementById('pfCiclo').value = user.ciclo || '';
+  document.getElementById('pfYear').value = user.year || '';
+  document.getElementById('pfCompany').value = user.company || '';
+  document.getElementById('pfRole').value = user.position || '';
+  document.getElementById('profileNameLabel').textContent = user.name || '—';
+  document.getElementById('profileRoleLabel').textContent = `${user.position || ''} en ${user.company || ''}`;
+}
+
+function saveProfile() {
+  const user = window.appData.currentUser;
+  if (!user) return;
+  user.name = document.getElementById('pfName').value;
+  user.email = document.getElementById('pfEmail').value;
+  user.phone = document.getElementById('pfPhone').value;
+  user.ciclo = document.getElementById('pfCiclo').value;
+  user.year = parseInt(document.getElementById('pfYear').value);
+  user.company = document.getElementById('pfCompany').value;
+  user.position = document.getElementById('pfRole').value;
+  localStorage.setItem('currentUser', JSON.stringify(user));
+  document.getElementById('userName').textContent = user.name.split(' ')[0];
+  showToast('Perfil actualizado');
+  renderDirectory();
+}
+function renderProfile() { loadProfile(); }
+
+// ==================== ADMIN ====================
+function renderAdmin() {
+  if (window.appData.currentUser?.role !== 'admin') { route('inicio'); return; }
+  const adminNews = document.getElementById('adminNewsList');
+  if (adminNews) adminNews.innerHTML = window.appData.news.map((n, i) => `<div class="card"><div class="card-title">${n.title}</div><div>${n.date}</div><button class="btn btn-outline btn-sm mt-8" onclick="deleteNewsItem(${i})">Eliminar</button></div>`).join('');
+}
+function openNewsForm() { openModal('Añadir noticia', `<div class="field"><label>Título</label><input class="field-input" id="newsTitle"></div><div class="field"><label>Resumen</label><textarea id="newsSummary"></textarea></div><div class="field"><label>Fecha</label><input class="field-input" id="newsDate" type="date"></div><button class="btn btn-primary" onclick="addNewsItem()">Guardar</button>`); }
+function addNewsItem() { const title = document.getElementById('newsTitle')?.value; if (title) { window.appData.news.unshift({ id: Date.now(), title, summary: document.getElementById('newsSummary')?.value, date: document.getElementById('newsDate')?.value || new Date().toISOString().split('T')[0], image: '📰' }); closeModal(); renderAdmin(); renderHomeNews(); showToast('Añadida'); } }
+function deleteNewsItem(i) { window.appData.news.splice(i, 1); renderAdmin(); renderHomeNews(); showToast('Eliminada'); }
+function openEventForm() { openModal('Crear evento', `<div class="field"><label>Título</label><input class="field-input" id="eventTitle"></div><div class="field"><label>Fecha</label><input class="field-input" id="eventDate" type="date"></div><div class="field"><label>Hora</label><input class="field-input" id="eventTime" placeholder="18:00"></div><div class="field"><label>Ubicación</label><input class="field-input" id="eventLocation"></div><button class="btn btn-primary" onclick="addEventItem()">Guardar</button>`); }
+function addEventItem() { const title = document.getElementById('eventTitle')?.value; if (title) { window.appData.events.push({ id: Date.now(), title, date: document.getElementById('eventDate')?.value, time: document.getElementById('eventTime')?.value || '18:00', location: document.getElementById('eventLocation')?.value || 'Online', description: '' }); closeModal(); renderAdmin(); renderCalendar(); showToast('Evento creado'); } }
+function openTalkForm() { openModal('Añadir conferencia', `<div class="field"><label>Título</label><input class="field-input" id="talkTitle"></div><div class="field"><label>Ponente</label><input class="field-input" id="talkSpeaker"></div><div class="field"><label>ID YouTube</label><input class="field-input" id="talkYoutubeId"></div><button class="btn btn-primary" onclick="addTalkItem()">Guardar</button>`); }
+function addTalkItem() { const title = document.getElementById('talkTitle')?.value; if (title) { window.appData.talks.push({ id: Date.now(), title, speaker: document.getElementById('talkSpeaker')?.value, youtubeId: document.getElementById('talkYoutubeId')?.value || 'dQw4w9WgXcQ', description: '' }); closeModal(); renderAdmin(); renderTalks(); showToast('Añadida'); } }
+function exportCSV() { let csv = "Nombre,Email,Ciclo,Año,Empresa,Puesto\n"; window.appData.users.forEach(u => csv += `${u.name},${u.email},${u.ciclo || ''},${u.year || ''},${u.company || ''},${u.position || ''}\n`); const blob = new Blob([csv], {type: "text/csv"}); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = "alumnis.csv"; link.click(); showToast("CSV exportado"); }
+function adminTestPush() { requestPush(); }
+
+// ==================== NOTIFICACIONES ====================
+function requestPush() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(p => { if (p === 'granted') { new Notification('Alumni Cámara FP', { body: 'Notificaciones activadas' }); showToast('Notificaciones activadas'); } });
+  } else { showToast('No soportado'); }
+}
+
+function toggleUserMenu(e) { e.stopPropagation(); document.getElementById('userDropdown').classList.toggle('show'); }
+function toggleNotifMenu(e) { e.stopPropagation(); document.getElementById('notifDropdown').classList.toggle('show'); }
+document.addEventListener('click', () => { document.getElementById('userDropdown')?.classList.remove('show'); document.getElementById('notifDropdown')?.classList.remove('show'); });
+
+// ==================== EVENT LISTENERS ====================
+document.getElementById('authLogin').addEventListener('click', login);
+document.getElementById('calPrev')?.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); });
+document.getElementById('calNext')?.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); });
+document.getElementById('dirSearch')?.addEventListener('input', renderDirectory);
+
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
+    const target = document.getElementById(`adminPanel-${tab.dataset.tab}`);
+    if (target) target.classList.remove('hidden');
+  });
+});
+
+// Inicializar año en filtro
+const yearSelect = document.getElementById('dirYear');
+if (yearSelect) {
+  for (let y = 2026; y >= 2015; y--) { const opt = document.createElement('option'); opt.value = y; opt.textContent = y; yearSelect.appendChild(opt); }
+  yearSelect.addEventListener('change', renderDirectory);
+}
+
+// Inicializar
+initSupabase();
+if (!checkSession()) {
+  document.getElementById('authOverlay').classList.remove('hidden');
+  document.getElementById('appShell').classList.add('hidden');
+}
+
+// Exponer funciones globales
+window.route = route;
+window.addToGoogleCalendar = addToGoogleCalendar;
+window.playVideo = playVideo;
+window.requestMentorship = requestMentorship;
+window.publishPost = publishPost;
+window.saveProfile = saveProfile;
+window.requestPush = requestPush;
+window.logout = logout;
+window.closeModal = closeModal;
+window.openNewsForm = openNewsForm;
+window.openEventForm = openEventForm;
+window.openTalkForm = openTalkForm;
+window.addNewsItem = addNewsItem;
+window.addEventItem = addEventItem;
+window.addTalkItem = addTalkItem;
+window.deleteNewsItem = deleteNewsItem;
+window.showDayEvents = showDayEvents;
+window.openProposeTalk = openProposeTalk;
+window.submitProposal = submitProposal;
+window.openMentorForm = openMentorForm;
+window.submitMentor = submitMentor;
+window.renderProfile = renderProfile;
+window.exportCSV = exportCSV;
+window.adminTestPush = adminTestPush;
+window.saveSupabaseConfig = saveSupabaseConfig;
+
+renderSidebar();
+renderHomeNews();
+renderCalendar();
+renderTalks();
+renderMentors();
+renderPosts();
+renderDirectory();
+loadProfile();
+</script>
 </body>
 </html>
