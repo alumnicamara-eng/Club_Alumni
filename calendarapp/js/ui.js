@@ -92,6 +92,51 @@ async function requestPush() {
   closeNotifMenu();
 }
 
+/* ---------- Textos legales (privacidad / términos / cookies) ---------- */
+const LEGAL_TEXTS = {
+  privacidad: {
+    title: 'Política de privacidad',
+    body: `
+      <p style="margin-bottom:10px"><strong>Responsable:</strong> Cámara de Comercio de Valencia (Cámara FP).</p>
+      <p style="margin-bottom:10px"><strong>Finalidad:</strong> Gestionar la comunidad Alumni, organizar eventos y enviar comunicaciones de interés a antiguos alumnos.</p>
+      <p style="margin-bottom:10px"><strong>Datos recogidos:</strong> Nombre, apellidos, email, teléfono (opcional), ciclo cursado, año de promoción, situación profesional y datos que voluntariamente añadas al perfil (LinkedIn, GitHub, foto…).</p>
+      <p style="margin-bottom:10px"><strong>Legitimación:</strong> Consentimiento del interesado al registrarse en la plataforma.</p>
+      <p style="margin-bottom:10px"><strong>Conservación:</strong> Mientras mantengas la cuenta activa. Puedes solicitar la baja en cualquier momento escribiendo a <a href="mailto:alumni@camarafp.es">alumni@camarafp.es</a>.</p>
+      <p style="margin-bottom:10px"><strong>Cesión:</strong> Tus datos no se ceden a terceros salvo obligación legal. Algunos datos (nombre, ciclo, promoción, empresa) son visibles para otros alumnis dentro de la sección "Descubre Alumnis".</p>
+      <p><strong>Derechos:</strong> Acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a <a href="mailto:alumni@camarafp.es">alumni@camarafp.es</a>.</p>
+    `
+  },
+  terminos: {
+    title: 'Términos de uso',
+    body: `
+      <p style="margin-bottom:10px"><strong>Acceso:</strong> Esta plataforma es de uso exclusivo para antiguos alumnos verificados de Cámara FP. La cuenta es personal e intransferible.</p>
+      <p style="margin-bottom:10px"><strong>Contenido publicado:</strong> Eres responsable de lo que publicas en la comunidad. Está prohibido contenido ofensivo, discriminatorio, spam comercial o que vulnere derechos de terceros.</p>
+      <p style="margin-bottom:10px"><strong>Mentoría:</strong> El programa de mentoría es voluntario y gratuito. Ni Cámara FP ni los mentores ofrecen garantía sobre los resultados.</p>
+      <p style="margin-bottom:10px"><strong>Eventos:</strong> Las plazas son limitadas. La inscripción no garantiza acceso si el aforo está completo.</p>
+      <p style="margin-bottom:10px"><strong>Moderación:</strong> Nos reservamos el derecho de eliminar publicaciones, cancelar mentorías o suspender cuentas que incumplan estos términos.</p>
+      <p><strong>Modificaciones:</strong> Podemos actualizar estos términos. Te avisaremos por la app cuando haya cambios relevantes.</p>
+    `
+  },
+  cookies: {
+    title: 'Política de cookies',
+    body: `
+      <p style="margin-bottom:10px">Esta plataforma usa el almacenamiento local del navegador (<code>localStorage</code>) para:</p>
+      <ul style="margin:0 0 10px 20px;line-height:1.7">
+        <li>Mantener tu sesión iniciada entre visitas.</li>
+        <li>Recordar tus preferencias de notificación.</li>
+        <li>Cachear contenido para que funcione sin conexión (PWA).</li>
+      </ul>
+      <p style="margin-bottom:10px">No usamos cookies de seguimiento ni analítica de terceros.</p>
+      <p>Puedes borrar estos datos en cualquier momento desde la configuración de tu navegador.</p>
+    `
+  }
+};
+
+function showLegal(kind) {
+  const t = LEGAL_TEXTS[kind]; if (!t) return;
+  showModal(t.title, t.body, [`<button class="btn btn-primary" onclick="closeModal()">Entendido</button>`]);
+}
+
 /* ---------- Cierre por click externo / Escape ---------- */
 document.addEventListener('click', e => {
   if (!e.target.closest('#userPill') && !e.target.closest('#userDropdown')) closeUserMenu();

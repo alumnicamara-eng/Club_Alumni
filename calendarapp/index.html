@@ -6,10 +6,25 @@
 <meta name="theme-color" content="#0F2C44">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="Alumni Cámara FP — Comunidad de antiguos alumnos">
+<meta name="description" content="Alumni Cámara FP — Comunidad de antiguos alumnos. Eventos, conferencias, mentoría y oportunidades exclusivas.">
 <title>Alumni Cámara FP</title>
 
+<!-- Open Graph / Facebook / WhatsApp -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alumni Cámara FP">
+<meta property="og:title" content="Alumni Cámara FP — Tu comunidad de antiguos alumnos">
+<meta property="og:description" content="Eventos, conferencias, mentoría y oportunidades exclusivas para alumni Cámara FP.">
+<meta property="og:image" content="./img/logo.jpeg">
+<meta property="og:locale" content="es_ES">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Alumni Cámara FP">
+<meta name="twitter:description" content="Tu comunidad de antiguos alumnos Cámara FP.">
+<meta name="twitter:image" content="./img/logo.jpeg">
+
 <link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/jpeg" href="./img/logo.jpeg">
 <link rel="apple-touch-icon" href="./img/logo.jpeg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +52,10 @@
       <strong>Acceso de prueba</strong><br>
       Alumni: <code>12345678</code> / <code>user123</code><br>
       Admin: <code>admin</code> / <code>admin123</code>
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:var(--ink-500);text-align:center">
+      Al iniciar sesión aceptas la <a href="#" onclick="showLegal('privacidad'); return false">Política de privacidad</a>
+      y los <a href="#" onclick="showLegal('terminos'); return false">Términos de uso</a>.
     </div>
   </div>
 </div>
@@ -428,6 +447,19 @@
           </div>
         </div>
       </section>
+
+      <!-- ============ FOOTER ============ -->
+      <footer style="margin-top:48px;padding:24px 0 80px;border-top:1px solid var(--border);text-align:center;color:var(--ink-500);font-size:12px">
+        <div style="margin-bottom:8px">
+          <strong style="color:var(--navy-800)">Alumni Cámara FP</strong> · Comunidad de antiguos alumnos
+        </div>
+        <div>
+          <a href="#" onclick="showLegal('privacidad'); return false" style="color:var(--ink-500);text-decoration:underline">Privacidad</a> ·
+          <a href="#" onclick="showLegal('terminos');   return false" style="color:var(--ink-500);text-decoration:underline">Términos</a> ·
+          <a href="#" onclick="showLegal('cookies');    return false" style="color:var(--ink-500);text-decoration:underline">Cookies</a> ·
+          <a href="mailto:alumni@camarafp.es"                          style="color:var(--ink-500);text-decoration:underline">Contacto</a>
+        </div>
+      </footer>
 
     </main>
   </div>
