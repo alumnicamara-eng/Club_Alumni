@@ -62,6 +62,7 @@ function clearCalSelection() {
 function eventCard(e) {
   const enrolled  = State.user && e.enrolled.includes(State.user.dni);
   const spotsLeft = Math.max(0, e.spots - e.enrolled.length);
+  const args = `'${escapeHtml(e.title)}','${e.date}','${e.time}','${escapeHtml(e.place)}','${escapeHtml((e.desc||'').replace(/'/g, "\\'"))}'`;
   return `<div class="card clickable" onclick="openEvent(${e.id})">
     <div class="chip-row">
       <span class="chip ${enrolled ? 'chip-success' : 'chip-teal'}">${enrolled ? 'Inscrito' : 'Disponible'}</span>
@@ -74,10 +75,12 @@ function eventCard(e) {
       <span><i class="fas fa-users"></i>${spotsLeft}/${e.spots} plazas</span>
     </div>
     <div class="card-desc">${escapeHtml((e.desc || '').slice(0, 140))}${(e.desc || '').length > 140 ? '…' : ''}</div>
-    <div class="card-actions">
+    <div class="card-actions" style="flex-wrap:wrap;gap:6px">
       <button class="btn ${enrolled ? 'btn-outline' : 'btn-accent'} btn-sm" onclick="event.stopPropagation(); toggleEnroll(${e.id})">
-        ${enrolled ? '<i class="fas fa-xmark"></i> Cancelar inscripción' : '<i class="fas fa-check"></i> Apuntarme'}
+        ${enrolled ? '<i class="fas fa-xmark"></i> Cancelar' : '<i class="fas fa-check"></i> Apuntarme'}
       </button>
+      <button class="btn btn-ghost btn-sm" title="Añadir a Google Calendar" onclick="event.stopPropagation(); addToGoogleCalendar(${args})"><i class="fab fa-google"></i></button>
+      <button class="btn btn-ghost btn-sm" title="Añadir a Apple Calendar" onclick="event.stopPropagation(); addToAppleCalendar(${args})"><i class="fab fa-apple"></i></button>
     </div>
   </div>`;
 }
@@ -106,6 +109,7 @@ function openEvent(id) {
   const e = DATA.events.find(x => x.id === id); if (!e) return;
   const enrolled  = State.user && e.enrolled.includes(State.user.dni);
   const spotsLeft = Math.max(0, e.spots - e.enrolled.length);
+  const args = `'${escapeHtml(e.title)}','${e.date}','${e.time}','${escapeHtml(e.place)}','${escapeHtml((e.desc||'').replace(/'/g, "\\'"))}'`;
   showModal(e.title, `
     <div class="chip-row">
       <span class="chip ${enrolled ? 'chip-success' : 'chip-teal'}">${enrolled ? 'Inscrito' : 'Disponible'}</span>
@@ -117,30 +121,97 @@ function openEvent(id) {
       <span><i class="fas fa-location-dot"></i>${escapeHtml(e.place)}</span>
       <span><i class="fas fa-users"></i>${spotsLeft}/${e.spots} plazas</span>
     </div>
+
+    <div style="margin-top:16px;padding:12px;background:var(--surface-2);border-radius:10px">
+      <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--ink-700)">Añadir a mi calendario</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="addToGoogleCalendar(${args})"><i class="fab fa-google"></i> Google Calendar</button>
+        <button class="btn btn-outline btn-sm" onclick="addToAppleCalendar(${args})"><i class="fab fa-apple"></i> Apple Calendar</button>
+        <button class="btn btn-outline btn-sm" onclick="addToOutlookCalendar(${args})"><i class="fab fa-microsoft"></i> Outlook</button>
+      </div>
+    </div>
   `, [
     `<button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>`,
-    `<button class="btn btn-outline btn-sm" onclick="addToGoogleCalendar('${escapeHtml(e.title)}','${e.date}','${e.time}','${escapeHtml(e.place)}','${escapeHtml(e.desc||'')}')"><i class="fas fa-calendar-plus"></i> Google Cal</button>`,
     `<button class="btn ${enrolled ? 'btn-outline' : 'btn-accent'}" onclick="toggleEnroll(${e.id})">${enrolled ? 'Cancelar inscripción' : 'Apuntarme'}</button>`,
   ]);
 }
 
-function exportICS() {
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//AlumniCamaraFP//EN'];
-  DATA.events.forEach(e => {
-    const dt = e.date.replace(/-/g, '') + 'T' + e.time.replace(':', '') + '00';
-    lines.push('BEGIN:VEVENT', `UID:${e.id}@alumni-camarafp`, `DTSTART:${dt}`, `SUMMARY:${e.title}`, `LOCATION:${e.place}`, `DESCRIPTION:${e.desc}`, 'END:VEVENT');
-  });
-  lines.push('END:VCALENDAR');
-  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'alumni-camarafp.ics';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('Calendario descargado');
+/* Suscripción al calendario completo (modal con opciones) */
+function openCalendarSync() {
+  showModal('Sincronizar el calendario Alumni',
+    `<p style="margin-bottom:12px;color:var(--ink-600)">Mantén automáticamente sincronizados los eventos Alumni Cámara FP con tu calendario favorito.</p>
+
+     <div class="card" style="background:var(--surface-2);border:1px solid var(--teal-100)">
+       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+         <i class="fab fa-google" style="font-size:20px;color:var(--teal-700)"></i>
+         <div style="font-weight:600">Google Calendar</div>
+       </div>
+       <div class="card-desc">Descarga el archivo .ics e impórtalo en Google Calendar (Configuración → Importar y exportar).</div>
+       <div class="card-actions mt-8"><button class="btn btn-primary btn-sm" onclick="downloadFullICS()"><i class="fas fa-download"></i> Descargar .ics</button></div>
+     </div>
+
+     <div class="card mt-12" style="background:var(--surface-2);border:1px solid var(--teal-100)">
+       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+         <i class="fab fa-apple" style="font-size:20px;color:var(--ink-700)"></i>
+         <div style="font-weight:600">Apple Calendar / iOS</div>
+       </div>
+       <div class="card-desc">Descarga el archivo .ics — al abrirlo en iPhone o Mac se añade automáticamente a Calendario.</div>
+       <div class="card-actions mt-8"><button class="btn btn-primary btn-sm" onclick="downloadFullICS()"><i class="fas fa-download"></i> Descargar .ics</button></div>
+     </div>
+
+     <div class="card mt-12" style="background:var(--surface-2);border:1px solid var(--teal-100)">
+       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+         <i class="fas fa-rss" style="font-size:18px;color:var(--ink-700)"></i>
+         <div style="font-weight:600">Suscripción automática <span class="chip" style="font-size:10px;margin-left:6px">Próximamente</span></div>
+       </div>
+       <div class="card-desc">Cuando se publique el backend, podrás suscribirte vía webcal:// y los nuevos eventos aparecerán solos en tu calendario.</div>
+     </div>`,
+    [`<button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>`]
+  );
 }
 
-/* Añadir evento al calendario de Google */
+/* Descarga TODOS los eventos como .ics (usado por openCalendarSync) */
+function downloadFullICS() {
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//AlumniCamaraFP//EN', 'X-WR-CALNAME:Alumni Cámara FP', 'X-WR-TIMEZONE:Europe/Madrid'];
+  DATA.events.forEach(e => {
+    const dt    = e.date.replace(/-/g, '') + 'T' + e.time.replace(':', '') + '00';
+    const dtEnd = e.date.replace(/-/g, '') + 'T' + addOneHour(e.time).replace(':', '') + '00';
+    lines.push(
+      'BEGIN:VEVENT',
+      `UID:${e.id}@alumni-camarafp`,
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d+/g, '')}`,
+      `DTSTART:${dt}`,
+      `DTEND:${dtEnd}`,
+      `SUMMARY:${e.title}`,
+      `LOCATION:${e.place}`,
+      `DESCRIPTION:${(e.desc || '').replace(/\n/g, '\\n')}`,
+      'END:VEVENT'
+    );
+  });
+  lines.push('END:VCALENDAR');
+  triggerICSDownload(lines.join('\r\n'), 'alumni-camarafp.ics');
+  closeModal();
+  toast('Calendario descargado — ábrelo en tu app de calendario');
+}
+
+/* === Helpers de exportación a calendarios externos === */
+function addOneHour(time) {
+  const [h, m] = time.split(':').map(Number);
+  return `${String((h + 1) % 24).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function triggerICSDownload(content, filename) {
+  const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+/* === GOOGLE CALENDAR === Abre Google con el evento prerellenado */
 function addToGoogleCalendar(title, date, time, place, desc) {
   const startDT = new Date(`${date}T${time}:00`);
   const endDT   = new Date(startDT.getTime() + 3600000);
@@ -152,4 +223,41 @@ function addToGoogleCalendar(title, date, time, place, desc) {
     `&location=${encodeURIComponent(place || '')}`;
   window.open(url, '_blank');
   toast('Abriendo Google Calendar…');
+}
+
+/* === APPLE CALENDAR === Genera .ics que iOS/macOS abre directamente en Calendario */
+function addToAppleCalendar(title, date, time, place, desc) {
+  const dt    = date.replace(/-/g, '') + 'T' + time.replace(':', '') + '00';
+  const dtEnd = date.replace(/-/g, '') + 'T' + addOneHour(time).replace(':', '') + '00';
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//AlumniCamaraFP//EN',
+    'BEGIN:VEVENT',
+    `UID:${Date.now()}@alumni-camarafp`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d+/g, '')}`,
+    `DTSTART:${dt}`,
+    `DTEND:${dtEnd}`,
+    `SUMMARY:${title}`,
+    `LOCATION:${place}`,
+    `DESCRIPTION:${(desc || '').replace(/\n/g, '\\n')}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  triggerICSDownload(ics, `${title.replace(/[^a-z0-9]/gi, '_').slice(0, 40)}.ics`);
+  toast('Abre el archivo para añadirlo a tu Calendario');
+}
+
+/* === OUTLOOK / OUTLOOK.COM === Abre Outlook Web con el evento prerellenado */
+function addToOutlookCalendar(title, date, time, place, desc) {
+  const startDT = new Date(`${date}T${time}:00`);
+  const endDT   = new Date(startDT.getTime() + 3600000);
+  const url     = `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent` +
+    `&subject=${encodeURIComponent(title)}` +
+    `&startdt=${encodeURIComponent(startDT.toISOString())}` +
+    `&enddt=${encodeURIComponent(endDT.toISOString())}` +
+    `&body=${encodeURIComponent(desc || '')}` +
+    `&location=${encodeURIComponent(place || '')}`;
+  window.open(url, '_blank');
+  toast('Abriendo Outlook…');
 }
