@@ -92,6 +92,9 @@ function toggleEnroll(id) {
   if (i >= 0) {
     e.enrolled.splice(i, 1);
     toast('Inscripción cancelada');
+    if (State.current === 'calendario') renderCalendar();
+    if (State.current === 'inicio')     renderHome();
+    closeModal();
   } else if (e.enrolled.length >= e.spots) {
     toast('No quedan plazas');
     return;
@@ -99,10 +102,29 @@ function toggleEnroll(id) {
     e.enrolled.push(State.user.dni);
     toast('Te has apuntado al evento');
     pushNotify({ title: 'Estás inscrito', body: e.title });
+    if (State.current === 'calendario') renderCalendar();
+    if (State.current === 'inicio')     renderHome();
+    /* Tras apuntarse, abrir prompt para añadir al calendario externo */
+    promptAddToCalendar(e);
   }
-  if (State.current === 'calendario') renderCalendar();
-  if (State.current === 'inicio')     renderHome();
-  closeModal();
+}
+
+/* Modal que aparece tras apuntarse: "¿Lo añades a tu calendario?" */
+function promptAddToCalendar(e) {
+  const args = `'${escapeHtml(e.title)}','${e.date}','${e.time}','${escapeHtml(e.place)}','${escapeHtml((e.desc||'').replace(/'/g, "\\'"))}'`;
+  showModal('¡Estás inscrito! 🎉',
+    `<p style="margin-bottom:6px">Te has apuntado a <strong>${escapeHtml(e.title)}</strong>.</p>
+     <p style="color:var(--ink-600);margin-bottom:16px">${fmtDateLong(e.date)} · ${escapeHtml(e.time)}h · ${escapeHtml(e.place)}</p>
+     <div style="padding:14px;background:var(--teal-50);border:1px solid var(--teal-100);border-radius:12px">
+       <div style="font-weight:600;margin-bottom:10px;color:var(--navy-800)"><i class="fas fa-calendar-plus"></i> Añade este evento a tu calendario para no olvidarlo</div>
+       <div style="display:flex;gap:8px;flex-wrap:wrap">
+         <button class="btn btn-primary btn-sm" onclick="addToGoogleCalendar(${args}); closeModal()"><i class="fab fa-google"></i> Google Calendar</button>
+         <button class="btn btn-primary btn-sm" onclick="addToAppleCalendar(${args}); closeModal()"><i class="fab fa-apple"></i> Apple Calendar</button>
+         <button class="btn btn-primary btn-sm" onclick="addToOutlookCalendar(${args}); closeModal()"><i class="fab fa-microsoft"></i> Outlook</button>
+       </div>
+     </div>`,
+    [`<button class="btn btn-ghost" onclick="closeModal()">Más tarde</button>`]
+  );
 }
 
 function openEvent(id) {
@@ -134,64 +156,6 @@ function openEvent(id) {
     `<button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>`,
     `<button class="btn ${enrolled ? 'btn-outline' : 'btn-accent'}" onclick="toggleEnroll(${e.id})">${enrolled ? 'Cancelar inscripción' : 'Apuntarme'}</button>`,
   ]);
-}
-
-/* Suscripción al calendario completo (modal con opciones) */
-function openCalendarSync() {
-  showModal('Sincronizar el calendario Alumni',
-    `<p style="margin-bottom:12px;color:var(--ink-600)">Mantén automáticamente sincronizados los eventos Alumni Cámara FP con tu calendario favorito.</p>
-
-     <div class="card" style="background:var(--surface-2);border:1px solid var(--teal-100)">
-       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-         <i class="fab fa-google" style="font-size:20px;color:var(--teal-700)"></i>
-         <div style="font-weight:600">Google Calendar</div>
-       </div>
-       <div class="card-desc">Descarga el archivo .ics e impórtalo en Google Calendar (Configuración → Importar y exportar).</div>
-       <div class="card-actions mt-8"><button class="btn btn-primary btn-sm" onclick="downloadFullICS()"><i class="fas fa-download"></i> Descargar .ics</button></div>
-     </div>
-
-     <div class="card mt-12" style="background:var(--surface-2);border:1px solid var(--teal-100)">
-       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-         <i class="fab fa-apple" style="font-size:20px;color:var(--ink-700)"></i>
-         <div style="font-weight:600">Apple Calendar / iOS</div>
-       </div>
-       <div class="card-desc">Descarga el archivo .ics — al abrirlo en iPhone o Mac se añade automáticamente a Calendario.</div>
-       <div class="card-actions mt-8"><button class="btn btn-primary btn-sm" onclick="downloadFullICS()"><i class="fas fa-download"></i> Descargar .ics</button></div>
-     </div>
-
-     <div class="card mt-12" style="background:var(--surface-2);border:1px solid var(--teal-100)">
-       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-         <i class="fas fa-rss" style="font-size:18px;color:var(--ink-700)"></i>
-         <div style="font-weight:600">Suscripción automática <span class="chip" style="font-size:10px;margin-left:6px">Próximamente</span></div>
-       </div>
-       <div class="card-desc">Cuando se publique el backend, podrás suscribirte vía webcal:// y los nuevos eventos aparecerán solos en tu calendario.</div>
-     </div>`,
-    [`<button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>`]
-  );
-}
-
-/* Descarga TODOS los eventos como .ics (usado por openCalendarSync) */
-function downloadFullICS() {
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//AlumniCamaraFP//EN', 'X-WR-CALNAME:Alumni Cámara FP', 'X-WR-TIMEZONE:Europe/Madrid'];
-  DATA.events.forEach(e => {
-    const dt    = e.date.replace(/-/g, '') + 'T' + e.time.replace(':', '') + '00';
-    const dtEnd = e.date.replace(/-/g, '') + 'T' + addOneHour(e.time).replace(':', '') + '00';
-    lines.push(
-      'BEGIN:VEVENT',
-      `UID:${e.id}@alumni-camarafp`,
-      `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d+/g, '')}`,
-      `DTSTART:${dt}`,
-      `DTEND:${dtEnd}`,
-      `SUMMARY:${e.title}`,
-      `LOCATION:${e.place}`,
-      `DESCRIPTION:${(e.desc || '').replace(/\n/g, '\\n')}`,
-      'END:VEVENT'
-    );
-  });
-  lines.push('END:VCALENDAR');
-  triggerICSDownload(lines.join('\r\n'), 'alumni-camarafp.ics');
-  closeModal();
-  toast('Calendario descargado — ábrelo en tu app de calendario');
 }
 
 /* === Helpers de exportación a calendarios externos === */
