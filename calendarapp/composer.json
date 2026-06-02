@@ -1,0 +1,7 @@
+{
+  "name": "club-alumni/calendar",
+  "description": "Club Alumni Calendar Application",
+  "require": {
+    "php": ">=7.3"
+  }
+}
