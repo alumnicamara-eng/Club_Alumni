@@ -62,7 +62,8 @@ const API = {
   addComment:  (postId,txt) => apiFetch('comentarios.php', { method: 'POST', body: { publicacion_id: postId, texto: txt } }),
 
   /* Push */
-  registerPushSubscription: sub => apiFetch('push_register.php', { method: 'POST', body: sub }),
+  registerPushSubscription: sub        => apiFetch('push_register.php', { method: 'POST', body: sub }),
+  sendPush:                 (t, b, u)  => apiFetch('push_send.php',     { method: 'POST', body: { title: t, body: b, url: u || '/' } }),
 };
 
 /* ---------- Inicialización y carga inicial ---------- */

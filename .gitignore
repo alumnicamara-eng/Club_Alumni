@@ -1,0 +1,14 @@
+# Claves VAPID con la privada — NUNCA al repo público
+calendarapp/api/vapid.php
+
+# Configuración de BD con credenciales reales
+calendarapp/api/conexion.local.php
+
+# Logs PHP
+*.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

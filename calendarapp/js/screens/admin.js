@@ -180,9 +180,26 @@ function exportCSV() {
   a.download = 'alumnis.csv'; a.click();
 }
 
-function adminTestPush() {
+async function adminTestPush() {
   const title = $('#pushTitle').value || 'Alumni Cámara FP';
   const body  = $('#pushBody').value  || 'Mensaje de prueba';
+
+  /* Notificación local en este dispositivo (para que el admin vea el formato) */
   pushNotify({ title, body });
-  toast('Push enviado en este dispositivo');
+
+  /* Si hay backend, enviar push REAL a todos los suscriptores */
+  if (!API_BASE) { toast('Push local enviado (backend no configurado)'); return; }
+  try {
+    const res = await API.sendPush(title, body, '/');
+    toast(`📨 Enviado a ${res.sent} de ${res.total} dispositivos${res.failed ? ` (${res.failed} fallidos)` : ''}`);
+  } catch (e) {
+    console.error(e);
+    toast('Error enviando push — revisa la consola y vapid.php');
+  }
+}
+
+/* Envía push automático cuando se crea una noticia / evento / charla (llamado desde el admin) */
+async function notifyAll(title, body, url) {
+  if (!API_BASE) return;
+  try { await API.sendPush(title, body, url || '/'); } catch (e) { console.warn('Push no enviado:', e); }
 }

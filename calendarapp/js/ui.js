@@ -80,16 +80,54 @@ function updateBadge() {
 }
 
 async function requestPush() {
-  if (!('Notification' in window)) { toast('Tu navegador no soporta notificaciones'); return; }
-  const p = await Notification.requestPermission();
-  if (p === 'granted') {
-    toast('Notificaciones activadas');
-    pushNotify({ title: 'Notificaciones activadas', body: 'Te avisaremos de eventos, talks y noticias.' });
-  } else {
-    toast('Permiso de notificaciones rechazado');
+  closeUserMenu(); closeNotifMenu();
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    toast('Tu navegador no soporta notificaciones push'); return;
   }
-  closeUserMenu();
-  closeNotifMenu();
+  const permission = await Notification.requestPermission();
+  if (permission !== 'granted') { toast('Permiso de notificaciones rechazado'); return; }
+
+  /* Notificación local de confirmación */
+  pushNotify({ title: 'Notificaciones activadas', body: 'Te avisaremos de eventos, talks y noticias.' });
+
+  /* Si hay backend conectado, suscribirse al push real con VAPID */
+  if (!API_BASE) { toast('Notificaciones locales activadas (backend no configurado)'); return; }
+
+  try {
+    /* 1. Pedir clave pública VAPID al servidor */
+    const vapidRes = await fetch(API_BASE.replace(/\/$/, '') + '/vapid_public.php');
+    const vapid = await vapidRes.json();
+    if (!vapid.configured) { toast('El backend aún no tiene VAPID configurado (ejecuta generate-vapid.php)'); return; }
+
+    /* 2. Suscribirse al PushManager con esa clave */
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapid.publicKey),
+    });
+
+    /* 3. Enviar la suscripción al backend */
+    const body = sub.toJSON();
+    await fetch(API_BASE.replace(/\/$/, '') + '/push_register.php', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    toast('🔔 Push notifications activadas en este dispositivo');
+  } catch (e) {
+    console.error('Error suscribiendo push:', e);
+    toast('No se ha podido activar el push en este dispositivo');
+  }
+}
+
+/* Convierte base64url (VAPID) a Uint8Array que necesita applicationServerKey */
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
 }
 
 /* ---------- Textos legales (privacidad / términos / cookies) ---------- */
