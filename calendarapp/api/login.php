@@ -3,23 +3,40 @@ require __DIR__ . '/conexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonOut(['error' => 'Method not allowed'], 405);
 
+/* === Rate limit: 5 intentos / 5 min por IP === */
+$ip = clientIp();
+if (!rateLimit('login:' . $ip, $CFG['login_max_attempts'], $CFG['login_window'])) {
+    jsonOut(['error' => 'Demasiados intentos. Vuelve a intentarlo en unos minutos.'], 429);
+}
+
 $in   = jsonInput();
-$user = trim($in['user'] ?? '');
+$user = validateLen($in['user'] ?? '', 150, 'user');
 $pass = (string)($in['pass'] ?? '');
-if (!$user || !$pass) jsonOut(['error' => 'Faltan credenciales'], 400);
+if (!$user || !$pass || mb_strlen($pass) > 200) {
+    jsonOut(['error' => 'Credenciales incorrectas'], 401);
+}
 
 $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE (email = :u OR dni = :u) AND activo = 1 LIMIT 1');
 $stmt->execute([':u' => $user]);
 $row = $stmt->fetch();
 
+/* Mensaje genérico (no leak de si el usuario existe) */
 if (!$row) jsonOut(['error' => 'Credenciales incorrectas'], 401);
 
-// Soporta tanto contraseñas hasheadas (password_hash) como en plano (legacy)
 $ok = password_get_info($row['password'])['algo']
     ? password_verify($pass, $row['password'])
     : hash_equals($row['password'], $pass);
 
 if (!$ok) jsonOut(['error' => 'Credenciales incorrectas'], 401);
+
+/* Si la contraseña aún está en plano (seed legacy), la rehasheamos en bcrypt */
+if (!password_get_info($row['password'])['algo']) {
+    $upd = $pdo->prepare('UPDATE usuarios SET password = ? WHERE id = ?');
+    $upd->execute([password_hash($pass, PASSWORD_BCRYPT), $row['id']]);
+}
+
+/* === Anti session fixation: nuevo session_id tras autenticar === */
+session_regenerate_id(true);
 
 unset($row['password']);
 $_SESSION['user'] = $row;

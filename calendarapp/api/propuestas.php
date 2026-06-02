@@ -10,19 +10,25 @@ if ($method === 'GET') {
 
 if ($method === 'POST') {
     $user = requireLogin();
+    if (!rateLimit('prop:' . $user['id'], 3, 3600)) {  // 3 propuestas / hora
+        jsonOut(['error' => 'Has enviado demasiadas propuestas hoy'], 429);
+    }
     $in   = jsonInput();
-    if (empty($in['tema'])) jsonOut(['error' => 'Falta tema'], 400);
+    $tema = validateLen($in['tema']        ?? '', 200, 'tema');
+    $desc = validateLen($in['descripcion'] ?? '', 1000, 'descripcion');
+    if (!$tema) jsonOut(['error' => 'Falta tema'], 400);
+    $formato = in_array($in['formato'] ?? 'Online', ['Presencial','Online','Indiferente','Híbrido'], true) ? $in['formato'] : 'Online';
     $stmt = $pdo->prepare('INSERT INTO propuestas_conferencias (usuario_id, nombre, email, ciclo, promocion, tema, duracion, formato, descripcion) VALUES (?,?,?,?,?,?,?,?,?)');
     $stmt->execute([
         $user['id'],
-        $in['nombre']      ?? $user['nombre'],
-        $in['email']       ?? $user['email'],
-        $in['ciclo']       ?? $user['ciclo'] ?? null,
-        $in['promocion']   ?? $user['promocion'] ?? null,
-        $in['tema'],
-        $in['duracion']    ?? '45',
-        $in['formato']     ?? 'Online',
-        $in['descripcion'] ?? '',
+        validateLen($in['nombre'] ?? $user['nombre'], 150, 'nombre'),
+        validateLen($in['email']  ?? $user['email'],  150, 'email'),
+        $in['ciclo']     ?? $user['ciclo'] ?? null,
+        $in['promocion'] ?? $user['promocion'] ?? null,
+        $tema,
+        $in['duracion'] ?? '45',
+        $formato,
+        $desc,
     ]);
     jsonOut(['ok' => true], 201);
 }

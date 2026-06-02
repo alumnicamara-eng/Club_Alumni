@@ -1,15 +1,35 @@
 # Apache config para la API
-# - Permite CORS
-# - Bloquea acceso a conexion.php (incluido por los demás pero no debe abrirse directamente)
+# CORS lo gestiona conexion.php (lista blanca por origen).
+# Aquí solo bloqueamos acceso directo a ficheros sensibles.
 
-<Files "conexion.php">
+# Bloquea acceso directo a ficheros que solo deben incluirse desde otros PHP
+<FilesMatch "^(conexion|config|vapid|config\.example)\.php$">
     Order Allow,Deny
     Deny from all
-</Files>
+    # Apache 2.4+
+    Require all denied
+</FilesMatch>
 
-# Cabeceras CORS (los endpoints también las envían; esto es por si Apache las strippa)
-<IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header set Access-Control-Allow-Headers "Content-Type"
+# Bloquea la carpeta lib/ entera (WebPush.php se incluye desde push_send.php)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^lib/ - [F,L]
 </IfModule>
+
+# Bloquea ficheros .md, .sql, .log y backups
+<FilesMatch "\.(md|sql|log|bak|swp|orig)$">
+    Order Allow,Deny
+    Deny from all
+    Require all denied
+</FilesMatch>
+
+# Cabeceras adicionales (HSTS y nosniff lo añade también PHP, esto es belt-and-suspenders)
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# Desactiva listado de directorios
+Options -Indexes

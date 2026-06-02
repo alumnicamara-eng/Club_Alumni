@@ -4,6 +4,7 @@ require __DIR__ . '/conexion.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    requireLogin();
     /* Mentor + dni del usuario + lista de DNIs de mentees aceptados */
     $stmt = $pdo->query('
         SELECT m.*, u.dni AS usuario_dni,

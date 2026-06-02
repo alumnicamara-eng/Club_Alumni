@@ -2,10 +2,16 @@
 /**
  * Genera un par de claves VAPID y muestra el contenido para pegar en vapid.php
  *
- * USO: Abre este fichero en el navegador UNA SOLA VEZ tras subir al hosting:
- *      https://tu-dominio.com/api/generate-vapid.php
- * Copia el bloque que aparece, créalo como vapid.php, y borra este fichero del servidor.
+ * Protección: solo accesible si vapid.php NO existe todavía (instalación inicial),
+ * o si quien lo invoca es admin autenticado (regeneración controlada).
  */
+
+require __DIR__ . '/conexion.php';
+
+if (file_exists(__DIR__ . '/vapid.php')) {
+    /* Ya hay claves — requerimos admin para regenerar (rompería suscripciones existentes) */
+    requireAdmin();
+}
 
 require __DIR__ . '/lib/WebPush.php';
 

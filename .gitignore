@@ -1,8 +1,8 @@
 # Claves VAPID con la privada — NUNCA al repo público
 calendarapp/api/vapid.php
 
-# Configuración de BD con credenciales reales
-calendarapp/api/conexion.local.php
+# Configuración real (credenciales BD, orígenes CORS, etc.)
+calendarapp/api/config.php
 
 # Logs PHP
 *.log

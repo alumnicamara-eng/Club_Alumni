@@ -9,21 +9,35 @@ if (!$ev) jsonOut(['error' => 'evento_id requerido'], 400);
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST') {
-    /* Comprobar que quedan plazas */
-    $cnt = $pdo->prepare('SELECT COUNT(*) FROM inscripciones WHERE evento_id = ?');
-    $cnt->execute([$ev]);
-    $plazas = $pdo->prepare('SELECT plazas FROM eventos WHERE id = ?');
-    $plazas->execute([$ev]);
-    $max = (int)$plazas->fetchColumn();
-    if ((int)$cnt->fetchColumn() >= $max) jsonOut(['error' => 'No quedan plazas'], 409);
-
+    /* Transacción con SELECT ... FOR UPDATE para evitar race condition
+       cuando dos usuarios pulsan "Apuntarme" simultáneamente y solo queda 1 plaza. */
     try {
-        $pdo->prepare('INSERT INTO inscripciones (usuario_id, evento_id) VALUES (?,?)')->execute([$user['id'], $ev]);
+        $pdo->beginTransaction();
+
+        $stmt = $pdo->prepare('SELECT plazas FROM eventos WHERE id = ? FOR UPDATE');
+        $stmt->execute([$ev]);
+        $max = $stmt->fetchColumn();
+        if ($max === false) { $pdo->rollBack(); jsonOut(['error' => 'Evento no existe'], 404); }
+
+        $cnt = $pdo->prepare('SELECT COUNT(*) FROM inscripciones WHERE evento_id = ?');
+        $cnt->execute([$ev]);
+        if ((int)$cnt->fetchColumn() >= (int)$max) {
+            $pdo->rollBack();
+            jsonOut(['error' => 'No quedan plazas'], 409);
+        }
+
+        $pdo->prepare('INSERT INTO inscripciones (usuario_id, evento_id) VALUES (?,?)')
+            ->execute([$user['id'], $ev]);
+
+        $pdo->commit();
+        jsonOut(['ok' => true]);
     } catch (PDOException $e) {
-        /* Inscripción duplicada */
-        jsonOut(['error' => 'Ya estás inscrito'], 409);
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        /* SQLSTATE 23000 = constraint violation (UNIQUE) → ya estaba inscrito */
+        if ($e->getCode() === '23000') jsonOut(['error' => 'Ya estás inscrito'], 409);
+        error_log('inscripcion.php: ' . $e->getMessage());
+        jsonOut(['error' => 'Error al inscribirte'], 500);
     }
-    jsonOut(['ok' => true]);
 }
 
 if ($method === 'DELETE') {

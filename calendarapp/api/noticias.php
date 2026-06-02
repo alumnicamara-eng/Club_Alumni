@@ -4,16 +4,22 @@ require __DIR__ . '/conexion.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $stmt = $pdo->query('SELECT * FROM noticias ORDER BY fecha DESC');
+    requireLogin();
+    $stmt = $pdo->query('SELECT * FROM noticias ORDER BY fecha DESC LIMIT 200');
     jsonOut($stmt->fetchAll());
 }
 
 if ($method === 'POST') {
     requireAdmin();
-    $in = jsonInput();
-    if (empty($in['titulo']) || empty($in['fecha'])) jsonOut(['error' => 'Faltan campos obligatorios'], 400);
+    $in     = jsonInput();
+    $titulo = validateLen($in['titulo']  ?? '', 200, 'titulo');
+    $res    = validateLen($in['resumen'] ?? '', 500, 'resumen');
+    $url    = validateLen($in['wp_url']  ?? '', 500, 'wp_url');
+    $tag    = in_array($in['tag'] ?? 'club', ['club','empleo','formacion','eventos'], true) ? $in['tag'] : 'club';
+    $fecha  = $in['fecha'] ?? '';
+    if (!$titulo || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) jsonOut(['error' => 'Faltan campos obligatorios'], 400);
     $stmt = $pdo->prepare('INSERT INTO noticias (titulo, resumen, tag, fecha, wp_url) VALUES (?,?,?,?,?)');
-    $stmt->execute([$in['titulo'], $in['resumen'] ?? '', $in['tag'] ?? 'club', $in['fecha'], $in['wp_url'] ?? null]);
+    $stmt->execute([$titulo, $res, $tag, $fecha, $url ?: null]);
     jsonOut(['id' => (int)$pdo->lastInsertId(), 'ok' => true], 201);
 }
 

@@ -4,6 +4,7 @@ require __DIR__ . '/conexion.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    requireLogin();
     /* Eventos con array de DNIs inscritos para que el frontend pinte el estado */
     $stmt = $pdo->query('
         SELECT e.*, GROUP_CONCAT(u.dni) AS inscritos_csv
@@ -12,6 +13,7 @@ if ($method === 'GET') {
         LEFT JOIN usuarios u ON u.id = i.usuario_id
         GROUP BY e.id
         ORDER BY e.fecha, e.hora
+        LIMIT 500
     ');
     $rows = array_map(function ($r) {
         $r['inscritos'] = $r['inscritos_csv'] ? explode(',', $r['inscritos_csv']) : [];

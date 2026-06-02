@@ -4,7 +4,8 @@ require __DIR__ . '/conexion.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    jsonOut($pdo->query('SELECT * FROM conferencias ORDER BY fecha DESC')->fetchAll());
+    requireLogin();
+    jsonOut($pdo->query('SELECT * FROM conferencias ORDER BY fecha DESC LIMIT 200')->fetchAll());
 }
 
 if ($method === 'POST') {

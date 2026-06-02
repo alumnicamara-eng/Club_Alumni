@@ -4,9 +4,12 @@ require __DIR__ . '/conexion.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonOut(['error' => 'Method not allowed'], 405);
 
 $user = requireLogin();
-$in   = jsonInput();
-$pub  = (int)($in['publicacion_id'] ?? 0);
-$txt  = trim($in['texto'] ?? '');
+if (!rateLimit('cmt:' . $user['id'], 30, 600)) {  // 30 comentarios / 10 min
+    jsonOut(['error' => 'Demasiados comentarios seguidos'], 429);
+}
+$in  = jsonInput();
+$pub = (int)($in['publicacion_id'] ?? 0);
+$txt = validateLen($in['texto'] ?? '', 500, 'texto');
 if (!$pub || !$txt) jsonOut(['error' => 'publicacion_id y texto requeridos'], 400);
 
 $stmt = $pdo->prepare('INSERT INTO publicaciones_comentarios (publicacion_id, autor_id, texto) VALUES (?,?,?)');

@@ -85,9 +85,8 @@ $DB_PASS = '';
 3. Edita `api/conexion.php` con las credenciales del hosting (host, user, password)
 4. En la PWA, ve a **Admin > Configuración > Backend PHP / API** y pega la URL: `https://tu-dominio.com/api/`
 
-## Notas de seguridad
+## Seguridad
 
-- ⚠️ **Cambia las contraseñas seed** del SQL antes de producción
-- ⚠️ Las contraseñas nuevas se hashean con `password_hash()` (bcrypt). Las legacy en plano del seed se aceptan con `hash_equals`
-- ⚠️ El `Access-Control-Allow-Origin: *` está abierto para desarrollo. En producción, sustitúyelo por tu dominio real
-- ⚠️ Si vas a usar push notifications reales, necesitas generar claves VAPID y enviar las notificaciones desde un script PHP separado (web-push-php)
+Ver `../SECURITY.md` para el listado completo de medidas (CORS estricto, rate limiting,
+session fixation, bcrypt, validación, etc.) y los pasos obligatorios antes de producción
+(crear `config.php`, generar VAPID, activar HTTPS…).

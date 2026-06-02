@@ -4,6 +4,7 @@ require __DIR__ . '/conexion.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    requireLogin();
     /* Publicaciones + autor + DNIs de likers + comentarios */
     $posts = $pdo->query('
         SELECT p.*, u.dni AS autor_dni,
@@ -37,10 +38,15 @@ if ($method === 'GET') {
 
 if ($method === 'POST') {
     $user = requireLogin();
-    $in   = jsonInput();
-    if (empty($in['texto'])) jsonOut(['error' => 'Falta texto'], 400);
+    if (!rateLimit('post:' . $user['id'], 10, 600)) {  // 10 posts / 10 min
+        jsonOut(['error' => 'Has publicado demasiado seguido, espera un momento'], 429);
+    }
+    $in    = jsonInput();
+    $texto = validateLen($in['texto'] ?? '', 2000, 'texto');
+    if (!$texto) jsonOut(['error' => 'Falta texto'], 400);
+    $cat = in_array($in['categoria'] ?? 'todas', ['empleo','pregunta','logro','recurso','todas'], true) ? $in['categoria'] : 'todas';
     $stmt = $pdo->prepare('INSERT INTO publicaciones (autor_id, categoria, texto) VALUES (?,?,?)');
-    $stmt->execute([$user['id'], $in['categoria'] ?? 'todas', $in['texto']]);
+    $stmt->execute([$user['id'], $cat, $texto]);
     jsonOut(['id' => (int)$pdo->lastInsertId(), 'ok' => true], 201);
 }
 
