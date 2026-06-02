@@ -1,0 +1,15 @@
+# Apache config para la API
+# - Permite CORS
+# - Bloquea acceso a conexion.php (incluido por los demás pero no debe abrirse directamente)
+
+<Files "conexion.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Cabeceras CORS (los endpoints también las envían; esto es por si Apache las strippa)
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type"
+</IfModule>

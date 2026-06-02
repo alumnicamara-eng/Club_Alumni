@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alumni-camarafp-v9';
+const CACHE_NAME = 'alumni-camarafp-v10';
 const ASSETS = [
   './',
   './index.html',
@@ -13,7 +13,7 @@ const ASSETS = [
   './js/ui.js',
   './js/auth.js',
   './js/router.js',
-  './js/supabase.js',
+  './js/api.js',
   './js/app.js',
   './js/screens/home.js',
   './js/screens/news.js',
