@@ -12,6 +12,7 @@ function bootApp() {
   updateBadge();
   if (State.user.role === 'admin') updateProposalsBadge();
   registerSW();
+  if (initSupabase()) loadDataFromSupabase();
 }
 
 function registerSW() {
