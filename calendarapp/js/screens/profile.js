@@ -41,7 +41,7 @@ function renderProfile() {
   $('#userAvatar').textContent = initials(u.name);
 }
 
-function saveProfile() {
+async function saveProfile() {
   const u = State.user;
   u.name     = $('#pfName').value.trim();
   u.email    = $('#pfEmail').value.trim();
@@ -61,6 +61,21 @@ function saveProfile() {
     mentor: $('#pfPushMentor').checked,
   };
   u.interests = $$('#pfInterests .tag-pick.selected').map(t => t.dataset.v);
+
+  /* Persistir en backend si está conectado */
+  if (API_BASE) {
+    try {
+      const [nombre, ...rest] = (u.name || '').split(' ');
+      await API.updatePerfil({
+        nombre, apellidos: rest.join(' '),
+        telefono: u.phone, ciclo: u.ciclo, promocion: u.year ? String(u.year) : null,
+        empresa: u.company, puesto: u.position, sector: u.sector,
+        bio: u.bio, linkedin: u.linkedin, github: u.github, web: u.web,
+        foto: u.photo,
+      });
+    } catch (e) { toast('Perfil guardado en local — error con el servidor'); }
+  }
+
   renderProfile();
   toast('Perfil actualizado');
 }

@@ -47,7 +47,7 @@ function mentorCard(m) {
   </div>`;
 }
 
-function requestMentee(id) {
+async function requestMentee(id) {
   if (!State.user) return;
   const m = DATA.mentors.find(x => x.id === id); if (!m) return;
   if (State.user.ciclo && State.user.ciclo !== m.ciclo) {
@@ -56,6 +56,12 @@ function requestMentee(id) {
   }
   if (m.mentees.length >= m.max) { toast('Plazas cubiertas'); return; }
   if (m.mentees.includes(State.user.dni)) { toast('Ya estás en esta mentoría'); return; }
+
+  if (API_BASE) {
+    try { await API.requestMentor(id); }
+    catch (e) { toast('No se pudo solicitar la mentoría'); return; }
+  }
+
   m.mentees.push(State.user.dni);
   toast('Solicitud enviada. El mentor recibirá un aviso.');
   pushNotify({ title: 'Mentoría solicitada', body: 'Esperando confirmación del mentor.' });
@@ -100,13 +106,25 @@ function openMentorForm() {
   ]);
 }
 
-function submitMentor() {
+async function submitMentor() {
   const bio = $('#mentorBio').value.trim();
   const max = parseInt($('#mentorMax').value);
   if (!bio) { toast('Escribe una presentación'); return; }
-  const exists = DATA.mentors.find(m => m.userDni === State.user.dni);
-  if (exists) { exists.bio = bio; exists.max = max; }
-  else DATA.mentors.unshift({ id: Date.now(), userDni: State.user.dni, ciclo: State.user.ciclo, bio, max, mentees: [] });
+
+  if (API_BASE) {
+    try { await API.becomeMentor({ ciclo: State.user.ciclo, bio, max_mentees: max }); }
+    catch (e) {
+      const msg = (e.message || '').includes('409') ? 'Ya estabas registrado como mentor de ese ciclo' : 'No se pudo guardar';
+      toast(msg);
+      return;
+    }
+    await loadDataFromApi();
+  } else {
+    const exists = DATA.mentors.find(m => m.userDni === State.user.dni);
+    if (exists) { exists.bio = bio; exists.max = max; }
+    else DATA.mentors.unshift({ id: Date.now(), userDni: State.user.dni, ciclo: State.user.ciclo, bio, max, mentees: [] });
+  }
+
   toast('Gracias, ya apareces como mentor');
   closeModal();
   renderMentors();

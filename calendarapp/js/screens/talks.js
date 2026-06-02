@@ -60,22 +60,37 @@ function openProposeTalk() {
   ]);
 }
 
-function submitProposal() {
+async function submitProposal() {
   const name  = $('#propName').value.trim();
   const email = $('#propEmail').value.trim();
   const ciclo = $('#propCiclo').value;
   const topic = $('#propTopic').value.trim();
   const desc  = $('#propDesc').value.trim();
   if (!name || !email || !ciclo || !topic || !desc) { toast('Completa todos los campos obligatorios'); return; }
-  DATA.talkProposals.unshift({
-    id: Date.now(), dni: State.user.dni,
-    name, email, ciclo,
-    year: parseInt($('#propYear').value) || null,
-    topic, desc,
-    duration: $('#propDuration').value,
-    format: $('#propFormat').value,
-    date: Date.now(), status: 'pending',
-  });
+
+  const proposal = {
+    nombre: name, email, ciclo,
+    promocion: $('#propYear').value || null,
+    tema: topic, descripcion: desc,
+    duracion: $('#propDuration').value,
+    formato:  $('#propFormat').value,
+  };
+
+  if (API_BASE) {
+    try { await API.proponerCharla(proposal); }
+    catch (e) { toast('No se pudo enviar la propuesta'); return; }
+  } else {
+    DATA.talkProposals.unshift({
+      id: Date.now(), dni: State.user.dni,
+      name, email, ciclo,
+      year: parseInt($('#propYear').value) || null,
+      topic, desc,
+      duration: $('#propDuration').value,
+      format: $('#propFormat').value,
+      date: Date.now(), status: 'pending',
+    });
+  }
+
   closeModal();
   updateProposalsBadge();
   toast('Propuesta enviada al equipo Alumni');

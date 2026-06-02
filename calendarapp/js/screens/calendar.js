@@ -85,28 +85,39 @@ function eventCard(e) {
   </div>`;
 }
 
-function toggleEnroll(id) {
+async function toggleEnroll(id) {
   const e = DATA.events.find(x => x.id === id);
   if (!e) return;
-  const i = e.enrolled.indexOf(State.user.dni);
-  if (i >= 0) {
-    e.enrolled.splice(i, 1);
+  const wasEnrolled = e.enrolled.includes(State.user.dni);
+
+  if (wasEnrolled) {
+    /* Cancelar inscripción */
+    if (API_BASE) {
+      try { await API.unenroll(id); } catch (err) { toast('Error cancelando'); return; }
+    }
+    e.enrolled = e.enrolled.filter(d => d !== State.user.dni);
     toast('Inscripción cancelada');
     if (State.current === 'calendario') renderCalendar();
     if (State.current === 'inicio')     renderHome();
     closeModal();
-  } else if (e.enrolled.length >= e.spots) {
-    toast('No quedan plazas');
     return;
-  } else {
-    e.enrolled.push(State.user.dni);
-    toast('Te has apuntado al evento');
-    pushNotify({ title: 'Estás inscrito', body: e.title });
-    if (State.current === 'calendario') renderCalendar();
-    if (State.current === 'inicio')     renderHome();
-    /* Tras apuntarse, abrir prompt para añadir al calendario externo */
-    promptAddToCalendar(e);
   }
+
+  if (e.enrolled.length >= e.spots) { toast('No quedan plazas'); return; }
+
+  /* Apuntarse */
+  if (API_BASE) {
+    try { await API.enroll(id); } catch (err) {
+      const msg = (err.message || '').includes('409') ? 'No quedan plazas o ya estás inscrito' : 'Error apuntándote';
+      toast(msg); return;
+    }
+  }
+  e.enrolled.push(State.user.dni);
+  toast('Te has apuntado al evento');
+  pushNotify({ title: 'Estás inscrito', body: e.title });
+  if (State.current === 'calendario') renderCalendar();
+  if (State.current === 'inicio')     renderHome();
+  promptAddToCalendar(e);
 }
 
 /* Modal que aparece tras apuntarse: "¿Lo añades a tu calendario?" */

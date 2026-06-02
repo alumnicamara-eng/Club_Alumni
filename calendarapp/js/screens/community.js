@@ -4,14 +4,22 @@
 
 const POST_CATS = { empleo:'Empleo', pregunta:'Pregunta', logro:'Logro', recurso:'Recurso' };
 
-function publishPost() {
+async function publishPost() {
   const txt = $('#composerText').value.trim();
   const cat = $('#composerCat').value || 'todas';
   if (!txt) { toast('Escribe algo para publicar'); return; }
-  DATA.posts.unshift({
-    id: Date.now(), authorDni: State.user.dni, cat,
-    body: txt, date: Date.now(), likes: [], comments: [],
-  });
+
+  if (API_BASE) {
+    try {
+      await API.createPost({ texto: txt, categoria: cat });
+      await loadDataFromApi();
+    } catch (e) { toast('No se pudo publicar'); return; }
+  } else {
+    DATA.posts.unshift({
+      id: Date.now(), authorDni: State.user.dni, cat,
+      body: txt, date: Date.now(), likes: [], comments: [],
+    });
+  }
   $('#composerText').value = '';
   renderPosts();
   toast('Publicado');
@@ -58,22 +66,29 @@ function postCard(p) {
   </div>`;
 }
 
-function toggleLike(id) {
+async function toggleLike(id) {
   const p = DATA.posts.find(x => x.id === id);
   const i = p.likes.indexOf(State.user.dni);
   if (i >= 0) p.likes.splice(i, 1); else p.likes.push(State.user.dni);
   renderPosts();
+  if (API_BASE) {
+    try { await API.toggleLike(id); } catch (e) { /* ya hemos pintado el estado optimista */ }
+  }
 }
 
 function toggleComments(id) { $('#comments-' + id).classList.toggle('open'); }
 
-function addComment(id, input) {
+async function addComment(id, input) {
   const t = input.value.trim();
   if (!t) return;
   const p = DATA.posts.find(x => x.id === id);
   p.comments.push({ a: State.user.dni, t, d: Date.now() });
+  input.value = '';
   renderPosts();
   setTimeout(() => $('#comments-' + id).classList.add('open'), 50);
+  if (API_BASE) {
+    try { await API.addComment(id, t); } catch (e) { console.warn('Comentario no guardado:', e); }
+  }
 }
 
 function sharePost(id) {

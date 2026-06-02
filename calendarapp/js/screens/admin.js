@@ -58,20 +58,41 @@ function openNewsForm() {
     `<button class="btn btn-primary" onclick="saveNews()">Publicar</button>`,
   ]);
 }
-function saveNews() {
-  DATA.news.unshift({
-    id: Date.now(),
-    title:   $('#newsTitle').value,
-    wpUrl:   $('#newsUrl').value,
-    summary: $('#newsSummary').value,
+async function saveNews() {
+  const data = {
+    titulo:  $('#newsTitle').value.trim(),
+    wp_url:  $('#newsUrl').value.trim(),
+    resumen: $('#newsSummary').value.trim(),
     tag:     $('#newsTag').value,
-    date:    new Date().toISOString().slice(0, 10),
-  });
-  closeModal(); renderAdmin(); renderNews(); toast('Noticia añadida');
+    fecha:   new Date().toISOString().slice(0, 10),
+  };
+  if (!data.titulo) { toast('Falta el título'); return; }
+
+  if (API_BASE) {
+    try {
+      await API.createNoticia(data);
+      await loadDataFromApi();
+      notifyAll('📰 Nueva noticia Alumni', data.titulo, '/');
+    } catch (e) { toast('Error guardando en el servidor'); return; }
+  } else {
+    DATA.news.unshift({
+      id: Date.now(),
+      title: data.titulo, wpUrl: data.wp_url, summary: data.resumen,
+      tag: data.tag, date: data.fecha,
+    });
+  }
+  closeModal(); renderAdmin(); renderHome(); toast('Noticia publicada');
 }
-function deleteNews(id) {
-  DATA.news = DATA.news.filter(n => n.id !== id);
-  renderAdmin(); renderNews(); toast('Noticia eliminada');
+
+async function deleteNews(id) {
+  if (!confirm('¿Eliminar esta noticia?')) return;
+  if (API_BASE) {
+    try { await API.deleteNoticia(id); await loadDataFromApi(); }
+    catch (e) { toast('Error eliminando'); return; }
+  } else {
+    DATA.news = DATA.news.filter(n => n.id !== id);
+  }
+  renderAdmin(); renderHome(); toast('Noticia eliminada');
 }
 
 /* ---------- CRUD eventos ---------- */
@@ -90,19 +111,49 @@ function openEventForm() {
     `<button class="btn btn-primary" onclick="saveEvent()">Crear</button>`,
   ]);
 }
-function saveEvent() {
-  DATA.events.push({
-    id: Date.now(),
-    title: $('#evTitle').value, desc: $('#evDesc').value,
-    date:  $('#evDate').value,  time: $('#evTime').value,
-    place: $('#evPlace').value, spots: parseInt($('#evSpots').value) || 50,
-    enrolled: [], category: 'evento',
-  });
-  closeModal(); renderAdmin(); toast('Evento creado');
+async function saveEvent() {
+  const data = {
+    titulo:      $('#evTitle').value.trim(),
+    descripcion: $('#evDesc').value.trim(),
+    fecha:       $('#evDate').value,
+    hora:        ($('#evTime').value || '18:00') + ':00',
+    ubicacion:   $('#evPlace').value.trim(),
+    plazas:      parseInt($('#evSpots').value) || 50,
+    categoria:   'evento',
+  };
+  if (!data.titulo || !data.fecha) { toast('Faltan título y fecha'); return; }
+
+  if (API_BASE) {
+    try {
+      await API.createEvento(data);
+      await loadDataFromApi();
+      notifyAll('📅 Nuevo evento Alumni', `${data.titulo} — ${fmtDateLong(data.fecha)}`, '/');
+    } catch (e) { toast('Error guardando en el servidor'); return; }
+  } else {
+    DATA.events.push({
+      id: Date.now(),
+      title: data.titulo, desc: data.descripcion,
+      date: data.fecha, time: data.hora.slice(0, 5),
+      place: data.ubicacion, spots: data.plazas,
+      enrolled: [], category: data.categoria,
+    });
+  }
+  closeModal(); renderAdmin();
+  if (State.current === 'calendario') renderCalendar();
+  toast('Evento creado');
 }
-function deleteEvent(id) {
-  DATA.events = DATA.events.filter(e => e.id !== id);
-  renderAdmin(); toast('Evento eliminado');
+
+async function deleteEvent(id) {
+  if (!confirm('¿Eliminar este evento? Las inscripciones se borran también.')) return;
+  if (API_BASE) {
+    try { await apiFetch(`eventos.php?id=${id}`, { method: 'DELETE' }); await loadDataFromApi(); }
+    catch (e) { toast('Error eliminando'); return; }
+  } else {
+    DATA.events = DATA.events.filter(e => e.id !== id);
+  }
+  renderAdmin();
+  if (State.current === 'calendario') renderCalendar();
+  toast('Evento eliminado');
 }
 
 /* ---------- CRUD conferencias ---------- */
@@ -120,21 +171,46 @@ function openTalkForm() {
     `<button class="btn btn-primary" onclick="saveTalk()">Publicar</button>`,
   ]);
 }
-function saveTalk() {
-  DATA.talks.unshift({
-    id: Date.now(),
-    title:   $('#tkTitle').value,
-    speaker: $('#tkSpeaker').value,
-    url:     $('#tkUrl').value,
-    desc:    $('#tkDesc').value,
-    cat:     $('#tkCat').value,
-    date:    new Date().toISOString().slice(0, 10),
-  });
-  closeModal(); renderAdmin(); renderTalks(); toast('Conferencia publicada');
+async function saveTalk() {
+  const data = {
+    titulo:      $('#tkTitle').value.trim(),
+    ponente:     $('#tkSpeaker').value.trim(),
+    youtube_url: $('#tkUrl').value.trim(),
+    descripcion: $('#tkDesc').value.trim(),
+    categoria:   $('#tkCat').value,
+    fecha:       new Date().toISOString().slice(0, 10),
+  };
+  if (!data.titulo || !data.ponente || !data.youtube_url) { toast('Faltan campos obligatorios'); return; }
+
+  if (API_BASE) {
+    try {
+      await API.createConferencia(data);
+      await loadDataFromApi();
+      notifyAll('🎥 Nueva conferencia disponible', `${data.titulo} — ${data.ponente}`, '/');
+    } catch (e) { toast('Error guardando en el servidor'); return; }
+  } else {
+    DATA.talks.unshift({
+      id: Date.now(),
+      title: data.titulo, speaker: data.ponente, url: data.youtube_url,
+      desc: data.descripcion, cat: data.categoria, date: data.fecha,
+    });
+  }
+  closeModal(); renderAdmin();
+  if (State.current === 'talks') renderTalks();
+  toast('Conferencia publicada');
 }
-function deleteTalk(id) {
-  DATA.talks = DATA.talks.filter(t => t.id !== id);
-  renderAdmin(); toast('Conferencia eliminada');
+
+async function deleteTalk(id) {
+  if (!confirm('¿Eliminar esta conferencia?')) return;
+  if (API_BASE) {
+    try { await apiFetch(`conferencias.php?id=${id}`, { method: 'DELETE' }); await loadDataFromApi(); }
+    catch (e) { toast('Error eliminando'); return; }
+  } else {
+    DATA.talks = DATA.talks.filter(t => t.id !== id);
+  }
+  renderAdmin();
+  if (State.current === 'talks') renderTalks();
+  toast('Conferencia eliminada');
 }
 
 /* ---------- Propuestas ---------- */
@@ -162,9 +238,12 @@ function renderProposals() {
       </div>`).join('')
     : emptyMsg('Aún no hay propuestas', 'microphone-lines');
 }
-function reviewProposal(id, status) {
+async function reviewProposal(id, status) {
   const p = DATA.talkProposals.find(x => x.id === id); if (!p) return;
   p.status = status;
+  if (API_BASE && status !== 'pending') {
+    try { await API.reviewPropuesta(id, status); } catch (e) { console.warn('No se pudo guardar el estado:', e); }
+  }
   renderProposals(); updateProposalsBadge();
   toast(status === 'accepted' ? 'Propuesta aceptada' : status === 'rejected' ? 'Propuesta rechazada' : 'Propuesta reabierta');
 }
