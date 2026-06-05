@@ -40,7 +40,17 @@ function renderAdmin() {
     </div>`;
   }).join('') || emptyMsg('No hay mentores registrados', 'user-graduate');
 
-  $('#adminUsersList').innerHTML = DATA.users.filter(u => u.role !== 'admin').map(alumniCard).join('');
+  /* Admin > Usuarios: card con botón Eliminar */
+  $('#adminUsersList').innerHTML = DATA.users.filter(u => u.role !== 'admin').map(u => `<div class="alumni-card">
+    <div class="alumni-avatar">${initials(u.name)}</div>
+    <div class="alumni-name">${escapeHtml(u.name)}</div>
+    <div class="alumni-meta">${escapeHtml(u.position || '')} ${u.company ? '· ' + escapeHtml(u.company) : ''}</div>
+    <div class="alumni-meta" style="margin-top:2px">${escapeHtml(u.ciclo || '')} ${u.year ? '· ' + u.year : ''}</div>
+    <div class="alumni-meta" style="margin-top:2px;font-size:11px">${escapeHtml(u.email || '')}</div>
+    <div class="card-actions mt-12" style="justify-content:center">
+      <button class="btn btn-ghost btn-sm" onclick="deleteAlumni('${escapeHtml(u.dni)}', '${escapeHtml(u.name)}')"><i class="fas fa-trash"></i> Eliminar</button>
+    </div>
+  </div>`).join('') || emptyMsg('No hay alumnis registrados', 'user');
 
   renderProposals();
   updateProposalsBadge();
@@ -279,6 +289,31 @@ async function adminTestPush() {
   } catch (e) {
     console.error(e);
     toast('Error enviando push — revisa la consola y vapid.php');
+  }
+}
+
+/* Eliminar un alumni (solo admin) */
+async function deleteAlumni(dni, name) {
+  if (!confirm(`¿Eliminar a ${name}?\n\nSe borrarán también sus inscripciones, mentorías, posts y comentarios. Esta acción NO se puede deshacer.`)) return;
+  /* Buscar el id real en DATA (puede no estar si la lista viene de API con id distinto al dni) */
+  const u = DATA.users.find(x => x.dni === dni);
+  const id = u?.id;
+  if (!id) { toast('No se encuentra el usuario en la lista actual — refresca el panel'); return; }
+  if (!API_BASE) {
+    DATA.users = DATA.users.filter(x => x.dni !== dni);
+    renderAdmin();
+    toast('Eliminado (local)');
+    return;
+  }
+  try {
+    await API.deleteUsuario(id);
+    await loadDataFromApi();
+    renderAdmin();
+    toast(`${name} eliminado`);
+  } catch (e) {
+    const msg = e.message || '';
+    if (msg.includes('403')) toast('No puedes eliminarte a ti mismo');
+    else toast('Error eliminando usuario');
   }
 }
 

@@ -242,14 +242,13 @@ INSERT INTO `usuarios` (`dni`,`nombre`,`apellidos`,`email`,`password`,`ciclo`,`p
 ('12345678',  'Lucía','Pérez',  'alumni@camarafp.es','user123','DAW',            '2022','Banco Sabadell',   'Frontend Developer', 'Tecnología','alumno',1, CURRENT_TIMESTAMP),
 ('87654321',  'Carlos','Ruiz',  'carlos@example.com','user123','DAM',            '2020','Indra',            'Backend Engineer',   'Tecnología','alumno',1, CURRENT_TIMESTAMP),
 ('11223344',  'Ana',  'Gómez',  'ana@example.com',   'user123','Marketing',      '2021','Freelance',        'Brand Strategist',   'Marketing','alumno',1, CURRENT_TIMESTAMP),
-('55667788',  'Miguel','Soler', 'miguel@example.com','user123','ASIR',           '2019','Telefónica Tech',  'DevOps',             'Tecnología','alumno',1, CURRENT_TIMESTAMP),
 ('99887766',  'Paula','Torres', 'paula@example.com', 'user123','Administración', '2023','PwC',              'Auditora Jr.',       'Banca y Finanzas','alumno',1, CURRENT_TIMESTAMP),
 ('44556677',  'Javier','Núñez', 'javier@example.com','user123','Comercio Internacional','2022','Mercadona','Compras internacionales','Logística','alumno',1, CURRENT_TIMESTAMP);
 
 -- Noticias de ejemplo (con URL a WordPress del club)
 INSERT INTO `noticias` (`titulo`,`resumen`,`tag`,`fecha`,`wp_url`) VALUES
 ('Abrimos inscripciones a la edición 2026 de Alumni Talks','Nueva temporada con ponentes alumni de referencia. Más de 12 sesiones programadas.','club',    '2026-05-12','https://alumni.camarafp.es/?p=101'),
-('5 empresas del Vivero buscan talento Alumni',            'Ofertas activas para perfiles de DAW, DAM, ASIR y Marketing.',                          'empleo',  '2026-05-08','https://alumni.camarafp.es/?p=102'),
+('5 empresas del Vivero buscan talento Alumni',            'Ofertas activas para perfiles de DAW, DAM, Marketing y Administración.',                'empleo',  '2026-05-08','https://alumni.camarafp.es/?p=102'),
 ('Nuevo curso bonificado para alumnis: IA aplicada al puesto','30 plazas exclusivas para antiguos alumnos. Inicio en junio.',                        'formacion','2026-05-02','https://alumni.camarafp.es/?p=103'),
 ('Networking de primavera: cena anual el 14 de junio',     'Reservada para alumnis Cámara FP y acompañante. Cupo limitado.',                        'eventos', '2026-04-28','https://alumni.camarafp.es/?p=104');
 
@@ -266,11 +265,10 @@ INSERT INTO `conferencias` (`titulo`,`descripcion`,`ponente`,`categoria`,`youtub
 ('Negocia tu primer sueldo sin miedo',           'Investigar, preparar y plantear la conversación.','Ana Gómez (Marketing 2021)','empleabilidad','https://www.youtube.com/embed/dQw4w9WgXcQ','2026-04-05'),
 ('De ciclo a emprender: lecciones del primer año','Recursos, contactos y errores reales.',     'Javier Núñez (CI 2022)','emprendimiento','https://www.youtube.com/embed/dQw4w9WgXcQ','2026-03-20');
 
--- Mentores (Carlos para DAM, Ana para Marketing, Miguel para ASIR)
+-- Mentores (Carlos para DAM, Ana para Marketing)
 INSERT INTO `mentores` (`usuario_id`,`ciclo`,`bio`,`max_mentees`) VALUES
 (3,'DAM','5 años en backend Java. Ayudo con primer empleo y entrevistas técnicas.',5),
-(4,'Marketing','Estrategia de marca y portfolio. Llevo 4 alumnos cada curso.',5),
-(5,'ASIR','DevOps en Telefónica Tech. Hablo de redes, cloud y certificaciones.',5);
+(4,'Marketing','Estrategia de marca y portfolio. Llevo 4 alumnos cada curso.',5);
 
 -- Publicaciones de comunidad
 INSERT INTO `publicaciones` (`autor_id`,`categoria`,`texto`) VALUES

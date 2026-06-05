@@ -31,6 +31,7 @@ const API = {
   /* Usuarios */
   getUsuarios:   ()       => apiFetch('usuarios.php'),
   updatePerfil:  data     => apiFetch('perfil.php', { method: 'POST', body: data }),
+  deleteUsuario: id       => apiFetch(`usuarios.php?id=${id}`, { method: 'DELETE' }),
 
   /* Noticias */
   getNoticias:   ()       => apiFetch('noticias.php'),
@@ -104,7 +105,8 @@ async function loadDataFromApi() {
 
 /* ---------- Normalizadores (PHP snake_case → JS camelCase) ---------- */
 const normaliseUsuario = u => ({
-  dni: u.dni, email: u.email, name: `${u.nombre} ${u.apellidos || ''}`.trim(),
+  id: +u.id, dni: u.dni, email: u.email, phone: u.telefono || '',
+  name: `${u.nombre} ${u.apellidos || ''}`.trim(),
   password: u.password, role: u.rol === 'admin' ? 'admin' : 'user',
   ciclo: u.ciclo, year: u.promocion ? parseInt(u.promocion) : null,
   company: u.empresa, position: u.puesto, sector: u.sector,
