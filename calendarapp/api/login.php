@@ -16,9 +16,10 @@ if (!$user || !$pass || mb_strlen($pass) > 200) {
     jsonOut(['error' => 'Credenciales incorrectas'], 401);
 }
 
-/* Buscamos sin filtrar por activo para poder diferenciar "cuenta pendiente" */
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE (email = :u OR dni = :u) LIMIT 1');
-$stmt->execute([':u' => $user]);
+/* Buscamos sin filtrar por activo para poder diferenciar "cuenta pendiente".
+   Usamos ? posicional porque PDO no permite reusar el mismo :placeholder nombrado. */
+$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE (email = ? OR dni = ?) LIMIT 1');
+$stmt->execute([$user, $user]);
 $row = $stmt->fetch();
 
 /* Mensaje genérico (no leak de si el usuario existe) */
