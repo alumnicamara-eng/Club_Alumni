@@ -16,7 +16,8 @@ if (!$user || !$pass || mb_strlen($pass) > 200) {
     jsonOut(['error' => 'Credenciales incorrectas'], 401);
 }
 
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE (email = :u OR dni = :u) AND activo = 1 LIMIT 1');
+/* Buscamos sin filtrar por activo para poder diferenciar "cuenta pendiente" */
+$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE (email = :u OR dni = :u) LIMIT 1');
 $stmt->execute([':u' => $user]);
 $row = $stmt->fetch();
 
@@ -28,6 +29,14 @@ $ok = password_get_info($row['password'])['algo']
     : hash_equals($row['password'], $pass);
 
 if (!$ok) jsonOut(['error' => 'Credenciales incorrectas'], 401);
+
+/* Las credenciales son correctas pero la cuenta no está activa */
+if ((int)$row['activo'] !== 1) {
+    jsonOut([
+        'error'   => 'pending',
+        'message' => 'Tu cuenta está pendiente de aprobación por el equipo Alumni. Te avisaremos cuando se active.',
+    ], 403);
+}
 
 /* Si la contraseña aún está en plano (seed legacy), la rehasheamos en bcrypt */
 if (!password_get_info($row['password'])['algo']) {

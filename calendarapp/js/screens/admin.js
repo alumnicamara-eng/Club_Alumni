@@ -17,8 +17,12 @@ function renderAdmin() {
 
   $('#adminEventsList').innerHTML = DATA.events.map(e => `<div class="card">
     <div class="card-title">${escapeHtml(e.title)}</div>
-    <div class="card-meta"><span>${fmtDate(e.date)} · ${escapeHtml(e.time)}</span><span>${e.enrolled.length}/${e.spots} inscritos</span></div>
-    <div class="card-actions"><button class="btn btn-ghost btn-sm" onclick="deleteEvent(${e.id})"><i class="fas fa-trash"></i> Eliminar</button></div>
+    <div class="card-meta"><span>${fmtDate(e.date)} · ${escapeHtml(e.time)}</span><span><i class="fas fa-users"></i> ${e.enrolled.length}/${e.spots} inscritos</span></div>
+    <div class="card-actions" style="flex-wrap:wrap;gap:6px">
+      <button class="btn btn-outline btn-sm" onclick="openEventEnrollees(${e.id})"><i class="fas fa-users"></i> Ver inscritos</button>
+      <button class="btn btn-outline btn-sm" onclick="openEventNotify(${e.id})"><i class="fas fa-bell"></i> Avisar</button>
+      <button class="btn btn-ghost btn-sm" onclick="deleteEvent(${e.id})"><i class="fas fa-trash"></i></button>
+    </div>
   </div>`).join('') || emptyMsg('No hay eventos creados', 'calendar');
 
   $('#adminTalksList').innerHTML = DATA.talks.map(t => `<div class="card">
@@ -40,6 +44,7 @@ function renderAdmin() {
 
   renderProposals();
   updateProposalsBadge();
+  renderPendingUsers();
 }
 
 /* ---------- CRUD noticias ---------- */
@@ -281,4 +286,163 @@ async function adminTestPush() {
 async function notifyAll(title, body, url) {
   if (!API_BASE) return;
   try { await API.sendPush(title, body, url || '/'); } catch (e) { console.warn('Push no enviado:', e); }
+}
+
+/* ============================================================
+   SOLICITUDES DE REGISTRO (pestaña Solicitudes)
+   ============================================================ */
+
+async function renderPendingUsers() {
+  const list = $('#adminPendingList');
+  if (!list) return;
+
+  if (!API_BASE) {
+    list.innerHTML = emptyMsg('Conecta el backend para ver solicitudes', 'plug');
+    return;
+  }
+
+  list.innerHTML = '<div class="text-muted" style="padding:20px;text-align:center"><i class="fas fa-spinner fa-spin"></i> Cargando…</div>';
+  try {
+    const users = await API.getPendingUsers();
+    updatePendingBadge(users.length);
+    list.innerHTML = users.length ? users.map(pendingUserCard).join('') : emptyMsg('No hay solicitudes pendientes', 'inbox');
+  } catch (e) {
+    list.innerHTML = emptyMsg('Error cargando solicitudes', 'triangle-exclamation');
+  }
+}
+
+function pendingUserCard(u) {
+  return `<div class="card" id="pending-${u.id}">
+    <div class="chip-row">
+      <span class="chip chip-warn">Pendiente</span>
+      ${u.ciclo ? `<span class="chip chip-teal">${escapeHtml(u.ciclo)} ${u.promocion || ''}</span>` : ''}
+    </div>
+    <div class="card-title">${escapeHtml(u.nombre)} ${escapeHtml(u.apellidos || '')}</div>
+    <div class="card-meta">
+      <span><i class="fas fa-envelope"></i> <a href="mailto:${escapeHtml(u.email)}">${escapeHtml(u.email)}</a></span>
+      ${u.telefono ? `<span><i class="fas fa-phone"></i> ${escapeHtml(u.telefono)}</span>` : ''}
+      ${u.dni      ? `<span><i class="fas fa-id-card"></i> ${escapeHtml(u.dni)}</span>` : ''}
+    </div>
+    ${u.empresa || u.puesto ? `<div class="card-meta"><span><i class="fas fa-briefcase"></i> ${escapeHtml(u.puesto || '')}${u.empresa ? ' · ' + escapeHtml(u.empresa) : ''}</span></div>` : ''}
+    <div style="margin-top:10px;padding:10px;background:var(--surface-2);border-radius:8px;border-left:3px solid var(--teal-500)">
+      <div style="font-size:12px;color:var(--ink-600);font-weight:600;margin-bottom:4px"><i class="fas fa-comment-dots"></i> Motivos</div>
+      <div style="font-size:13px">${escapeHtml(u.motivos || '(sin especificar)')}</div>
+    </div>
+    <div class="card-actions mt-12">
+      <button class="btn btn-accent btn-sm" onclick="reviewPending(${u.id}, 'approve')"><i class="fas fa-check"></i> Aprobar</button>
+      <button class="btn btn-ghost btn-sm"  onclick="reviewPending(${u.id}, 'reject')"><i class="fas fa-xmark"></i> Rechazar</button>
+    </div>
+  </div>`;
+}
+
+async function reviewPending(id, accion) {
+  if (accion === 'reject' && !confirm('¿Rechazar esta solicitud? Se eliminará el registro.')) return;
+  try {
+    await API.reviewPendingUser(id, accion);
+    document.getElementById('pending-' + id)?.remove();
+    toast(accion === 'approve' ? 'Solicitud aprobada ✓' : 'Solicitud rechazada');
+    /* Refresca badge */
+    const remaining = $('#adminPendingList').querySelectorAll('.card').length;
+    updatePendingBadge(remaining);
+    if (remaining === 0) $('#adminPendingList').innerHTML = emptyMsg('No hay solicitudes pendientes', 'inbox');
+  } catch (e) { toast('Error procesando la solicitud'); }
+}
+
+function updatePendingBadge(n) {
+  const badge = $('#pendingBadge');
+  if (!badge) return;
+  badge.textContent = n;
+  badge.classList.toggle('hidden', n === 0);
+}
+
+/* ============================================================
+   INSCRITOS A UN EVENTO (admin) + AVISAR
+   ============================================================ */
+
+async function openEventEnrollees(eventoId) {
+  const ev = DATA.events.find(e => e.id === eventoId);
+  if (!ev) return;
+
+  showModal(`Inscritos a "${ev.title}"`,
+    `<div class="text-muted" style="font-size:13px;margin-bottom:10px">${fmtDateLong(ev.date)} · ${escapeHtml(ev.time)} · ${escapeHtml(ev.place)}</div>
+     <div id="enrolleesBody"><i class="fas fa-spinner fa-spin"></i> Cargando…</div>`,
+    [`<button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>`]
+  );
+
+  let users = [];
+  if (API_BASE) {
+    try { users = await API.getEventEnrollees(eventoId); }
+    catch (e) { $('#enrolleesBody').innerHTML = '<div class="text-muted">Error cargando inscritos</div>'; return; }
+  } else {
+    /* Fallback a mocks: buscar usuarios por DNI */
+    users = (ev.enrolled || []).map(dni => {
+      const u = findUser(dni) || {};
+      return { id: dni, dni, nombre: u.name?.split(' ')[0] || '', apellidos: u.name?.split(' ').slice(1).join(' ') || '',
+               email: u.email || '', telefono: u.phone || '', ciclo: u.ciclo, promocion: u.year, empresa: u.company, puesto: u.position };
+    });
+  }
+
+  if (!users.length) {
+    $('#enrolleesBody').innerHTML = emptyMsg('Nadie se ha apuntado todavía', 'users');
+    return;
+  }
+
+  const emails = users.filter(u => u.email).map(u => u.email).join(',');
+  $('#enrolleesBody').innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn btn-outline btn-sm" onclick="copyEnrolleesEmails('${escapeHtml(emails)}')"><i class="fas fa-copy"></i> Copiar emails (${users.filter(u=>u.email).length})</button>
+      <a class="btn btn-outline btn-sm" href="mailto:?bcc=${encodeURIComponent(emails)}&subject=${encodeURIComponent('Sobre el evento: ' + ev.title)}"><i class="fas fa-envelope"></i> Email a todos</a>
+      <button class="btn btn-primary btn-sm" onclick="openEventNotify(${eventoId})"><i class="fas fa-bell"></i> Push a inscritos</button>
+    </div>
+    <div class="grid grid-1" style="gap:8px">
+      ${users.map(u => `<div class="card" style="padding:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="mentor-avatar" style="width:36px;height:36px;font-size:13px">${initials((u.nombre || '') + ' ' + (u.apellidos || ''))}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600">${escapeHtml((u.nombre || '') + ' ' + (u.apellidos || ''))}</div>
+            <div style="font-size:12px;color:var(--ink-600)">
+              ${u.ciclo ? escapeHtml(u.ciclo) + ' ' + (u.promocion || '') : ''}
+              ${u.empresa ? ' · ' + escapeHtml(u.empresa) : ''}
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;font-size:12px">
+          ${u.email    ? `<a href="mailto:${escapeHtml(u.email)}"><i class="fas fa-envelope"></i> ${escapeHtml(u.email)}</a>` : ''}
+          ${u.telefono ? `<a href="tel:${escapeHtml(u.telefono)}"><i class="fas fa-phone"></i> ${escapeHtml(u.telefono)}</a>` : ''}
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+
+function copyEnrolleesEmails(emails) {
+  if (!navigator.clipboard) { toast('Tu navegador no permite copiar al portapapeles'); return; }
+  navigator.clipboard.writeText(emails).then(() => toast('Emails copiados'));
+}
+
+function openEventNotify(eventoId) {
+  const ev = DATA.events.find(e => e.id === eventoId);
+  if (!ev) return;
+  closeModal();
+  setTimeout(() => {
+    showModal(`Avisar a inscritos · ${ev.title}`,
+      `<p class="text-muted" style="font-size:13px;margin-bottom:14px">Se enviará una notificación push SOLO a los ${ev.enrolled.length} usuarios inscritos a este evento.</p>
+       <div class="field"><label class="field-label">Título</label><input class="field-input" id="evNotifyTitle" value="Cambio en el evento: ${escapeHtml(ev.title)}"></div>
+       <div class="field"><label class="field-label">Mensaje</label><textarea id="evNotifyBody" placeholder="Ej. La hora cambia a las 19:00. Disculpad las molestias." rows="4"></textarea></div>`,
+      [
+        `<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>`,
+        `<button class="btn btn-primary" onclick="sendEventNotify(${eventoId})"><i class="fas fa-paper-plane"></i> Enviar aviso</button>`,
+      ]);
+  }, 80);
+}
+
+async function sendEventNotify(eventoId) {
+  const title = $('#evNotifyTitle').value.trim();
+  const body  = $('#evNotifyBody').value.trim();
+  if (!title || !body) { toast('Completa título y mensaje'); return; }
+  if (!API_BASE) { toast('Necesitas backend para esto'); return; }
+  try {
+    const res = await API.notifyEventEnrollees(eventoId, title, body);
+    toast(`📨 Enviado a ${res.sent} de ${res.total} inscritos${res.failed ? ` (${res.failed} fallos)` : ''}`);
+    closeModal();
+  } catch (e) { toast('Error enviando el aviso'); }
 }

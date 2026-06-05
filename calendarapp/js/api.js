@@ -64,6 +64,14 @@ const API = {
   /* Push */
   registerPushSubscription: sub        => apiFetch('push_register.php', { method: 'POST', body: sub }),
   sendPush:                 (t, b, u)  => apiFetch('push_send.php',     { method: 'POST', body: { title: t, body: b, url: u || '/' } }),
+  notifyEventEnrollees:     (eid, t, b)=> apiFetch('evento_notificar.php', { method: 'POST', body: { evento_id: eid, title: t, body: b } }),
+
+  /* Solicitudes de registro (admin) */
+  getPendingUsers:    ()           => apiFetch('usuarios_pendientes.php'),
+  reviewPendingUser:  (id, accion) => apiFetch('usuarios_pendientes.php', { method: 'PUT', body: { id, accion } }),
+
+  /* Inscritos a un evento (admin) */
+  getEventEnrollees: (eventoId) => apiFetch(`evento_inscritos.php?id=${eventoId}`),
 };
 
 /* ---------- Inicialización y carga inicial ---------- */

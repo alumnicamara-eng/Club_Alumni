@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `puesto` VARCHAR(150) DEFAULT NULL,
   `sector` VARCHAR(100) DEFAULT NULL,
   `bio` TEXT DEFAULT NULL,
+  `motivos` TEXT DEFAULT NULL,
   `linkedin` VARCHAR(255) DEFAULT NULL,
   `github` VARCHAR(255) DEFAULT NULL,
   `web` VARCHAR(255) DEFAULT NULL,
@@ -42,10 +43,12 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `push_noticias` TINYINT(1) DEFAULT 1,
   `push_mentor` TINYINT(1) DEFAULT 0,
   `fecha_registro` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `activo` TINYINT(1) DEFAULT 1,
+  `fecha_aprobacion` TIMESTAMP NULL DEFAULT NULL,
+  `activo` TINYINT(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `dni` (`dni`)
+  UNIQUE KEY `dni` (`dni`),
+  KEY `idx_activo` (`activo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------------------------------------
@@ -234,14 +237,14 @@ CREATE TABLE IF NOT EXISTS `push_subscriptions` (
 -- ==========================================================
 
 -- Admin + usuarios de prueba
-INSERT INTO `usuarios` (`dni`,`nombre`,`apellidos`,`email`,`password`,`ciclo`,`promocion`,`empresa`,`puesto`,`sector`,`rol`) VALUES
-('admin',     'Equipo','Alumni','admin@camarafp.es','admin123',NULL,            NULL,  'Cámara FP',        'Coordinación Alumni','Educación','admin'),
-('12345678',  'Lucía','Pérez',  'alumni@camarafp.es','user123','DAW',            '2022','Banco Sabadell',   'Frontend Developer', 'Tecnología','alumno'),
-('87654321',  'Carlos','Ruiz',  'carlos@example.com','user123','DAM',            '2020','Indra',            'Backend Engineer',   'Tecnología','alumno'),
-('11223344',  'Ana',  'Gómez',  'ana@example.com',   'user123','Marketing',      '2021','Freelance',        'Brand Strategist',   'Marketing','alumno'),
-('55667788',  'Miguel','Soler', 'miguel@example.com','user123','ASIR',           '2019','Telefónica Tech',  'DevOps',             'Tecnología','alumno'),
-('99887766',  'Paula','Torres', 'paula@example.com', 'user123','Administración', '2023','PwC',              'Auditora Jr.',       'Banca y Finanzas','alumno'),
-('44556677',  'Javier','Núñez', 'javier@example.com','user123','Comercio Internacional','2022','Mercadona','Compras internacionales','Logística','alumno');
+INSERT INTO `usuarios` (`dni`,`nombre`,`apellidos`,`email`,`password`,`ciclo`,`promocion`,`empresa`,`puesto`,`sector`,`rol`,`activo`,`fecha_aprobacion`) VALUES
+('admin',     'Equipo','Alumni','admin@camarafp.es','admin123',NULL,            NULL,  'Cámara FP',        'Coordinación Alumni','Educación','admin', 1, CURRENT_TIMESTAMP),
+('12345678',  'Lucía','Pérez',  'alumni@camarafp.es','user123','DAW',            '2022','Banco Sabadell',   'Frontend Developer', 'Tecnología','alumno',1, CURRENT_TIMESTAMP),
+('87654321',  'Carlos','Ruiz',  'carlos@example.com','user123','DAM',            '2020','Indra',            'Backend Engineer',   'Tecnología','alumno',1, CURRENT_TIMESTAMP),
+('11223344',  'Ana',  'Gómez',  'ana@example.com',   'user123','Marketing',      '2021','Freelance',        'Brand Strategist',   'Marketing','alumno',1, CURRENT_TIMESTAMP),
+('55667788',  'Miguel','Soler', 'miguel@example.com','user123','ASIR',           '2019','Telefónica Tech',  'DevOps',             'Tecnología','alumno',1, CURRENT_TIMESTAMP),
+('99887766',  'Paula','Torres', 'paula@example.com', 'user123','Administración', '2023','PwC',              'Auditora Jr.',       'Banca y Finanzas','alumno',1, CURRENT_TIMESTAMP),
+('44556677',  'Javier','Núñez', 'javier@example.com','user123','Comercio Internacional','2022','Mercadona','Compras internacionales','Logística','alumno',1, CURRENT_TIMESTAMP);
 
 -- Noticias de ejemplo (con URL a WordPress del club)
 INSERT INTO `noticias` (`titulo`,`resumen`,`tag`,`fecha`,`wp_url`) VALUES

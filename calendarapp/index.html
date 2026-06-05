@@ -43,17 +43,63 @@
   <div class="auth-card">
     <img src="./img/logo.jpeg" alt="Alumni Cámara FP">
     <h2>Alumni Cámara FP</h2>
-    <p class="sub">Accede con tu cuenta de antiguo alumno</p>
-    <div class="field"><input class="field-input" id="authUser" placeholder="DNI o email" value="12345678"></div>
-    <div class="field"><input class="field-input" type="password" id="authPass" placeholder="Contraseña" value="user123"></div>
-    <button class="btn btn-primary btn-full btn-lg" id="authLogin"><i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión</button>
-    <div class="auth-hint">
-      <strong>Acceso de prueba</strong><br>
-      Alumni: <code>12345678</code> / <code>user123</code><br>
-      Admin: <code>admin</code> / <code>admin123</code>
+
+    <!-- ===== Vista LOGIN ===== -->
+    <div id="authLoginView">
+      <p class="sub">Accede con tu cuenta de antiguo alumno</p>
+      <div class="field"><input class="field-input" id="authUser" placeholder="DNI o email" value="12345678"></div>
+      <div class="field"><input class="field-input" type="password" id="authPass" placeholder="Contraseña" value="user123"></div>
+      <button class="btn btn-primary btn-full btn-lg" id="authLogin"><i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión</button>
+      <div style="margin-top:14px;text-align:center;font-size:13px">
+        ¿Aún no tienes cuenta? <a href="#" onclick="toggleAuthView('register'); return false" style="font-weight:600;color:var(--teal-700)">Solicitar acceso</a>
+      </div>
+      <div class="auth-hint">
+        <strong>Acceso de prueba</strong><br>
+        Alumni: <code>12345678</code> / <code>user123</code><br>
+        Admin: <code>admin</code> / <code>admin123</code>
+      </div>
     </div>
+
+    <!-- ===== Vista REGISTRO ===== -->
+    <div id="authRegisterView" class="hidden">
+      <p class="sub">Solicita tu acceso a la comunidad Alumni Cámara FP</p>
+      <div class="grid grid-2" style="gap:10px">
+        <div class="field"><input class="field-input" id="regNombre"   placeholder="Nombre *"></div>
+        <div class="field"><input class="field-input" id="regApellidos" placeholder="Apellidos"></div>
+      </div>
+      <div class="field"><input class="field-input" id="regDni"   placeholder="DNI"></div>
+      <div class="field"><input class="field-input" id="regEmail" placeholder="Email *" type="email"></div>
+      <div class="grid grid-2" style="gap:10px">
+        <div class="field"><input class="field-input" id="regPass1" placeholder="Contraseña *" type="password"></div>
+        <div class="field"><input class="field-input" id="regPass2" placeholder="Repetir contraseña *" type="password"></div>
+      </div>
+      <div class="grid grid-2" style="gap:10px">
+        <div class="field">
+          <select class="field-input" id="regCiclo">
+            <option value="">Ciclo cursado *</option>
+            <option>DAW</option><option>DAM</option><option>ASIR</option>
+            <option>Marketing</option><option>Administración</option>
+            <option>Comercio Internacional</option><option>Otro</option>
+          </select>
+        </div>
+        <div class="field"><input class="field-input" id="regYear" placeholder="Año promoción" type="number" min="1990" max="2030"></div>
+      </div>
+      <div class="field"><input class="field-input" id="regEmpresa" placeholder="Empresa actual (opcional)"></div>
+      <div class="field"><input class="field-input" id="regPuesto"  placeholder="Puesto actual (opcional)"></div>
+      <div class="field">
+        <textarea id="regMotivos" placeholder="¿Por qué quieres unirte a la comunidad Alumni? *" rows="3" style="resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="tryRegister()"><i class="fas fa-user-plus"></i> Solicitar acceso</button>
+      <div style="margin-top:14px;text-align:center;font-size:13px">
+        ¿Ya tienes cuenta? <a href="#" onclick="toggleAuthView('login'); return false" style="font-weight:600;color:var(--teal-700)">Iniciar sesión</a>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--ink-500);text-align:center;line-height:1.6">
+        Tu solicitud quedará pendiente de revisión por el equipo Alumni.<br>Recibirás un email cuando se active tu cuenta.
+      </div>
+    </div>
+
     <div style="margin-top:14px;font-size:11px;color:var(--ink-500);text-align:center">
-      Al iniciar sesión aceptas la <a href="#" onclick="showLegal('privacidad'); return false">Política de privacidad</a>
+      Al continuar aceptas la <a href="#" onclick="showLegal('privacidad'); return false">Política de privacidad</a>
       y los <a href="#" onclick="showLegal('terminos'); return false">Términos de uso</a>.
     </div>
   </div>
@@ -369,6 +415,7 @@
           <button class="admin-tab" data-tab="eventos">Eventos</button>
           <button class="admin-tab" data-tab="talks">Conferencias</button>
           <button class="admin-tab" data-tab="propuestas">Propuestas <span id="proposalsBadge" class="chip chip-warn hidden" style="margin-left:6px">0</span></button>
+          <button class="admin-tab" data-tab="solicitudes">Solicitudes <span id="pendingBadge" class="chip chip-warn hidden" style="margin-left:6px">0</span></button>
           <button class="admin-tab" data-tab="mentoria">Mentoría</button>
           <button class="admin-tab" data-tab="usuarios">Usuarios</button>
           <button class="admin-tab" data-tab="config">Configuración</button>
@@ -405,6 +452,17 @@
           <div class="card-title mt-8">Propuestas de Alumni Talks</div>
           <div class="text-muted" style="font-size:13px;margin-bottom:10px">Alumnis que se han presentado para dar una charla. Revisa y contacta con ellos.</div>
           <div class="grid grid-2" id="adminProposalsList"></div>
+        </div>
+
+        <div id="adminPanel-solicitudes" class="admin-panel hidden">
+          <div class="flex-between mt-8">
+            <div>
+              <div class="card-title">Solicitudes de registro</div>
+              <div class="text-muted" style="font-size:13px">Alumnis que quieren unirse a la comunidad. Revisa los motivos antes de aprobar.</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="renderPendingUsers()"><i class="fas fa-rotate"></i> Refrescar</button>
+          </div>
+          <div class="grid grid-2 mt-16" id="adminPendingList"></div>
         </div>
 
         <div id="adminPanel-mentoria" class="admin-panel hidden">

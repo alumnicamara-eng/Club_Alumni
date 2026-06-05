@@ -155,6 +155,11 @@ function openEvent(id) {
       <span><i class="fas fa-users"></i>${spotsLeft}/${e.spots} plazas</span>
     </div>
 
+    <div style="margin-top:14px;padding:10px 12px;background:var(--surface-2);border-radius:10px;font-size:13px">
+      <i class="fas fa-users" style="color:var(--teal-700)"></i> <strong>${e.enrolled.length}</strong> alumnis inscritos
+      ${State.user?.role === 'admin' ? `<button class="btn btn-ghost btn-sm" style="margin-left:8px;padding:2px 8px" onclick="closeModal(); openEventEnrollees(${e.id})">Ver lista</button>` : ''}
+    </div>
+
     <div style="margin-top:16px;padding:12px;background:var(--surface-2);border-radius:10px">
       <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--ink-700)">Añadir a mi calendario</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">

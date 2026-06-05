@@ -10,7 +10,13 @@ function bootApp() {
   renderProfile();
   route('inicio');
   updateBadge();
-  if (State.user.role === 'admin') updateProposalsBadge();
+  if (State.user.role === 'admin') {
+    updateProposalsBadge();
+    /* Badge de solicitudes de registro pendientes (solo si hay backend) */
+    if (API_BASE) {
+      API.getPendingUsers().then(list => updatePendingBadge(list.length)).catch(() => {});
+    }
+  }
   registerSW();
   if (API_BASE) loadDataFromApi();
 }
