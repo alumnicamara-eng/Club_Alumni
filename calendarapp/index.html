@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0F2C44">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Alumni Cámara FP — Comunidad de antiguos alumnos. Eventos, conferencias, mentoría y oportunidades exclusivas.">
@@ -482,13 +483,6 @@
             <button class="btn btn-primary btn-sm" onclick="toast('Configuración guardada')">Guardar configuración</button>
           </div>
 
-          <div class="card mt-16">
-            <div class="card-title"><i class="fas fa-server"></i> Backend PHP / API</div>
-            <div class="field"><label class="field-label">URL base de la API</label><input class="field-input" id="cfgApiUrl" placeholder="https://alumni.camarafp.es/api/"></div>
-            <div class="field-help">URL donde están subidos los endpoints PHP (carpeta <code>api/</code> en el hosting). Termina en barra <code>/</code>.</div>
-            <button class="btn btn-primary btn-sm" onclick="saveApiConfig()"><i class="fas fa-plug"></i> Conectar y sincronizar</button>
-            <div id="apiStatus" style="margin-top:10px;font-size:13px"></div>
-          </div>
 
           <div class="card mt-16">
             <div class="card-title"><i class="fas fa-bell"></i> Notificaciones push</div>

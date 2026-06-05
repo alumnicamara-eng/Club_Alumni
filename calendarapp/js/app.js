@@ -2,7 +2,7 @@
    Bootstrap, event bindings y service worker.
    ========================================================== */
 
-function bootApp() {
+async function bootApp() {
   $('#authOverlay').style.display = 'none';
   $('#appShell').classList.remove('hidden');
   renderNav();
@@ -10,15 +10,15 @@ function bootApp() {
   renderProfile();
   route('inicio');
   updateBadge();
+  registerSW();
+  /* Carga datos REALES del backend antes de pintar nada definitivo */
+  await loadDataFromApi();
+  /* Renderiza la pantalla actual con datos frescos */
+  if (typeof ROUTES !== 'undefined' && ROUTES[State.current]) ROUTES[State.current]();
   if (State.user.role === 'admin') {
     updateProposalsBadge();
-    /* Badge de solicitudes de registro pendientes (solo si hay backend) */
-    if (API_BASE) {
-      API.getPendingUsers().then(list => updatePendingBadge(list.length)).catch(() => {});
-    }
+    API.getPendingUsers().then(list => updatePendingBadge(list.length)).catch(() => {});
   }
-  registerSW();
-  if (API_BASE) loadDataFromApi();
 }
 
 function registerSW() {
@@ -48,7 +48,7 @@ function bindFilterRow(sel, attr, cb) {
 }
 
 /* ---------- Bindings DOM iniciales ---------- */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
   $('#videoOverlay').addEventListener('click', e => { if (e.target.id === 'videoOverlay') closeVideo(); });
   $('#authLogin').addEventListener('click', tryLogin);
@@ -57,5 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#calPrev').addEventListener('click', () => { State.calDate.setMonth(State.calDate.getMonth() - 1); State.calSelected = null; renderCalendar(); });
   $('#calNext').addEventListener('click', () => { State.calDate.setMonth(State.calDate.getMonth() + 1); State.calSelected = null; renderCalendar(); });
 
-  if (autoLogin()) bootApp();
+  /* Comprueba sesión contra el backend. Si existe, entra directo. */
+  if (await autoLogin()) bootApp();
 });

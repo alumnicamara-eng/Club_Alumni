@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alumni-camarafp-v15';
+const CACHE_NAME = 'alumni-camarafp-v16';
 const ASSETS = [
   './',
   './index.html',
@@ -43,10 +43,21 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+
+  /* NUNCA cachear llamadas al API ni a phpMyAdmin/Apache.
+     Esto evita inconsistencias del tipo "los usuarios aparecen a veces". */
+  if (url.pathname.includes('/api/')) {
+    e.respondWith(fetch(req));
+    return;
+  }
+
+  /* Recursos externos (fonts, fontawesome, cdn): network-first con caída a cache. */
   if (url.origin !== location.origin) {
     e.respondWith(fetch(req).catch(() => caches.match(req)));
     return;
   }
+
+  /* Estáticos propios: stale-while-revalidate (cache primero, refresca en bg). */
   e.respondWith(
     caches.match(req).then(cached => {
       const network = fetch(req).then(res => {

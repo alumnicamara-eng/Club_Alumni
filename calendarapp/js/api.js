@@ -1,11 +1,11 @@
 /* ==========================================================
-   API client — Llama a los endpoints PHP del backend (Apache+MySQL).
-   La URL base se configura en Admin > Configuración y se guarda
-   en localStorage. Si no está configurada, la PWA usa los mocks
-   de data.js como fallback.
+   API client — Llama a los endpoints PHP del backend.
+   La URL base se calcula automáticamente desde la ubicación
+   del index.html: si está en /alumni/clubalumni/, la API
+   estará en /alumni/clubalumni/api/. Sin configuración manual.
    ========================================================== */
 
-let API_BASE = localStorage.getItem('api_url') || '';
+const API_BASE = new URL('./api/', window.location.href).href;
 
 /* Helper genérico para llamar a un endpoint PHP */
 async function apiFetch(endpoint, opts = {}) {
@@ -27,6 +27,7 @@ const API = {
   login:    creds => apiFetch('login.php',    { method: 'POST', body: creds }),
   registro: data  => apiFetch('registro.php', { method: 'POST', body: data  }),
   logout:   ()    => apiFetch('logout.php',   { method: 'POST' }),
+  me:       ()    => apiFetch('me.php'),
 
   /* Usuarios */
   getUsuarios:   ()       => apiFetch('usuarios.php'),
@@ -146,16 +147,3 @@ const normalisePost = p => ({
   })),
 });
 
-/* ---------- Configuración desde panel admin ---------- */
-function saveApiConfig() {
-  const url = ($('#cfgApiUrl') || {}).value?.trim();
-  if (!url) { toast('Indica la URL del backend'); return; }
-  localStorage.setItem('api_url', url);
-  API_BASE = url;
-  $('#apiStatus').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Probando conexión…';
-  loadDataFromApi().then(ok => {
-    $('#apiStatus').innerHTML = ok
-      ? '<i class="fas fa-check-circle" style="color:#16a34a"></i> Conectado correctamente'
-      : '<i class="fas fa-triangle-exclamation" style="color:#dc2626"></i> No se ha podido conectar';
-  });
-}
