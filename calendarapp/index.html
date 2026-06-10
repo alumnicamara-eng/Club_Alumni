@@ -7,47 +7,47 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="Alumni Cámara FP — Comunidad de antiguos alumnos. Eventos, conferencias, mentoría y oportunidades exclusivas.">
-<title>Alumni Cámara FP</title>
+<meta name="description" content="Club Alumni Cámara FP — Comunidad de antiguos alumnos/as. Eventos, conferencias, embajadores y oportunidades exclusivas.">
+<title>Club Alumni — Cámara FP</title>
 
 <!-- Open Graph / Facebook / WhatsApp -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Alumni Cámara FP">
-<meta property="og:title" content="Alumni Cámara FP — Tu comunidad de antiguos alumnos">
-<meta property="og:description" content="Eventos, conferencias, mentoría y oportunidades exclusivas para alumni Cámara FP.">
-<meta property="og:image" content="./img/logo.jpeg">
+<meta property="og:site_name" content="Club Alumni — Cámara FP">
+<meta property="og:title" content="Club Alumni — Cámara FP">
+<meta property="og:description" content="Eventos, conferencias y oportunidades exclusivas para alumnos/as Cámara FP.">
+<meta property="og:image" content="./img/logo-club-alumni.png">
 <meta property="og:locale" content="es_ES">
 
 <!-- Twitter Cards -->
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Alumni Cámara FP">
-<meta name="twitter:description" content="Tu comunidad de antiguos alumnos Cámara FP.">
-<meta name="twitter:image" content="./img/logo.jpeg">
+<meta name="twitter:title" content="Club Alumni — Cámara FP">
+<meta name="twitter:description" content="Tu comunidad de antiguos alumnos/as Cámara FP.">
+<meta name="twitter:image" content="./img/logo-club-alumni.png">
 
 <link rel="manifest" href="./manifest.json">
-<link rel="icon" type="image/jpeg" href="./img/logo.jpeg">
-<link rel="apple-touch-icon" href="./img/logo.jpeg">
+<link rel="icon" type="image/png" href="./img/logo-club-alumni.png">
+<link rel="apple-touch-icon" href="./img/logo-club-alumni.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link rel="stylesheet" href="./css/base.css">
-<link rel="stylesheet" href="./css/layout.css">
-<link rel="stylesheet" href="./css/components.css">
-<link rel="stylesheet" href="./css/screens.css">
+<link rel="stylesheet" href="./css/base.css?v=18">
+<link rel="stylesheet" href="./css/layout.css?v=18">
+<link rel="stylesheet" href="./css/components.css?v=18">
+<link rel="stylesheet" href="./css/screens.css?v=18">
 </head>
 <body>
 
 <!-- ===================== AUTH ===================== -->
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-card">
-    <img src="./img/logo.jpeg" alt="Alumni Cámara FP">
-    <h2>Alumni Cámara FP</h2>
+    <img src="./img/logo-club-alumni.png" alt="Club Alumni Cámara FP" class="auth-logo">
+    <h2>Club Alumni — Cámara FP</h2>
 
     <!-- ===== Vista LOGIN ===== -->
     <div id="authLoginView">
-      <p class="sub">Accede con tu cuenta de antiguo alumno</p>
+      <p class="sub">Accede con tu cuenta de antiguo alumno/a</p>
       <div class="field"><input class="field-input" id="authUser" placeholder="DNI o email" autocomplete="username"></div>
       <div class="field"><input class="field-input" type="password" id="authPass" placeholder="Contraseña" autocomplete="current-password"></div>
       <button class="btn btn-primary btn-full btn-lg" id="authLogin"><i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión</button>
@@ -58,7 +58,7 @@
 
     <!-- ===== Vista REGISTRO ===== -->
     <div id="authRegisterView" class="hidden">
-      <p class="sub">Solicita tu acceso a la comunidad Alumni Cámara FP</p>
+      <p class="sub">Solicita tu acceso al Club Alumni — Cámara FP</p>
       <div class="grid grid-2" style="gap:10px">
         <div class="field"><input class="field-input" id="regNombre"   placeholder="Nombre *"></div>
         <div class="field"><input class="field-input" id="regApellidos" placeholder="Apellidos"></div>
@@ -107,8 +107,8 @@
   <header class="header">
     <div class="header-inner">
       <div class="brand" onclick="route('inicio')">
-        <img src="./img/logo.jpeg" alt="Alumni Cámara FP">
-        <span class="brand-text">Alumni Cámara FP</span>
+        <img src="./img/logo-club-alumni.png" alt="Club Alumni Cámara FP">
+        <span class="brand-text">Club Alumni — Cámara FP</span>
       </div>
       <div class="header-right">
         <button class="icon-btn" title="Buscar alumnis" onclick="route('directorio')"><i class="fas fa-search"></i></button>
@@ -138,11 +138,11 @@
 
       <!-- ============ INICIO ============ -->
       <section class="screen active" id="s-inicio">
-        <div class="hero">
+        <div class="hero hero-hall">
           <div>
-            <div class="hero-eyebrow">Alumni Cámara FP</div>
-            <h1 class="hero-title">Tu comunidad de antiguos alumnos</h1>
-            <p class="hero-sub">Eventos, conferencias, mentoría y oportunidades exclusivas para alumni Cámara FP. Mantente conectado con tu promoción.</p>
+            <div class="hero-eyebrow">Club Alumni — Cámara FP</div>
+            <h1 class="hero-title">Tu comunidad de antiguos alumnos/as</h1>
+            <p class="hero-sub">Eventos, conferencias, embajadores y oportunidades exclusivas para alumnos/as Cámara FP. Mantente conectado con tu promoción y con tus compañeros/as.</p>
           </div>
         </div>
 
@@ -497,7 +497,7 @@
       <!-- ============ FOOTER ============ -->
       <footer style="margin-top:48px;padding:24px 0 80px;border-top:1px solid var(--border);text-align:center;color:var(--ink-500);font-size:12px">
         <div style="margin-bottom:8px">
-          <strong style="color:var(--navy-800)">Alumni Cámara FP</strong> · Comunidad de antiguos alumnos
+          <strong style="color:var(--navy-800)">Club Alumni — Cámara FP</strong> · Comunidad de antiguos alumnos/as
         </div>
         <div>
           <a href="#" onclick="showLegal('privacidad'); return false" style="color:var(--ink-500);text-decoration:underline">Privacidad</a> ·
@@ -535,21 +535,21 @@
 <div class="toast" id="toast"></div>
 
 <!-- ===================== SCRIPTS ===================== -->
-<script src="./js/data.js"></script>
-<script src="./js/utils.js"></script>
-<script src="./js/ui.js"></script>
-<script src="./js/auth.js"></script>
-<script src="./js/router.js"></script>
-<script src="./js/screens/home.js"></script>
-<script src="./js/screens/news.js"></script>
-<script src="./js/screens/calendar.js"></script>
-<script src="./js/screens/talks.js"></script>
-<script src="./js/screens/mentors.js"></script>
-<script src="./js/screens/community.js"></script>
-<script src="./js/screens/directory.js"></script>
-<script src="./js/screens/profile.js"></script>
-<script src="./js/screens/admin.js"></script>
-<script src="./js/api.js"></script>
-<script src="./js/app.js"></script>
+<script src="./js/data.js?v=18"></script>
+<script src="./js/utils.js?v=18"></script>
+<script src="./js/ui.js?v=18"></script>
+<script src="./js/auth.js?v=18"></script>
+<script src="./js/router.js?v=18"></script>
+<script src="./js/screens/home.js?v=18"></script>
+<script src="./js/screens/news.js?v=18"></script>
+<script src="./js/screens/calendar.js?v=18"></script>
+<script src="./js/screens/talks.js?v=18"></script>
+<script src="./js/screens/mentors.js?v=18"></script>
+<script src="./js/screens/community.js?v=18"></script>
+<script src="./js/screens/directory.js?v=18"></script>
+<script src="./js/screens/profile.js?v=18"></script>
+<script src="./js/screens/admin.js?v=18"></script>
+<script src="./js/api.js?v=18"></script>
+<script src="./js/app.js?v=18"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 /* ==========================================================
-   Mentoría — 1 mentor → 5 mentees del mismo ciclo. Sin mensajería.
+   Embajadores Cámara FP — alumnos/as que se ofrecen como referencia
+   para su ciclo, dan charlas, graban testimonios, etc.
    ========================================================== */
 
 function renderMentors() {
@@ -14,7 +15,7 @@ function renderMentors() {
   let list = DATA.mentors;
   if (State.filters.mentorCiclo) list = list.filter(m => m.ciclo === State.filters.mentorCiclo);
 
-  $('#mentorsList').innerHTML = list.map(mentorCard).join('') || emptyMsg('No hay mentores en este ciclo todavía', 'user-graduate');
+  $('#mentorsList').innerHTML = list.map(mentorCard).join('') || emptyMsg('Aún no hay embajadores/as en este ciclo', 'handshake');
 }
 
 function mentorCard(m) {

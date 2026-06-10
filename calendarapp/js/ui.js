@@ -70,7 +70,7 @@ function pushNotify({ title, body }) {
   State.notifications.unshift({ title, body, date: Date.now(), read: false });
   updateBadge();
   if ('Notification' in window && Notification.permission === 'granted') {
-    try { new Notification(title, { body, icon: './img/logo.jpeg' }); } catch (e) {}
+    try { new Notification(title, { body, icon: './img/logo-club-alumni.png' }); } catch (e) {}
   }
 }
 

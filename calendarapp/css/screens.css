@@ -7,11 +7,22 @@
   background: var(--navy-800);
   color: var(--white);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 28px;
   position: relative;
   overflow: hidden;
   display: grid;
   gap: 18px;
+  min-height: 240px;
+}
+/* Variante con foto del hall de Cámara FP */
+.hero.hero-hall {
+  background:
+    linear-gradient(135deg, rgba(15,44,68,.92) 0%, rgba(15,44,68,.65) 50%, rgba(63,165,165,.45) 100%),
+    url('../img/hall.jpg') center/cover no-repeat;
+  min-height: 320px;
+}
+@media (min-width: 960px) {
+  .hero.hero-hall { min-height: 380px; padding: 44px 40px; }
 }
 .hero::after {
   content: '';
@@ -34,11 +45,14 @@
   position: relative; z-index: 1;
 }
 .hero-title {
-  font-size: 22px; font-weight: 700;
-  letter-spacing: -.01em;
+  font-size: 28px; font-weight: 800;
+  letter-spacing: -.015em;
   position: relative; z-index: 1;
-  line-height: 1.25;
+  line-height: 1.2;
+  margin-top: 4px;
 }
+@media (min-width: 768px) { .hero-title { font-size: 36px; } }
+@media (min-width: 1200px) { .hero-title { font-size: 44px; } }
 .hero-sub {
   color: rgba(255,255,255,.78);
   font-size: 14px;
@@ -505,13 +519,20 @@
   background: var(--surface);
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 380px;
-  padding: 32px 28px;
+  max-width: 420px;
+  padding: 32px 32px 28px;
   box-shadow: var(--shadow-lg);
   text-align: center;
 }
-.auth-card img { height: 60px; margin: 0 auto 16px; }
-.auth-card h2 { color: var(--navy-800); font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.auth-card .auth-logo {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: 110px;
+  margin: 0 auto 18px;
+  object-fit: contain;
+}
+.auth-card h2 { color: var(--navy-800); font-size: 22px; font-weight: 800; margin-bottom: 6px; letter-spacing: -.01em; }
 .auth-card p.sub { color: var(--text-muted); font-size: 13px; margin-bottom: 22px; }
 .auth-hint {
   margin-top: 16px;

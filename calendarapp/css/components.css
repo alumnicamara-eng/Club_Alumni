@@ -155,7 +155,7 @@
   display: none;
   position: fixed; inset: 0;
   background: rgba(10,31,49,.55);
-  z-index: 150;
+  z-index: 400;  /* por encima del auth-overlay (300) */
   align-items: center; justify-content: center;
   padding: 16px;
 }
@@ -209,7 +209,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity .2s ease, transform .2s ease;
-  z-index: 250;
+  z-index: 500;  /* siempre por encima de modal (400) y auth (300) */
   max-width: calc(100vw - 32px);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

@@ -1,9 +1,10 @@
-const CACHE_NAME = 'alumni-camarafp-v16';
+const CACHE_NAME = 'alumni-camarafp-v18';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './img/logo.jpeg',
+  './img/logo-club-alumni.png',
+  './img/hall.jpg',
   './css/base.css',
   './css/layout.css',
   './css/components.css',
@@ -77,8 +78,8 @@ self.addEventListener('push', e => {
   try { data = e.data ? e.data.json() : data; } catch (err) {}
   e.waitUntil(self.registration.showNotification(data.title, {
     body: data.body,
-    icon: './img/logo.jpeg',
-    badge: './img/logo.jpeg',
+    icon: './img/logo-club-alumni.png',
+    badge: './img/logo-club-alumni.png',
     data: data.url || './'
   }));
 });

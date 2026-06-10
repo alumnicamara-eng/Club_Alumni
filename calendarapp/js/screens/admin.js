@@ -50,7 +50,7 @@ function renderAdmin() {
     <div class="card-actions mt-12" style="justify-content:center">
       <button class="btn btn-ghost btn-sm" onclick="deleteAlumni('${escapeHtml(u.dni)}', '${escapeHtml(u.name)}')"><i class="fas fa-trash"></i> Eliminar</button>
     </div>
-  </div>`).join('') || emptyMsg('No hay alumnis registrados', 'user');
+  </div>`).join('') || emptyMsg('No hay alumnos/as registrados/as', 'user');
 
   renderProposals();
   updateProposalsBadge();

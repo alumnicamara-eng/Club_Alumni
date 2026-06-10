@@ -20,8 +20,8 @@ const NAV = [
   { id: 'inicio',     label: 'Inicio',        icon: 'fa-house' },
   { id: 'calendario', label: 'Calendario',    icon: 'fa-calendar-days' },
   { id: 'talks',      label: 'Conferencias',  icon: 'fa-video' },
-  { id: 'mentoria',   label: 'Mentoría',      icon: 'fa-user-graduate' },
-  { id: 'comunidad',  label: 'Comunidad',     icon: 'fa-comments' },
+  { id: 'mentoria',   label: 'Embajadores',   icon: 'fa-handshake' },
+  { id: 'comunidad',  label: 'Comunidad Connect', icon: 'fa-comments' },
   { id: 'directorio', label: 'Descubre Alumnis', icon: 'fa-address-book' },
 ];
 const MOBILE_NAV_IDS = ['inicio', 'calendario', 'talks', 'mentoria', 'comunidad'];

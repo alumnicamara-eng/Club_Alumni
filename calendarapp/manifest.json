@@ -1,7 +1,7 @@
 {
-  "name": "Alumni Cámara FP",
-  "short_name": "Alumni FP",
-  "description": "Comunidad de antiguos alumnos de Cámara FP",
+  "name": "Club Alumni — Cámara FP",
+  "short_name": "Club Alumni",
+  "description": "Comunidad de antiguos alumnos/as de Cámara FP",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
@@ -12,15 +12,15 @@
   "categories": ["education", "social", "productivity"],
   "icons": [
     {
-      "src": "./img/logo.jpeg",
+      "src": "./img/logo-club-alumni.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./img/logo.jpeg",
+      "src": "./img/logo-club-alumni.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

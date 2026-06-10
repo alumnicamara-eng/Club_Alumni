@@ -21,7 +21,7 @@ function applyDirFilter() {
     .filter(u => !q || (u.name + u.company + u.position + u.ciclo).toLowerCase().includes(q))
     .filter(u => !c || u.ciclo === c)
     .filter(u => !y || String(u.year) === y);
-  $('#dirList').innerHTML = list.map(alumniCard).join('') || emptyMsg('No hay alumnis con esos filtros', 'user');
+  $('#dirList').innerHTML = list.map(alumniCard).join('') || emptyMsg('No hay alumnos/as con esos filtros', 'user');
 }
 
 function alumniCard(u) {
