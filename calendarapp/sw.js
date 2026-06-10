@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alumni-camarafp-v19';
+const CACHE_NAME = 'alumni-camarafp-v20';
 const ASSETS = [
   './',
   './index.html',

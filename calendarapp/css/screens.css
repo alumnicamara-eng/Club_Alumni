@@ -471,7 +471,20 @@
 
 /* ---------- Perfil ---------- */
 .profile-layout { display: grid; gap: 16px; grid-template-columns: 1fr; }
-@media (min-width: 900px) { .profile-layout { grid-template-columns: 320px 1fr; } }
+@media (min-width: 900px) {
+  .profile-layout { grid-template-columns: 360px 1fr; align-items: start; }
+  /* La tarjeta de perfil se queda fija mientras se editan los formularios */
+  .profile-side { position: sticky; top: calc(var(--nav-h) + 24px); }
+}
+
+/* Formularios en 2 columnas en escritorio → menos scroll */
+.profile-forms { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .profile-forms { grid-template-columns: 1fr 1fr; } }
+.profile-forms-full { grid-column: 1 / -1; }
+
+/* Notificaciones integradas dentro de la tarjeta de perfil */
+.profile-notif { text-align: left; }
+.profile-notif-title { font-weight: 700; color: var(--navy-800); font-size: 14px; margin-bottom: 10px; }
 
 .profile-card {
   background: var(--surface);
@@ -507,13 +520,13 @@
 /* ---------- Auth ---------- */
 .auth-overlay {
   position: fixed; inset: 0;
-  background: var(--navy-800);
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(63,165,165,.18), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(63,165,165,.12), transparent 45%);
+  background:
+    linear-gradient(135deg, rgba(15,44,68,.93) 0%, rgba(15,44,68,.82) 45%, rgba(63,165,165,.55) 100%),
+    url('../img/hall.jpg') center/cover no-repeat;
   z-index: 300;
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
+  overflow-y: auto;
 }
 .auth-card {
   background: var(--surface);

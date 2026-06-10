@@ -32,10 +32,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link rel="stylesheet" href="./css/base.css?v=19">
-<link rel="stylesheet" href="./css/layout.css?v=19">
-<link rel="stylesheet" href="./css/components.css?v=19">
-<link rel="stylesheet" href="./css/screens.css?v=19">
+<link rel="stylesheet" href="./css/base.css?v=20">
+<link rel="stylesheet" href="./css/layout.css?v=20">
+<link rel="stylesheet" href="./css/components.css?v=20">
+<link rel="stylesheet" href="./css/screens.css?v=20">
 </head>
 <body>
 
@@ -349,11 +349,12 @@
       <section class="screen" id="s-perfil">
         <div class="page-header">
           <div class="page-title">Mi perfil</div>
-          <div class="page-subtitle">La información que mostraremos en el directorio y en mentoría.</div>
+          <div class="page-subtitle">La información que mostraremos en el directorio Descubre Alumnis.</div>
         </div>
 
         <div class="profile-layout">
-          <div>
+          <!-- Columna izquierda: tarjeta de perfil + notificaciones integradas -->
+          <aside class="profile-side">
             <div class="profile-card">
               <div class="profile-cover"></div>
               <div class="profile-body">
@@ -363,21 +364,23 @@
                 <input type="file" id="profilePhotoInput" accept="image/*" class="hidden">
                 <div class="profile-name" id="profileNameLabel">—</div>
                 <div class="profile-role" id="profileRoleLabel">—</div>
+                <div class="alumni-social mt-8" id="profileSocial"></div>
+
                 <div class="profile-divider"></div>
-                <div class="alumni-social" id="profileSocial"></div>
+
+                <div class="profile-notif">
+                  <div class="profile-notif-title"><i class="fas fa-bell"></i> Notificaciones</div>
+                  <div class="check"><input type="checkbox" id="pfPushReminders"> <label for="pfPushReminders">Recordatorios de mis eventos</label></div>
+                  <div class="check"><input type="checkbox" id="pfPushNews"> <label for="pfPushNews">Noticias del club</label></div>
+                  <div class="check"><input type="checkbox" id="pfPushMentor"> <label for="pfPushMentor">Acciones de embajador/a</label></div>
+                  <button class="btn btn-outline btn-sm w-full mt-8" onclick="requestPush()"><i class="fas fa-bell"></i> Activar push aquí</button>
+                </div>
               </div>
             </div>
+          </aside>
 
-            <div class="card mt-16">
-              <div class="card-title">Notificaciones</div>
-              <div class="check"><input type="checkbox" id="pfPushReminders"> <label for="pfPushReminders">Recordatorios de eventos en los que me inscribo</label></div>
-              <div class="check"><input type="checkbox" id="pfPushNews"> <label for="pfPushNews">Avisos de noticias del club</label></div>
-              <div class="check"><input type="checkbox" id="pfPushMentor"> <label for="pfPushMentor">Mentor con plazas abiertas en mi ciclo</label></div>
-              <button class="btn btn-outline btn-sm w-full mt-8" onclick="requestPush()"><i class="fas fa-bell"></i> Activar push en este dispositivo</button>
-            </div>
-          </div>
-
-          <div>
+          <!-- Columna derecha: formularios en grid de 2 columnas para menos scroll -->
+          <div class="profile-forms">
             <div class="card">
               <div class="card-title">Datos personales</div>
               <div class="field"><label class="field-label">Nombre completo</label><input class="field-input" id="pfName"></div>
@@ -386,26 +389,22 @@
               <div class="field"><label class="field-label">Sobre mí</label><textarea id="pfBio"></textarea></div>
             </div>
 
-            <div class="card mt-16">
+            <div class="card">
               <div class="card-title">Trayectoria académica</div>
-              <div class="grid grid-2">
-                <div class="field"><label class="field-label">Ciclo cursado</label>
-                  <select class="field-input" id="pfCiclo">
-                    <option value="">Selecciona</option>
-                    <option>DAW</option><option>DAM</option>
-                    <option>Marketing</option><option>Administración</option><option>Comercio Internacional</option>
-                  </select>
-                </div>
-                <div class="field"><label class="field-label">Año de graduación</label><input class="field-input" id="pfYear" type="number" min="1990" max="2030"></div>
+              <div class="field"><label class="field-label">Ciclo cursado</label>
+                <select class="field-input" id="pfCiclo">
+                  <option value="">Selecciona</option>
+                  <option>DAW</option><option>DAM</option>
+                  <option>Marketing</option><option>Administración</option><option>Comercio Internacional</option>
+                </select>
               </div>
+              <div class="field"><label class="field-label">Año de graduación</label><input class="field-input" id="pfYear" type="number" min="1990" max="2030"></div>
             </div>
 
-            <div class="card mt-16">
+            <div class="card">
               <div class="card-title">Situación profesional</div>
-              <div class="grid grid-2">
-                <div class="field"><label class="field-label">Empresa actual</label><input class="field-input" id="pfCompany"></div>
-                <div class="field"><label class="field-label">Puesto</label><input class="field-input" id="pfRole"></div>
-              </div>
+              <div class="field"><label class="field-label">Empresa actual</label><input class="field-input" id="pfCompany"></div>
+              <div class="field"><label class="field-label">Puesto</label><input class="field-input" id="pfRole"></div>
               <div class="field"><label class="field-label">Sector</label>
                 <select class="field-input" id="pfSector">
                   <option value="">Selecciona</option>
@@ -416,26 +415,26 @@
               </div>
             </div>
 
-            <div class="card mt-16">
+            <div class="card">
               <div class="card-title">Redes y enlaces</div>
               <div class="field"><label class="field-label"><i class="fab fa-linkedin"></i> LinkedIn</label><input class="field-input" id="pfLinkedin"></div>
               <div class="field"><label class="field-label"><i class="fab fa-github"></i> GitHub</label><input class="field-input" id="pfGithub"></div>
               <div class="field"><label class="field-label"><i class="fas fa-globe"></i> Web personal</label><input class="field-input" id="pfWeb"></div>
             </div>
 
-            <div class="card mt-16">
+            <div class="card profile-forms-full">
               <div class="card-title">Intereses</div>
               <div class="tag-picker" id="pfInterests">
                 <span class="tag-pick" data-v="networking">Networking</span>
                 <span class="tag-pick" data-v="empleo">Oportunidades de empleo</span>
-                <span class="tag-pick" data-v="mentoring">Mentoría</span>
+                <span class="tag-pick" data-v="mentoring">Embajador/a</span>
                 <span class="tag-pick" data-v="formacion">Formación continua</span>
                 <span class="tag-pick" data-v="emprender">Emprendimiento</span>
                 <span class="tag-pick" data-v="colaboracion">Colaboraciones</span>
               </div>
             </div>
 
-            <div class="flex gap-8 mt-16">
+            <div class="profile-forms-full flex gap-8">
               <button class="btn btn-primary" onclick="saveProfile()"><i class="fas fa-save"></i> Guardar cambios</button>
               <button class="btn btn-ghost" onclick="renderProfile()">Descartar</button>
             </div>
@@ -456,7 +455,7 @@
           <button class="admin-tab" data-tab="talks">Conferencias</button>
           <button class="admin-tab" data-tab="propuestas">Propuestas <span id="proposalsBadge" class="chip chip-warn hidden" style="margin-left:6px">0</span></button>
           <button class="admin-tab" data-tab="solicitudes">Solicitudes <span id="pendingBadge" class="chip chip-warn hidden" style="margin-left:6px">0</span></button>
-          <button class="admin-tab" data-tab="mentoria">Mentoría</button>
+          <button class="admin-tab" data-tab="mentoria">Embajadores</button>
           <button class="admin-tab" data-tab="usuarios">Usuarios</button>
           <button class="admin-tab" data-tab="config">Configuración</button>
         </div>
@@ -594,21 +593,21 @@
 <div class="toast" id="toast"></div>
 
 <!-- ===================== SCRIPTS ===================== -->
-<script src="./js/data.js?v=19"></script>
-<script src="./js/utils.js?v=19"></script>
-<script src="./js/ui.js?v=19"></script>
-<script src="./js/auth.js?v=19"></script>
-<script src="./js/router.js?v=19"></script>
-<script src="./js/screens/home.js?v=19"></script>
-<script src="./js/screens/news.js?v=19"></script>
-<script src="./js/screens/calendar.js?v=19"></script>
-<script src="./js/screens/talks.js?v=19"></script>
-<script src="./js/screens/mentors.js?v=19"></script>
-<script src="./js/screens/community.js?v=19"></script>
-<script src="./js/screens/directory.js?v=19"></script>
-<script src="./js/screens/profile.js?v=19"></script>
-<script src="./js/screens/admin.js?v=19"></script>
-<script src="./js/api.js?v=19"></script>
-<script src="./js/app.js?v=19"></script>
+<script src="./js/data.js?v=20"></script>
+<script src="./js/utils.js?v=20"></script>
+<script src="./js/ui.js?v=20"></script>
+<script src="./js/auth.js?v=20"></script>
+<script src="./js/router.js?v=20"></script>
+<script src="./js/screens/home.js?v=20"></script>
+<script src="./js/screens/news.js?v=20"></script>
+<script src="./js/screens/calendar.js?v=20"></script>
+<script src="./js/screens/talks.js?v=20"></script>
+<script src="./js/screens/mentors.js?v=20"></script>
+<script src="./js/screens/community.js?v=20"></script>
+<script src="./js/screens/directory.js?v=20"></script>
+<script src="./js/screens/profile.js?v=20"></script>
+<script src="./js/screens/admin.js?v=20"></script>
+<script src="./js/api.js?v=20"></script>
+<script src="./js/app.js?v=20"></script>
 </body>
 </html>
