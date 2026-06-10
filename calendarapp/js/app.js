@@ -22,9 +22,27 @@ async function bootApp() {
 }
 
 function registerSW() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  if (!('serviceWorker' in navigator)) return;
+
+  /* Cuando una versión nueva del Service Worker toma el control,
+     recargamos UNA vez automáticamente para que el usuario tenga
+     siempre la última versión sin tocar nada.
+     Solo si ya había un SW controlando (no en la primera visita). */
+  let refreshing = false;
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
   }
+
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    /* Si hay una versión esperando, que se active ya */
+    if (reg.waiting) reg.waiting.postMessage('skipWaiting');
+    /* Comprueba si hay actualización cada vez que se abre la app */
+    reg.update();
+  }).catch(() => {});
 }
 
 function bindTabsAndFilters() {

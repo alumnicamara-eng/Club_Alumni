@@ -1,5 +1,18 @@
-const CACHE_NAME = 'alumni-camarafp-v20';
-const ASSETS = [
+/* ==========================================================
+   Service Worker — estrategia network-first para el "app shell".
+   Objetivo: que TODOS los usuarios reciban siempre la última versión
+   automáticamente, sin tener que limpiar caché manualmente.
+
+   - HTML / CSS / JS  → network-first (busca en el servidor; si no hay
+     internet, usa la última copia cacheada).
+   - /api/            → siempre red, nunca caché.
+   - Imágenes/fuentes → cache-first (cambian poco, cargan al instante).
+   - skipWaiting + clients.claim → la versión nueva toma el control ya.
+   ========================================================== */
+
+const CACHE_NAME = 'alumni-camarafp-v22';
+
+const SHELL = [
   './',
   './index.html',
   './manifest.json',
@@ -29,14 +42,14 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(SHELL)).catch(() => {}));
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
@@ -45,36 +58,47 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  /* NUNCA cachear llamadas al API ni a phpMyAdmin/Apache.
-     Esto evita inconsistencias del tipo "los usuarios aparecen a veces". */
+  /* API → siempre red, nunca caché (evita datos obsoletos). */
   if (url.pathname.includes('/api/')) {
     e.respondWith(fetch(req));
     return;
   }
 
-  /* Recursos externos (fonts, fontawesome, cdn): network-first con caída a cache. */
-  if (url.origin !== location.origin) {
-    e.respondWith(fetch(req).catch(() => caches.match(req)));
-    return;
-  }
+  const sameOrigin = url.origin === location.origin;
+  const isImage = /\.(png|jpe?g|gif|svg|webp|ico)$/i.test(url.pathname);
 
-  /* Estáticos propios: stale-while-revalidate (cache primero, refresca en bg). */
-  e.respondWith(
-    caches.match(req).then(cached => {
-      const network = fetch(req).then(res => {
+  /* Imágenes y recursos externos (fuentes, FontAwesome) → cache-first. */
+  if (isImage || !sameOrigin) {
+    e.respondWith(
+      caches.match(req).then(cached => cached || fetch(req).then(res => {
         if (res && res.status === 200) {
           const copy = res.clone();
           caches.open(CACHE_NAME).then(c => c.put(req, copy));
         }
         return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
+      }).catch(() => cached))
+    );
+    return;
+  }
+
+  /* HTML / CSS / JS propios → NETWORK-FIRST.
+     Siempre intenta el servidor; si falla (sin internet), usa la caché. */
+  e.respondWith(
+    fetch(req)
+      .then(res => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req).then(c => c || caches.match('./index.html')))
   );
 });
 
+/* ---------- Push notifications ---------- */
 self.addEventListener('push', e => {
-  let data = { title: 'Alumni Cámara FP', body: 'Tienes una notificación nueva.' };
+  let data = { title: 'Club Alumni — Cámara FP', body: 'Tienes una notificación nueva.' };
   try { data = e.data ? e.data.json() : data; } catch (err) {}
   e.waitUntil(self.registration.showNotification(data.title, {
     body: data.body,
