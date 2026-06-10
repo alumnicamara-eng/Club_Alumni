@@ -3,9 +3,20 @@
    ========================================================== */
 
 function renderDirectory() {
+  const alumnos = DATA.users.filter(u => u.role !== 'admin');
+
+  /* Filtro de CICLOS: solo los que existen realmente en la BD */
+  const cicloSel = $('#dirCiclo');
+  const ciclos = Array.from(new Set(alumnos.map(u => u.ciclo).filter(Boolean))).sort();
+  cicloSel.innerHTML = '<option value="">Todos los ciclos</option>' +
+    ciclos.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+
+  /* Filtro de PROMOCIONES: solo años que existen en la BD */
   const yearSel = $('#dirYear');
-  const years = Array.from(new Set(DATA.users.filter(u => u.year).map(u => u.year))).sort((a, b) => b - a);
-  if (yearSel.children.length === 1) years.forEach(y => yearSel.appendChild(new Option(y, y)));
+  const years = Array.from(new Set(alumnos.map(u => u.year).filter(Boolean))).sort((a, b) => b - a);
+  yearSel.innerHTML = '<option value="">Toda promoción</option>' +
+    years.map(y => `<option value="${y}">${y}</option>`).join('');
+
   applyDirFilter();
   $('#dirSearch').oninput = applyDirFilter;
   $('#dirCiclo').onchange  = applyDirFilter;

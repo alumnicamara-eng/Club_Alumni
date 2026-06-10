@@ -31,14 +31,7 @@ function renderAdmin() {
     <div class="card-actions"><button class="btn btn-ghost btn-sm" onclick="deleteTalk(${t.id})"><i class="fas fa-trash"></i></button></div>
   </div>`).join('') || emptyMsg('No hay conferencias publicadas', 'video');
 
-  $('#adminMentorsList').innerHTML = DATA.mentors.map(m => {
-    const u = findUser(m.userDni) || {};
-    return `<div class="card">
-      <div class="card-title">${escapeHtml(u.name || '')}</div>
-      <div class="card-meta"><span>Ciclo ${escapeHtml(m.ciclo)}</span><span>${m.mentees.length}/${m.max} mentees</span></div>
-      <div class="card-desc">${escapeHtml(m.bio)}</div>
-    </div>`;
-  }).join('') || emptyMsg('No hay mentores registrados', 'user-graduate');
+  renderAdminEmbajadores();
 
   /* Admin > Usuarios: card con botón Eliminar */
   $('#adminUsersList').innerHTML = DATA.users.filter(u => u.role !== 'admin').map(u => `<div class="alumni-card">
@@ -324,6 +317,84 @@ async function notifyAll(title, body, url) {
 }
 
 /* ============================================================
+   IMPORTAR ALUMNOS/AS (pegar filas)
+   ============================================================ */
+async function importAlumnis() {
+  const raw = $('#importBox').value.trim();
+  if (!raw) { toast('Pega las filas de alumnos/as'); return; }
+
+  const alumnis = raw.split(/\r?\n/).map(line => {
+    const c = line.split(/[;\t]/).map(x => x.trim());
+    if (!c[0]) return null;
+    return {
+      dni: c[0], fecha_nacimiento: c[1] || '', nombre: c[2] || '', apellidos: c[3] || '',
+      email: c[4] || '', telefono: c[5] || '', direccion: c[6] || '', ciclo: c[7] || '', promocion: c[8] || '',
+    };
+  }).filter(Boolean);
+
+  if (!alumnis.length) { toast('No se han detectado filas válidas'); return; }
+  $('#importResult').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importando…';
+
+  try {
+    const res = await API.importAlumnis(alumnis);
+    let html = `<div style="color:#16a34a"><i class="fas fa-check-circle"></i> ${res.creados} creados, ${res.actualizados} actualizados</div>`;
+    if (res.errores?.length) {
+      html += `<details style="margin-top:6px"><summary style="cursor:pointer;color:#dc2626">${res.errores.length} con avisos</summary>
+        <ul style="margin:6px 0 0 18px;font-size:12px">${res.errores.map(e => `<li>${escapeHtml(e)}</li>`).join('')}</ul></details>`;
+    }
+    $('#importResult').innerHTML = html;
+    $('#importBox').value = '';
+    renderPendingUsers();
+  } catch (e) {
+    $('#importResult').innerHTML = '<span style="color:#dc2626"><i class="fas fa-triangle-exclamation"></i> Error en la importación</span>';
+  }
+}
+
+/* ============================================================
+   ADMIN: Embajadores que se han ofrecido
+   ============================================================ */
+const ACCION_LABELS = {
+  charla_clase: 'Charla en clase', video_testimonio: 'Vídeo testimonio',
+  video_promo: 'Vídeo promocional', shooting_fotos: 'Shooting de fotos', otra: 'Otra',
+};
+
+async function renderAdminEmbajadores() {
+  const cont = $('#adminMentorsList');
+  if (!cont) return;
+  if (!API_BASE) { cont.innerHTML = emptyMsg('Conecta el backend para ver embajadores', 'plug'); return; }
+  cont.innerHTML = '<div class="text-muted" style="padding:16px"><i class="fas fa-spinner fa-spin"></i> Cargando…</div>';
+  try {
+    const list = await API.getEmbajadores();
+    cont.innerHTML = list.length ? list.map(e => `<div class="card">
+      <div class="chip-row">
+        <span class="chip chip-teal">${escapeHtml(ACCION_LABELS[e.tipo] || e.tipo)}</span>
+        ${e.ciclo ? `<span class="chip">${escapeHtml(e.ciclo)} ${e.promocion || ''}</span>` : ''}
+      </div>
+      <div class="card-title">${escapeHtml((e.nombre || '') + ' ' + (e.apellidos || ''))}</div>
+      <div class="card-meta">
+        ${e.email    ? `<span><i class="fas fa-envelope"></i> <a href="mailto:${escapeHtml(e.email)}">${escapeHtml(e.email)}</a></span>` : ''}
+        ${e.telefono ? `<span><i class="fas fa-phone"></i> <a href="tel:${escapeHtml(e.telefono)}">${escapeHtml(e.telefono)}</a></span>` : ''}
+      </div>
+      ${e.mensaje ? `<div class="card-desc">${escapeHtml(e.mensaje)}</div>` : ''}
+    </div>`).join('') : emptyMsg('Aún no hay embajadores/as ofrecidos', 'handshake');
+  } catch (err) {
+    cont.innerHTML = emptyMsg('Error cargando embajadores', 'triangle-exclamation');
+  }
+}
+
+/* Descarga una plantilla CSV (se abre en Excel) con las columnas correctas */
+function downloadExcelTemplate() {
+  const headers = ['DNI','FechaNacimiento (dd/mm/aaaa)','Nombre','Apellidos','Email','Telefono','Direccion','Ciclo','AnoPromocion'];
+  const ejemplo = ['12345678A','15/03/1998','Lucía','Pérez García','lucia@email.com','600111222','C/ Mayor 1, Valencia','DAW','2022'];
+  const csv = '﻿' + headers.join(';') + '\n' + ejemplo.join(';') + '\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'plantilla_alumnis_camarafp.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('Plantilla descargada — ábrela en Excel');
+}
+
+/* ============================================================
    SOLICITUDES DE REGISTRO (pestaña Solicitudes)
    ============================================================ */
 
@@ -349,38 +420,31 @@ async function renderPendingUsers() {
 function pendingUserCard(u) {
   return `<div class="card" id="pending-${u.id}">
     <div class="chip-row">
-      <span class="chip chip-warn">Pendiente</span>
+      <span class="chip chip-warn">Sin darse de alta</span>
       ${u.ciclo ? `<span class="chip chip-teal">${escapeHtml(u.ciclo)} ${u.promocion || ''}</span>` : ''}
     </div>
     <div class="card-title">${escapeHtml(u.nombre)} ${escapeHtml(u.apellidos || '')}</div>
     <div class="card-meta">
-      <span><i class="fas fa-envelope"></i> <a href="mailto:${escapeHtml(u.email)}">${escapeHtml(u.email)}</a></span>
-      ${u.telefono ? `<span><i class="fas fa-phone"></i> ${escapeHtml(u.telefono)}</span>` : ''}
       ${u.dni      ? `<span><i class="fas fa-id-card"></i> ${escapeHtml(u.dni)}</span>` : ''}
-    </div>
-    ${u.empresa || u.puesto ? `<div class="card-meta"><span><i class="fas fa-briefcase"></i> ${escapeHtml(u.puesto || '')}${u.empresa ? ' · ' + escapeHtml(u.empresa) : ''}</span></div>` : ''}
-    <div style="margin-top:10px;padding:10px;background:var(--surface-2);border-radius:8px;border-left:3px solid var(--teal-500)">
-      <div style="font-size:12px;color:var(--ink-600);font-weight:600;margin-bottom:4px"><i class="fas fa-comment-dots"></i> Motivos</div>
-      <div style="font-size:13px">${escapeHtml(u.motivos || '(sin especificar)')}</div>
+      ${u.email    ? `<span><i class="fas fa-envelope"></i> ${escapeHtml(u.email)}</span>` : ''}
+      ${u.telefono ? `<span><i class="fas fa-phone"></i> ${escapeHtml(u.telefono)}</span>` : ''}
     </div>
     <div class="card-actions mt-12">
-      <button class="btn btn-accent btn-sm" onclick="reviewPending(${u.id}, 'approve')"><i class="fas fa-check"></i> Aprobar</button>
-      <button class="btn btn-ghost btn-sm"  onclick="reviewPending(${u.id}, 'reject')"><i class="fas fa-xmark"></i> Rechazar</button>
+      <button class="btn btn-ghost btn-sm" onclick="reviewPending(${u.id}, 'reject')"><i class="fas fa-trash"></i> Quitar de la lista</button>
     </div>
   </div>`;
 }
 
 async function reviewPending(id, accion) {
-  if (accion === 'reject' && !confirm('¿Rechazar esta solicitud? Se eliminará el registro.')) return;
+  if (accion === 'reject' && !confirm('¿Quitar a este alumno/a de la lista? Ya no podrá darse de alta hasta volver a importarlo.')) return;
   try {
     await API.reviewPendingUser(id, accion);
     document.getElementById('pending-' + id)?.remove();
-    toast(accion === 'approve' ? 'Solicitud aprobada ✓' : 'Solicitud rechazada');
-    /* Refresca badge */
+    toast('Eliminado de la lista');
     const remaining = $('#adminPendingList').querySelectorAll('.card').length;
     updatePendingBadge(remaining);
-    if (remaining === 0) $('#adminPendingList').innerHTML = emptyMsg('No hay solicitudes pendientes', 'inbox');
-  } catch (e) { toast('Error procesando la solicitud'); }
+    if (remaining === 0) $('#adminPendingList').innerHTML = emptyMsg('No hay altas pendientes', 'inbox');
+  } catch (e) { toast('Error al procesar'); }
 }
 
 function updatePendingBadge(n) {

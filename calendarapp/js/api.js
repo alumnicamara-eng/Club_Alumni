@@ -25,9 +25,10 @@ async function apiFetch(endpoint, opts = {}) {
 const API = {
   /* Auth */
   login:    creds => apiFetch('login.php',    { method: 'POST', body: creds }),
-  registro: data  => apiFetch('registro.php', { method: 'POST', body: data  }),
   logout:   ()    => apiFetch('logout.php',   { method: 'POST' }),
   me:       ()    => apiFetch('me.php'),
+  altaVerificar: data => apiFetch('alta_verificar.php', { method: 'POST', body: data }),
+  altaCompletar: data => apiFetch('alta_completar.php', { method: 'POST', body: data }),
 
   /* Usuarios */
   getUsuarios:   ()       => apiFetch('usuarios.php'),
@@ -68,9 +69,15 @@ const API = {
   sendPush:                 (t, b, u)  => apiFetch('push_send.php',     { method: 'POST', body: { title: t, body: b, url: u || '/' } }),
   notifyEventEnrollees:     (eid, t, b)=> apiFetch('evento_notificar.php', { method: 'POST', body: { evento_id: eid, title: t, body: b } }),
 
-  /* Solicitudes de registro (admin) */
+  /* Altas pendientes / import (admin) */
   getPendingUsers:    ()           => apiFetch('usuarios_pendientes.php'),
   reviewPendingUser:  (id, accion) => apiFetch('usuarios_pendientes.php', { method: 'PUT', body: { id, accion } }),
+  importAlumnis:      alumnis      => apiFetch('alumnis_import.php', { method: 'POST', body: { alumnis } }),
+
+  /* Embajadores */
+  getEmbajadores:    ()            => apiFetch('embajadores.php'),
+  apuntarEmbajador:  (tipo, msg)   => apiFetch('embajadores.php', { method: 'POST', body: { tipo, mensaje: msg } }),
+  bajaEmbajador:     tipo          => apiFetch('embajadores.php', { method: 'DELETE', body: { tipo } }),
 
   /* Inscritos a un evento (admin) */
   getEventEnrollees: (eventoId) => apiFetch(`evento_inscritos.php?id=${eventoId}`),

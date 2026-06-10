@@ -32,10 +32,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link rel="stylesheet" href="./css/base.css?v=18">
-<link rel="stylesheet" href="./css/layout.css?v=18">
-<link rel="stylesheet" href="./css/components.css?v=18">
-<link rel="stylesheet" href="./css/screens.css?v=18">
+<link rel="stylesheet" href="./css/base.css?v=19">
+<link rel="stylesheet" href="./css/layout.css?v=19">
+<link rel="stylesheet" href="./css/components.css?v=19">
+<link rel="stylesheet" href="./css/screens.css?v=19">
 </head>
 <body>
 
@@ -52,45 +52,96 @@
       <div class="field"><input class="field-input" type="password" id="authPass" placeholder="Contraseña" autocomplete="current-password"></div>
       <button class="btn btn-primary btn-full btn-lg" id="authLogin"><i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión</button>
       <div style="margin-top:14px;text-align:center;font-size:13px">
-        ¿Aún no tienes cuenta? <a href="#" onclick="toggleAuthView('register'); return false" style="font-weight:600;color:var(--teal-700)">Solicitar acceso</a>
+        ¿Primera vez? <a href="#" onclick="toggleAuthView('alta'); return false" style="font-weight:600;color:var(--teal-700)">Date de alta</a>
       </div>
     </div>
 
-    <!-- ===== Vista REGISTRO ===== -->
-    <div id="authRegisterView" class="hidden">
-      <p class="sub">Solicita tu acceso al Club Alumni — Cámara FP</p>
-      <div class="grid grid-2" style="gap:10px">
-        <div class="field"><input class="field-input" id="regNombre"   placeholder="Nombre *"></div>
-        <div class="field"><input class="field-input" id="regApellidos" placeholder="Apellidos"></div>
+    <!-- ===== Vista ALTA - Paso 1: verificar DNI + fecha nacimiento ===== -->
+    <div id="authAltaStep1" class="hidden">
+      <p class="sub">Date de alta con tus datos de antiguo/a alumno/a</p>
+      <div class="field"><input class="field-input" id="altaDni" placeholder="DNI (con letra)" autocomplete="off"></div>
+      <div class="field">
+        <label class="field-label" style="text-align:left;display:block">Fecha de nacimiento</label>
+        <input class="field-input" id="altaFnac" type="date" max="2010-12-31">
       </div>
-      <div class="field"><input class="field-input" id="regDni"   placeholder="DNI"></div>
-      <div class="field"><input class="field-input" id="regEmail" placeholder="Email *" type="email"></div>
-      <div class="grid grid-2" style="gap:10px">
-        <div class="field"><input class="field-input" id="regPass1" placeholder="Contraseña *" type="password"></div>
-        <div class="field"><input class="field-input" id="regPass2" placeholder="Repetir contraseña *" type="password"></div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="altaVerificar()"><i class="fas fa-id-card"></i> Continuar</button>
+      <div style="margin-top:14px;text-align:center;font-size:13px">
+        ¿Ya tienes cuenta? <a href="#" onclick="toggleAuthView('login'); return false" style="font-weight:600;color:var(--teal-700)">Iniciar sesión</a>
       </div>
-      <div class="grid grid-2" style="gap:10px">
+      <div style="margin-top:10px;font-size:11px;color:var(--ink-500);text-align:center;line-height:1.6">
+        Solo pueden darse de alta los antiguos alumnos/as registrados por el centro.
+      </div>
+    </div>
+
+    <!-- ===== Vista ALTA - Paso 2: completar datos + onboarding ===== -->
+    <div id="authAltaStep2" class="hidden" style="text-align:left">
+      <p class="sub" style="text-align:center">¡Hola <strong id="altaHola"></strong>! Completa tu alta</p>
+
+      <div class="onboard-section">
+        <div class="onboard-title">Tus datos</div>
+        <div class="field-help" style="margin-bottom:8px">Revisa y corrige lo que haga falta.</div>
+        <div class="grid grid-2" style="gap:10px">
+          <div class="field"><input class="field-input" id="altaNombre"   placeholder="Nombre"></div>
+          <div class="field"><input class="field-input" id="altaApellidos" placeholder="Apellidos"></div>
+        </div>
+        <div class="field"><input class="field-input" id="altaEmail"    placeholder="Correo electrónico" type="email"></div>
+        <div class="grid grid-2" style="gap:10px">
+          <div class="field"><input class="field-input" id="altaTelefono" placeholder="Teléfono"></div>
+          <div class="field"><input class="field-input" id="altaYear" placeholder="Año de promoción" type="number" min="1980" max="2030"></div>
+        </div>
+        <div class="field"><input class="field-input" id="altaDireccion" placeholder="Dirección"></div>
         <div class="field">
-          <select class="field-input" id="regCiclo">
-            <option value="">Ciclo cursado *</option>
+          <select class="field-input" id="altaCiclo">
+            <option value="">Grado Superior cursado</option>
             <option>DAW</option><option>DAM</option>
             <option>Marketing</option><option>Administración</option>
             <option>Comercio Internacional</option><option>Otro</option>
           </select>
         </div>
-        <div class="field"><input class="field-input" id="regYear" placeholder="Año promoción" type="number" min="1990" max="2030"></div>
       </div>
-      <div class="field"><input class="field-input" id="regEmpresa" placeholder="Empresa actual (opcional)"></div>
-      <div class="field"><input class="field-input" id="regPuesto"  placeholder="Puesto actual (opcional)"></div>
-      <div class="field">
-        <textarea id="regMotivos" placeholder="¿Por qué quieres unirte a la comunidad Alumni? *" rows="3" style="resize:vertical"></textarea>
+
+      <div class="onboard-section">
+        <div class="onboard-title">Contraseña de acceso</div>
+        <div class="grid grid-2" style="gap:10px">
+          <div class="field"><input class="field-input" id="altaPass1" placeholder="Contraseña" type="password"></div>
+          <div class="field"><input class="field-input" id="altaPass2" placeholder="Repetir" type="password"></div>
+        </div>
       </div>
-      <button class="btn btn-primary btn-full btn-lg" onclick="tryRegister()"><i class="fas fa-user-plus"></i> Solicitar acceso</button>
-      <div style="margin-top:14px;text-align:center;font-size:13px">
-        ¿Ya tienes cuenta? <a href="#" onclick="toggleAuthView('login'); return false" style="font-weight:600;color:var(--teal-700)">Iniciar sesión</a>
+
+      <div class="onboard-section">
+        <div class="onboard-title">Situación laboral</div>
+        <div class="onboard-opts" id="altaSitLab">
+          <label class="onboard-radio"><input type="radio" name="sitLab" value="trabajando"> Estoy trabajando</label>
+          <label class="onboard-radio"><input type="radio" name="sitLab" value="buscando"> Estoy buscando trabajo</label>
+          <label class="onboard-radio"><input type="radio" name="sitLab" value="no_buscando"> No estoy buscando trabajo</label>
+        </div>
       </div>
-      <div style="margin-top:10px;font-size:11px;color:var(--ink-500);text-align:center;line-height:1.6">
-        Tu solicitud quedará pendiente de revisión por el equipo Alumni.<br>Recibirás un email cuando se active tu cuenta.
+
+      <div class="onboard-section">
+        <div class="onboard-title">Situación académica</div>
+        <div class="onboard-opts" id="altaSitAca">
+          <label class="onboard-radio"><input type="radio" name="sitAca" value="estudiando"> Estoy estudiando</label>
+          <label class="onboard-radio"><input type="radio" name="sitAca" value="buscando_estudios"> Estoy buscando nuevos estudios</label>
+          <label class="onboard-radio"><input type="radio" name="sitAca" value="no_claro"> No lo tengo claro</label>
+        </div>
+      </div>
+
+      <div class="onboard-section">
+        <div class="onboard-title">¿Por qué te interesa el Club Alumni?</div>
+        <div class="field-help" style="margin-bottom:8px">Puedes marcar varias opciones.</div>
+        <div class="onboard-opts" id="altaMotivos">
+          <label class="onboard-check"><input type="checkbox" value="interactuar"> La oportunidad de interactuar con otros alumnis</label>
+          <label class="onboard-check"><input type="checkbox" value="sprintwalks"> Seguir asistiendo a Sprintwalks o visitas a empresas</label>
+          <label class="onboard-check"><input type="checkbox" value="comunidad"> Generar comunidad y conocer a otras personas en mi situación</label>
+          <label class="onboard-check"><input type="checkbox" value="empleo"> Las ventajas con respecto a la bolsa de empleo</label>
+          <label class="onboard-check"><input type="checkbox" value="charlas"> Poder realizar charlas a alumnos/as actuales</label>
+          <label class="onboard-check"><input type="checkbox" value="contacto"> Seguir en contacto con el centro</label>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" onclick="altaCompletar()"><i class="fas fa-check"></i> Completar alta y entrar</button>
+      <div style="margin-top:10px;text-align:center;font-size:13px">
+        <a href="#" onclick="toggleAuthView('login'); return false" style="color:var(--ink-500)">Cancelar</a>
       </div>
     </div>
 
@@ -220,27 +271,20 @@
       <!-- ============ MENTORÍA ============ -->
       <section class="screen" id="s-mentoria">
         <div class="page-header">
-          <div class="page-title">Mentoría</div>
-          <div class="page-subtitle">Cada mentor acompaña hasta 5 alumnos del mismo ciclo que cursó. Apúntate como mentor o pídelo como mentee.</div>
+          <div class="page-title">Embajadores Cámara FP</div>
+          <div class="page-subtitle">Forma parte activa del centro. Ofrécete para colaborar en distintas acciones y conviértete en imagen del Club Alumni.</div>
         </div>
 
-        <div class="grid grid-2 mt-12">
-          <div class="card">
-            <div class="chip chip-teal">Soy alumni</div>
-            <div class="card-title mt-8">Ofrecerme como mentor</div>
-            <div class="card-desc">Acompaña a 5 alumnos que estén estudiando ahora el mismo ciclo que tú cursaste.</div>
-            <div class="card-actions"><button class="btn btn-primary btn-sm" onclick="openMentorForm()"><i class="fas fa-hand-holding-heart"></i> Postularme</button></div>
-          </div>
-          <div class="card">
-            <div class="chip chip-navy">Estudiante actual</div>
-            <div class="card-title mt-8">Buscar mentor</div>
-            <div class="card-desc">Encuentra a un antiguo alumno del mismo ciclo y aprende de su recorrido profesional.</div>
-            <div class="card-actions"><button class="btn btn-outline btn-sm" onclick="document.getElementById('mentorsList').scrollIntoView({behavior:'smooth'})"><i class="fas fa-arrow-down"></i> Ver mentores</button></div>
+        <div class="card" style="background:var(--surface-2);border:1px solid var(--teal-100);margin-top:12px">
+          <div class="card-title"><i class="fas fa-star" style="color:var(--teal-600)"></i> ¿Por qué ser embajador/a?</div>
+          <div class="card-desc" style="margin-top:6px">
+            Al colaborar con el centro apareces en nuestras redes sociales y web como representante de Cámara FP,
+            generas red de contactos y das visibilidad a tu trayectoria profesional. Todas estas acciones tienen
+            repercusión positiva en tu carrera.
           </div>
         </div>
 
-        <div class="section-header"><span class="section-title">Mentores disponibles</span></div>
-        <div class="filter-row" id="mentorFilters"></div>
+        <div class="section-header"><span class="section-title">Acciones disponibles</span></div>
         <div class="grid grid-2" id="mentorsList"></div>
       </section>
 
@@ -453,8 +497,8 @@
         <div id="adminPanel-solicitudes" class="admin-panel hidden">
           <div class="flex-between mt-8">
             <div>
-              <div class="card-title">Solicitudes de registro</div>
-              <div class="text-muted" style="font-size:13px">Alumnis que quieren unirse a la comunidad. Revisa los motivos antes de aprobar.</div>
+              <div class="card-title">Altas pendientes</div>
+              <div class="text-muted" style="font-size:13px">Alumnos/as precargados por el centro que aún no se han dado de alta en la app.</div>
             </div>
             <button class="btn btn-ghost btn-sm" onclick="renderPendingUsers()"><i class="fas fa-rotate"></i> Refrescar</button>
           </div>
@@ -462,13 +506,28 @@
         </div>
 
         <div id="adminPanel-mentoria" class="admin-panel hidden">
-          <div class="card-title mt-8">Programa de mentoría</div>
+          <div class="card-title mt-8">Embajadores Cámara FP</div>
+          <div class="text-muted" style="font-size:13px;margin-bottom:10px">Alumnos/as que se han ofrecido a colaborar con el centro. Contacta con ellos/as para coordinar.</div>
           <div class="grid grid-2 mt-12" id="adminMentorsList"></div>
         </div>
 
         <div id="adminPanel-usuarios" class="admin-panel hidden">
-          <div class="flex-between mt-8">
-            <div class="card-title">Alumni registrados</div>
+          <div class="card" style="background:var(--surface-2);border:1px solid var(--teal-100);margin-top:8px">
+            <div class="card-title"><i class="fas fa-file-import"></i> Importar alumnos/as</div>
+            <div class="text-muted" style="font-size:13px;margin-bottom:10px">
+              Pega aquí las filas (una por alumno/a). Formato por columnas separadas por <strong>;</strong> o tabulador:<br>
+              <code style="font-size:11px">DNI ; FechaNacimiento(dd/mm/aaaa) ; Nombre ; Apellidos ; Email ; Teléfono ; Dirección ; Ciclo ; AñoPromoción</code>
+            </div>
+            <textarea id="importBox" rows="5" placeholder="12345678A;15/03/1998;Lucía;Pérez García;lucia@email.com;600111222;C/ Mayor 1;DAW;2022" style="width:100%;font-family:monospace;font-size:12px"></textarea>
+            <div class="card-actions mt-8" style="gap:8px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="importAlumnis()"><i class="fas fa-upload"></i> Importar</button>
+              <button class="btn btn-outline btn-sm" onclick="downloadExcelTemplate()"><i class="fas fa-file-excel"></i> Descargar plantilla</button>
+            </div>
+            <div id="importResult" style="margin-top:10px;font-size:13px"></div>
+          </div>
+
+          <div class="flex-between mt-16">
+            <div class="card-title">Alumnos/as dados de alta</div>
             <button class="btn btn-outline btn-sm" onclick="exportCSV()"><i class="fas fa-download"></i> Exportar CSV</button>
           </div>
           <div class="grid grid-3 mt-16" id="adminUsersList"></div>
@@ -495,15 +554,15 @@
       </section>
 
       <!-- ============ FOOTER ============ -->
-      <footer style="margin-top:48px;padding:24px 0 80px;border-top:1px solid var(--border);text-align:center;color:var(--ink-500);font-size:12px">
+      <footer class="app-footer">
         <div style="margin-bottom:8px">
           <strong style="color:var(--navy-800)">Club Alumni — Cámara FP</strong> · Comunidad de antiguos alumnos/as
         </div>
         <div>
-          <a href="#" onclick="showLegal('privacidad'); return false" style="color:var(--ink-500);text-decoration:underline">Privacidad</a> ·
-          <a href="#" onclick="showLegal('terminos');   return false" style="color:var(--ink-500);text-decoration:underline">Términos</a> ·
-          <a href="#" onclick="showLegal('cookies');    return false" style="color:var(--ink-500);text-decoration:underline">Cookies</a> ·
-          <a href="mailto:alumni@camarafp.es"                          style="color:var(--ink-500);text-decoration:underline">Contacto</a>
+          <a href="#" onclick="showLegal('privacidad'); return false">Privacidad</a> ·
+          <a href="#" onclick="showLegal('terminos');   return false">Términos</a> ·
+          <a href="#" onclick="showLegal('cookies');    return false">Cookies</a> ·
+          <a href="mailto:alumni@camarafp.es">Contacto</a>
         </div>
       </footer>
 
@@ -535,21 +594,21 @@
 <div class="toast" id="toast"></div>
 
 <!-- ===================== SCRIPTS ===================== -->
-<script src="./js/data.js?v=18"></script>
-<script src="./js/utils.js?v=18"></script>
-<script src="./js/ui.js?v=18"></script>
-<script src="./js/auth.js?v=18"></script>
-<script src="./js/router.js?v=18"></script>
-<script src="./js/screens/home.js?v=18"></script>
-<script src="./js/screens/news.js?v=18"></script>
-<script src="./js/screens/calendar.js?v=18"></script>
-<script src="./js/screens/talks.js?v=18"></script>
-<script src="./js/screens/mentors.js?v=18"></script>
-<script src="./js/screens/community.js?v=18"></script>
-<script src="./js/screens/directory.js?v=18"></script>
-<script src="./js/screens/profile.js?v=18"></script>
-<script src="./js/screens/admin.js?v=18"></script>
-<script src="./js/api.js?v=18"></script>
-<script src="./js/app.js?v=18"></script>
+<script src="./js/data.js?v=19"></script>
+<script src="./js/utils.js?v=19"></script>
+<script src="./js/ui.js?v=19"></script>
+<script src="./js/auth.js?v=19"></script>
+<script src="./js/router.js?v=19"></script>
+<script src="./js/screens/home.js?v=19"></script>
+<script src="./js/screens/news.js?v=19"></script>
+<script src="./js/screens/calendar.js?v=19"></script>
+<script src="./js/screens/talks.js?v=19"></script>
+<script src="./js/screens/mentors.js?v=19"></script>
+<script src="./js/screens/community.js?v=19"></script>
+<script src="./js/screens/directory.js?v=19"></script>
+<script src="./js/screens/profile.js?v=19"></script>
+<script src="./js/screens/admin.js?v=19"></script>
+<script src="./js/api.js?v=19"></script>
+<script src="./js/app.js?v=19"></script>
 </body>
 </html>

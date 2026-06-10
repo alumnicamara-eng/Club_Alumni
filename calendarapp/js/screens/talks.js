@@ -24,22 +24,15 @@ function talkCard(t) {
 /* ---------- Propuestas de Alumni Talks ---------- */
 function openProposeTalk() {
   const u = State.user;
+  const datosPerfil = [u.ciclo, u.year].filter(Boolean).join(' · ');
   showModal('Proponer una Alumni Talk', `
     <p class="text-muted" style="font-size:13px;margin-bottom:14px">
-      Rellena los datos y el equipo Alumni se pondrá en contacto contigo para confirmar fecha y formato.
+      El equipo Alumni se pondrá en contacto contigo para confirmar fecha y formato.
     </p>
-    <div class="grid grid-2">
-      <div class="field"><label class="field-label">Nombre completo</label><input class="field-input" id="propName" value="${escapeHtml(u.name || '')}"></div>
-      <div class="field"><label class="field-label">Email de contacto</label><input class="field-input" id="propEmail" type="email" value="${escapeHtml(u.email || '')}"></div>
-    </div>
-    <div class="grid grid-2">
-      <div class="field"><label class="field-label">Ciclo cursado</label>
-        <select class="field-input" id="propCiclo">
-          <option value="">Selecciona</option>
-          ${CICLOS.map(c => `<option ${u.ciclo === c ? 'selected' : ''}>${c}</option>`).join('')}
-        </select>
-      </div>
-      <div class="field"><label class="field-label">Promoción (año)</label><input class="field-input" id="propYear" type="number" min="1990" max="2030" value="${u.year || ''}"></div>
+    <div style="padding:10px 12px;background:var(--surface-2);border-radius:10px;margin-bottom:14px;font-size:13px">
+      <i class="fas fa-user-circle" style="color:var(--teal-700)"></i>
+      Propuesta a nombre de <strong>${escapeHtml(u.name || '')}</strong>${datosPerfil ? ` (${escapeHtml(datosPerfil)})` : ''}.
+      ${u.ciclo ? '' : '<br><span style="color:var(--ink-500);font-size:12px">Completa tu ciclo y promoción en Mi perfil para que aparezcan aquí.</span>'}
     </div>
     <div class="field"><label class="field-label">Tema de la charla</label><input class="field-input" id="propTopic" placeholder="Ej. Introducción a la observabilidad en sistemas modernos"></div>
     <div class="field"><label class="field-label">¿De qué quieres hablar?</label><textarea id="propDesc" placeholder="Breve descripción: qué cubrirás, a quién va dirigida, por qué te interesa..."></textarea></div>
@@ -61,16 +54,15 @@ function openProposeTalk() {
 }
 
 async function submitProposal() {
-  const name  = $('#propName').value.trim();
-  const email = $('#propEmail').value.trim();
-  const ciclo = $('#propCiclo').value;
+  const u     = State.user;
   const topic = $('#propTopic').value.trim();
   const desc  = $('#propDesc').value.trim();
-  if (!name || !email || !ciclo || !topic || !desc) { toast('Completa todos los campos obligatorios'); return; }
+  if (!topic || !desc) { toast('Indica el tema y de qué quieres hablar'); return; }
 
+  /* Los datos personales salen del perfil, no se piden de nuevo */
   const proposal = {
-    nombre: name, email, ciclo,
-    promocion: $('#propYear').value || null,
+    nombre: u.name, email: u.email, ciclo: u.ciclo,
+    promocion: u.year || null,
     tema: topic, descripcion: desc,
     duracion: $('#propDuration').value,
     formato:  $('#propFormat').value,
@@ -81,9 +73,8 @@ async function submitProposal() {
     catch (e) { toast('No se pudo enviar la propuesta'); return; }
   } else {
     DATA.talkProposals.unshift({
-      id: Date.now(), dni: State.user.dni,
-      name, email, ciclo,
-      year: parseInt($('#propYear').value) || null,
+      id: Date.now(), dni: u.dni,
+      name: u.name, email: u.email, ciclo: u.ciclo, year: u.year || null,
       topic, desc,
       duration: $('#propDuration').value,
       format: $('#propFormat').value,

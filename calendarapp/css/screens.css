@@ -546,6 +546,41 @@
   line-height: 1.6;
 }
 
+/* ---------- Onboarding / Alta (multistep) ---------- */
+.auth-card.auth-card-wide { max-width: 520px; }
+.onboard-section {
+  margin: 18px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.onboard-section:last-of-type { border-bottom: none; }
+.onboard-title {
+  font-weight: 700;
+  color: var(--navy-800);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.onboard-opts { display: flex; flex-direction: column; gap: 8px; }
+.onboard-radio, .onboard-check {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--ink-700);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  line-height: 1.4;
+}
+.onboard-radio:hover, .onboard-check:hover { border-color: var(--teal-400); background: var(--teal-50); }
+.onboard-radio input, .onboard-check input { margin-top: 2px; accent-color: var(--teal-600); flex-shrink: 0; }
+.onboard-radio:has(input:checked), .onboard-check:has(input:checked) {
+  border-color: var(--teal-500);
+  background: var(--teal-50);
+  font-weight: 600;
+  color: var(--navy-800);
+}
+
 /* ---------- Notification dropdown (header) ---------- */
 .notif-dropdown {
   position: absolute;

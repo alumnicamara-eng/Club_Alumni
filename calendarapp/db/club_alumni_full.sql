@@ -22,11 +22,13 @@ USE `club_alumni`;
 CREATE TABLE IF NOT EXISTS `usuarios` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `dni` VARCHAR(20) DEFAULT NULL,
+  `fecha_nacimiento` DATE DEFAULT NULL,
   `nombre` VARCHAR(100) NOT NULL,
   `apellidos` VARCHAR(100) DEFAULT '',
-  `email` VARCHAR(150) NOT NULL,
-  `password` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(150) DEFAULT NULL,
+  `password` VARCHAR(255) DEFAULT NULL,
   `telefono` VARCHAR(20) DEFAULT NULL,
+  `direccion` VARCHAR(255) DEFAULT NULL,
   `ciclo` VARCHAR(100) DEFAULT NULL,
   `promocion` VARCHAR(50) DEFAULT NULL,
   `empresa` VARCHAR(150) DEFAULT NULL,
@@ -34,6 +36,9 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `sector` VARCHAR(100) DEFAULT NULL,
   `bio` TEXT DEFAULT NULL,
   `motivos` TEXT DEFAULT NULL,
+  `situacion_laboral` VARCHAR(40) DEFAULT NULL,
+  `situacion_academica` VARCHAR(40) DEFAULT NULL,
+  `onboarding_completo` TINYINT(1) DEFAULT 0,
   `linkedin` VARCHAR(255) DEFAULT NULL,
   `github` VARCHAR(255) DEFAULT NULL,
   `web` VARCHAR(255) DEFAULT NULL,
@@ -49,6 +54,22 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `dni` (`dni`),
   KEY `idx_activo` (`activo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------------------------------------
+-- EMBAJADORES (acciones de colaboración con el centro)
+-- ----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `embajadores` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT(11) NOT NULL,
+  `tipo` VARCHAR(40) NOT NULL,
+  `mensaje` TEXT DEFAULT NULL,
+  `estado` ENUM('pending','contacted','done') DEFAULT 'pending',
+  `fecha_creacion` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `usuario_tipo` (`usuario_id`,`tipo`),
+  KEY `usuario_id` (`usuario_id`),
+  CONSTRAINT `embajadores_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------------------------------------
