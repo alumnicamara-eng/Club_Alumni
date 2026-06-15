@@ -228,13 +228,7 @@
         </div>
   
         <div class="cal-weekdays">
-          <div>L</div>
-          <div>M</div>
-          <div>X</div>
-          <div>J</div>
-          <div>V</div>
-          <div>S</div>
-          <div>D</div>
+          <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
         </div>
   
         <div class="cal-days" id="calDays"></div>
@@ -386,7 +380,7 @@
         <div class="grid grid-3" id="talksList"></div>
       </section>
 
-      <!-- ============ MENTORÍA ============ -->
+      <!-- ============ EMBAJADORES DE CÁMARA FP ============ -->
       <section class="screen" id="s-mentoria">
         <div class="page-header">
           <div class="page-title">Embajadores Cámara FP</div>
@@ -406,10 +400,10 @@
         <div class="grid grid-2" id="mentorsList"></div>
       </section>
 
-      <!-- ============ COMUNIDAD ============ -->
+      <!-- ============ COMUNIDAD CONNECT============ -->
       <section class="screen" id="s-comunidad">
         <div class="page-header">
-          <div class="page-title">Comunidad</div>
+          <div class="page-title">Comunidad Connect</div>
           <div class="page-subtitle">Comparte logros, busca oportunidades, lanza preguntas a otros alumnis.</div>
         </div>
 
@@ -441,27 +435,33 @@
       </section>
 
       <!-- ============ DESCUBRE ALUMNIS ============ -->
-      <section class="screen" id="s-directorio">
-        <div class="page-header">
-          <div class="page-title">Descubre Alumnis</div>
-          <div class="page-subtitle">Encuentra a antiguos compañeros por ciclo, promoción o sector.</div>
+    <section class="screen" id="s-directorio">
+      <div class="page-header">
+        <div class="page-title">Descubre Alumnis</div>
+        <div class="page-subtitle">
+          Encuentra a antiguos compañeros/as por ciclo, promoción o sector.
         </div>
-
-        <div class="directory-filters">
-          <div class="input-group">
-            <i class="fas fa-search"></i>
-            <input id="dirSearch" placeholder="Buscar por nombre, empresa o ciclo">
-          </div>
-          <select class="field-input" id="dirCiclo">
-            <option value="">Todos los ciclos</option>
-            <option>DAW</option><option>DAM</option>
-            <option>Marketing</option><option>Administración</option><option>Comercio Internacional</option>
-          </select>
-          <select class="field-input" id="dirYear"><option value="">Toda promoción</option></select>
+      </div>
+    
+      <div class="directory-filters">
+        <div class="input-group">
+          <i class="fas fa-search"></i>
+          <input id="dirSearch" placeholder="Buscar por nombre, empresa o ciclo">
         </div>
-
-        <div class="grid grid-auto" id="dirList"></div>
-      </section>
+    
+        <!-- CICLOS DINÁMICOS -->
+        <select class="field-input" id="dirCiclo">
+          <option value="">Todos los ciclos</option>
+        </select>
+    
+        <!-- PROMOCIONES DINÁMICAS -->
+        <select class="field-input" id="dirYear">
+          <option value="">Toda promoción</option>
+        </select>
+      </div>
+    
+      <div class="grid grid-auto" id="dirList"></div>
+    </section>
 
       <!-- ============ PERFIL ============ -->
       <section class="screen" id="s-perfil">
