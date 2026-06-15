@@ -204,35 +204,153 @@
       </section>
 
       <!-- ============ CALENDARIO ============ -->
-      <section class="screen" id="s-calendario">
-        <div class="page-header">
-          <div class="page-title">Calendario</div>
-          <div class="page-subtitle">Apúntate a charlas, talleres y eventos exclusivos para alumnis.</div>
+  <section class="screen" id="s-calendario">
+    <div class="page-header">
+      <div class="page-title">Calendario</div>
+      <div class="page-subtitle">
+        Consulta los eventos programados y gestiona los asistentes inscritos.
+      </div>
+    </div>
+  
+    <div class="cal-layout">
+      <!-- Calendario -->
+      <div class="cal-card">
+        <div class="cal-head">
+          <button class="cal-arrow" id="calPrev">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+  
+          <span class="cal-month" id="calMonth"></span>
+  
+          <button class="cal-arrow" id="calNext">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
-
-        <div class="cal-layout">
-          <div class="cal-card">
-            <div class="cal-head">
-              <button class="cal-arrow" id="calPrev"><i class="fas fa-chevron-left"></i></button>
-              <span class="cal-month" id="calMonth"></span>
-              <button class="cal-arrow" id="calNext"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="cal-weekdays"><div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
-            <div class="cal-days" id="calDays"></div>
-            <div class="cal-legend">
-              <div class="cal-legend-item"><div class="cal-legend-swatch"></div>Con evento</div>
-              <div class="cal-legend-item"><div class="cal-legend-swatch enrolled"></div>Inscrito</div>
-              <div class="cal-legend-item"><div class="cal-legend-swatch today"></div>Hoy</div>
-            </div>
-            <div class="text-muted mt-12" style="font-size:12px;text-align:center"><i class="fas fa-info-circle"></i> Pulsa un evento para apuntarte y añadirlo a tu calendario</div>
+  
+        <div class="cal-weekdays">
+          <div>L</div>
+          <div>M</div>
+          <div>X</div>
+          <div>J</div>
+          <div>V</div>
+          <div>S</div>
+          <div>D</div>
+        </div>
+  
+        <div class="cal-days" id="calDays"></div>
+  
+        <div class="cal-legend">
+          <div class="cal-legend-item">
+            <div class="cal-legend-swatch"></div>
+            Con evento
           </div>
-          <div>
-            <div class="section-header" style="margin-top:0">
-              <span class="section-title" id="calEventsTitle">Eventos del mes</span>
-            </div>
-            <div id="calEvents"></div>
+  
+          <div class="cal-legend-item">
+            <div class="cal-legend-swatch enrolled"></div>
+            Con inscritos
+          </div>
+  
+          <div class="cal-legend-item">
+            <div class="cal-legend-swatch today"></div>
+            Hoy
           </div>
         </div>
+  
+        <div class="text-muted mt-12" style="font-size:12px;text-align:center">
+          <i class="fas fa-info-circle"></i>
+          Selecciona un evento para consultar los asistentes inscritos.
+        </div>
+      </div>
+  
+      <!-- Eventos -->
+      <div>
+        <div class="section-header" style="margin-top:0">
+          <span class="section-title" id="calEventsTitle">
+            Eventos programados
+          </span>
+        </div>
+  
+        <div id="calEvents">
+          <div class="event-card">
+            <div class="event-title">Workshop IA Generativa</div>
+            <div class="event-date">
+              <i class="fas fa-calendar"></i>
+              15 Octubre 2025
+            </div>
+            <div class="event-attendees">
+              <i class="fas fa-users"></i>
+              18 inscritos
+            </div>
+            <button class="btn btn-primary" onclick="openAttendeesModal('workshop-ia')">
+              Ver inscritos
+            </button>
+          </div>
+  
+          <div class="event-card">
+            <div class="event-title">Networking Alumni</div>
+            <div class="event-date">
+              <i class="fas fa-calendar"></i>
+              22 Octubre 2025
+            </div>
+            <div class="event-attendees">
+              <i class="fas fa-users"></i>
+              32 inscritos
+            </div>
+            <button class="btn btn-primary" onclick="openAttendeesModal('networking-alumni')">
+              Ver inscritos
+            </button>
+          </div>
+  
+          <div class="event-card">
+            <div class="event-title">Mesa Redonda Empleabilidad</div>
+            <div class="event-date">
+              <i class="fas fa-calendar"></i>
+              30 Octubre 2025
+            </div>
+            <div class="event-attendees">
+              <i class="fas fa-users"></i>
+              24 inscritos
+            </div>
+            <button class="btn btn-primary" onclick="openAttendeesModal('empleabilidad')">
+              Ver inscritos
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Modal de inscritos -->
+  <div class="modal" id="attendeesModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Inscritos al evento</h3>
+        <button class="close-btn" onclick="closeAttendeesModal()">
+          &times;
+        </button>
+      </div>
+  
+      <div class="modal-body" id="attendeesList">
+        <div class="attendee-item">
+          <strong>Ana García</strong><br>
+          ana.garcia@email.com<br>
+          Telefónica
+        </div>
+  
+        <div class="attendee-item">
+          <strong>Carlos López</strong><br>
+          carlos.lopez@email.com<br>
+          BBVA
+        </div>
+  
+        <div class="attendee-item">
+          <strong>Marta Ruiz</strong><br>
+          marta.ruiz@email.com<br>
+          Deloitte
+        </div>
+      </div>
+    </div>
+  </div>
       </section>
 
       <!-- ============ CONFERENCIAS ============ -->
