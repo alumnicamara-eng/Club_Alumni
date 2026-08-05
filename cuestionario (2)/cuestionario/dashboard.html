@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Panel de Administración | Cuestionario Cámara FP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #eff3ea;
+            --surface: rgba(255, 255, 255, 0.92);
+            --surface-strong: #ffffff;
+            --line: rgba(25, 55, 40, 0.12);
+            --text: #173022;
+            --muted: #5f7669;
+            --accent: #1f6b4f;
+            --accent-soft: #d7ede2;
+            --accent-strong: #12402f;
+            --danger: #c03b2b;
+            --danger-soft: #ffe6e2;
+            --shadow: 0 20px 60px rgba(23, 48, 34, 0.08);
+            --radius-xl: 28px;
+            --radius-md: 14px;
+        }
+
+        body {
+            font-family: "Manrope", sans-serif;
+            background: radial-gradient(circle at top left, rgba(67, 153, 112, 0.18), transparent 28%),
+                        radial-gradient(circle at top right, rgba(196, 219, 202, 0.7), transparent 34%),
+                        linear-gradient(180deg, #f7faf6 0%, var(--bg) 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .shell {
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 28px 18px 40px;
+        }
+
+        .hero, .stats-grid, .charts-grid {
+            display: grid;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+        .hero { grid-template-columns: 1.6fr 1fr; }
+        .stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .charts-grid { grid-template-columns: repeat(3, 1fr); }
+
+        .hero-card, .summary-card, .panel, .stat-card, .chart-card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .chart-card {
+            padding: 20px;
+        }
+        .chart-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-strong);
+        }
+        .chart-container {
+            position: relative;
+            height: 260px;
+            width: 100%;
+        }
+
+        .hero-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            background: var(--accent-soft);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--accent-strong);
+        }
+
+        h1 {
+            margin: 18px 0 10px;
+            font-size: clamp(30px, 5vw, 48px);
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        h2 {
+            font-size: 18px;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .hero-copy, .panel-subtitle, .muted {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .summary-item {
+            background: var(--surface-strong);
+            border-radius: 20px;
+            padding: 14px;
+            border: 1px solid var(--line);
+        }
+        .summary-item span {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+        .summary-item strong {
+            display: block;
+            font-size: 24px;
+            margin-top: 6px;
+            font-weight: 800;
+        }
+
+        .stat-card span {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .stat-card strong {
+            display: block;
+            font-size: 38px;
+            margin: 12px 0 8px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 18px;
+        }
+        .action-btn, .file-input-label, .control-btn, .logout-btn {
+            font-family: inherit;
+            font-weight: 600;
+            border-radius: 999px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-size: 13px;
+        }
+        .action-btn {
+            background: var(--accent);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .action-btn:hover {
+            background: var(--accent-strong);
+            transform: translateY(-1px);
+        }
+        .file-input-label {
+            background: #edf4ef;
+            border: 1px solid rgba(25, 55, 40, 0.12);
+            color: var(--accent-strong);
+        }
+        .file-input-label input { display: none; }
+        .logout-btn {
+            background: #173022;
+            color: white;
+        }
+        .control-btn {
+            background: white;
+            border: 1px solid var(--line);
+            color: var(--accent-strong);
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 18px 0 20px;
+        }
+        .filter-input {
+            padding: 12px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: white;
+            font-family: inherit;
+            font-size: 14px;
+            flex: 1 1 280px;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            background: var(--surface-strong);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+        th {
+            text-align: left;
+            padding: 16px;
+            background: #f7faf6;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--line);
+        }
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        .badge {
+            display: inline-block;
+            background: var(--accent-soft);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-strong);
+        }
+        .badge-danger {
+            background: var(--danger-soft);
+            color: var(--danger);
+        }
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .user-actions button {
+            background: transparent;
+            border: 1px solid var(--line);
+            border-radius: 30px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .user-actions .activate {
+            background: var(--accent-soft);
+            color: var(--accent-strong);
+        }
+        .user-actions .deactivate {
+            background: #f2e8e6;
+            color: var(--danger);
+        }
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1f2e27;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 40px;
+            font-size: 14px;
+            z-index: 1100;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow);
+        }
+        @media (max-width: 1000px) {
+            .hero, .stats-grid, .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <section class="hero">
+        <article class="hero-card">
+            <div class="eyebrow">PANEL DE CONTROL</div>
+            <h1>Gestión de respuestas<br>y alumnos</h1>
+            <p class="hero-copy">Importa, visualiza y administra los datos de los alumnos. Control de activación, estadísticas avanzadas y gráficos interactivos.</p>
+            <div class="action-group">
+                <label class="file-input-label">
+                    📂 Importar CSV/Excel
+                    <input type="file" id="importFile" accept=".csv, .xlsx, .xls">
+                </label>
+                <button class="action-btn" id="exportBtn">📎 Exportar CSV actual</button>
+            </div>
+            <div id="importProgress" style="font-size:12px; margin-top:12px; color:var(--accent-strong);"></div>
+        </article>
+        <aside class="summary-card">
+            <div style="display: flex; justify-content: space-between; align-items:center;">
+                <div>
+                    <h2>Sesión activa</h2>
+                    <p class="panel-subtitle" id="adminEmail">admin@camarafp.com</p>
+                </div>
+                <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-item"><span>Total alumnos</span><strong id="statResponses">0</strong></div>
+                <div class="summary-item"><span>Activos</span><strong id="statActive">0</strong></div>
+                <div class="summary-item"><span>Ciclos distintos</span><strong id="statCycles">0</strong></div>
+                <div class="summary-item"><span>Última incorporación</span><strong id="latestDate">-</strong></div>
+            </div>
+        </aside>
+    </section>
+
+    <section class="stats-grid">
+        <div class="stat-card"><span>👥 Tasa cobertura</span><strong id="coveragePercent">0%</strong><p>% con email + ciclo válido</p></div>
+        <div class="stat-card"><span>📧 Correos válidos</span><strong id="validEmails">0</strong><p>formato correcto</p></div>
+        <div class="stat-card"><span>✅ Usuarios activos</span><strong id="activeCountStat">0</strong><p>habilitados en sistema</p></div>
+        <div class="stat-card"><span>🔄 Importación chunk</span><strong id="chunkReady">500</strong><p>registros por lote</p></div>
+    </section>
+
+    <!-- GRÁFICOS CON CHART.JS -->
+    <section class="charts-grid">
+        <div class="chart-card">
+            <h3>📊 Distribución por ciclos formativos</h3>
+            <div class="chart-container">
+                <canvas id="ciclosChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>⚖️ Estado de alumnos (activo/inactivo)</h3>
+            <div class="chart-container">
+                <canvas id="estadoChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>📈 Cobertura de datos</h3>
+            <div class="chart-container">
+                <canvas id="coberturaChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr><th>Nombre</th><th>Email</th><th>Ciclo</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="responsesTable"></tbody>
+            </table>
+        </div>
+        <div class="filters" style="margin-top: 20px;">
+            <input id="searchInput" class="filter-input" type="text" placeholder="🔍 Buscar por nombre, email o ciclo...">
+            <button id="resetFilters" class="control-btn">Restablecer</button>
+        </div>
+    </section>
+</div>
+
+<script>
+    // ---------- CONFIGURACIÓN ----------
+    const CHUNK_SIZE = 500;
+    let allStudents = [];
+    let filteredStudents = [];
+    let charts = {};
+
+    // ---------- UTILS ----------
+    function showToast(msg, isError = false) {
+        const existing = document.querySelector(".toast-msg");
+        if(existing) existing.remove();
+        const div = document.createElement("div");
+        div.className = "toast-msg";
+        div.style.background = isError ? "#c03b2b" : "#12402f";
+        div.innerText = msg;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 4000);
+    }
+
+    // Mejor detección de columnas (case-insensitive, con/sin acentos, varios alias)
+    function getFieldValue(row, possibleKeys) {
+        for (let key of possibleKeys) {
+            const normalizedKey = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            for (let originalKey in row) {
+                const originalNorm = originalKey.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (originalNorm === normalizedKey) {
+                    const val = row[originalKey];
+                    if (val !== undefined && val !== null && String(val).trim() !== "") return String(val).trim();
+                }
+            }
+        }
+        return "";
+    }
+
+    function isValidEmail(email) {
+        if(!email) return false;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim());
+    }
+
+    function formatDateIso(dateVal) {
+        if(!dateVal) return "-";
+        const d = new Date(dateVal);
+        return isNaN(d.getTime()) ? "-" : d.toLocaleDateString("es-ES");
+    }
+
+    function escapeHtml(str) {
+        if(!str) return "";
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ---------- SUPABASE CLIENT ----------
+    function createSupabaseClient() {
+        return supabase.createClient(
+            "https://fkwaqdhlyiyqgjuurbwo.supabase.co",
+            "sb_publishable_f_cY7KyntJ5BaghxEqL9aw_4GCvCOHj"
+        );
+    }
+
+    // ---------- FUNCIONES DE GRÁFICOS ----------
+    function destroyChart(chartId) {
+        if (charts[chartId]) {
+            charts[chartId].destroy();
+            delete charts[chartId];
+        }
+    }
+
+    function renderCiclosChart(data) {
+        const canvas = document.getElementById("ciclosChart");
+        if (!canvas) return;
+        destroyChart("ciclosChart");
+        
+        const cicloCounts = {};
+        data.forEach(s => {
+            const ciclo = s.ciclo && s.ciclo.trim() ? s.ciclo.trim() : "Sin especificar";
+            cicloCounts[ciclo] = (cicloCounts[ciclo] || 0) + 1;
+        });
+        
+        const labels = Object.keys(cicloCounts);
+        const values = Object.values(cicloCounts);
+        const bgColors = labels.map((_, idx) => `hsl(${(idx * 35) % 360}, 55%, 65%)`);
+        
+        const ctx = canvas.getContext("2d");
+        charts["ciclosChart"] = new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Nº de alumnos', data: values, backgroundColor: bgColors, borderRadius: 10, barPercentage: 0.7 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+    }
+
+    function renderEstadoChart(data) {
+        const canvas = document.getElementById("estadoChart");
+        if (!canvas) return;
+        destroyChart("estadoChart");
+        const activeCount = data.filter(s => s.activo == 1).length;
+        const inactiveCount = data.length - activeCount;
+        const ctx = canvas.getContext("2d");
+        charts["estadoChart"] = new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: ['Activos', 'Inactivos'], datasets: [{ data: [activeCount, inactiveCount], backgroundColor: ['#1f6b4f', '#d9b48b'], borderWidth: 0, hoverOffset: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '55%' }
+        });
+    }
+
+    function renderCoberturaChart(data) {
+        const canvas = document.getElementById("coberturaChart");
+        if (!canvas) return;
+        destroyChart("coberturaChart");
+        const total = data.length;
+        const withValidEmail = data.filter(s => isValidEmail(s.email)).length;
+        const withCiclo = data.filter(s => s.ciclo && s.ciclo.trim().length > 0).length;
+        const withNombreCompleto = data.filter(s => (s.nombre && s.nombre.trim()) || (s.apellidos && s.apellidos.trim())).length;
+        const withEstadoDef = data.filter(s => s.activo !== undefined && s.activo !== null).length;
+        const ctx = canvas.getContext("2d");
+        charts["coberturaChart"] = new Chart(ctx, {
+            type: 'radar',
+            data: { labels: ['Email válido', 'Ciclo informado', 'Nombre completo', 'Estado definido'], datasets: [{ label: 'Cobertura (%)', data: [ total ? (withValidEmail / total) * 100 : 0, total ? (withCiclo / total) * 100 : 0, total ? (withNombreCompleto / total) * 100 : 0, total ? (withEstadoDef / total) * 100 : 0 ], backgroundColor: 'rgba(31, 107, 79, 0.25)', borderColor: '#1f6b4f', borderWidth: 2, pointBackgroundColor: '#12402f', fill: true }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } }, plugins: { legend: { display: false } } }
+        });
+    }
+
+    function refreshAllCharts() {
+        const dataToChart = filteredStudents.length ? filteredStudents : allStudents;
+        if (dataToChart.length === 0) {
+            destroyChart("ciclosChart"); destroyChart("estadoChart"); destroyChart("coberturaChart");
+            return;
+        }
+        renderCiclosChart(dataToChart);
+        renderEstadoChart(dataToChart);
+        renderCoberturaChart(dataToChart);
+    }
+
+    // ---------- CARGAR DATOS DESDE mysql ----------
+   async function loadResponses() {
+
+    try {
+
+        const response = await fetch("obtener_usuarios.php");
+        const data = await response.json();
+
+        console.log("DATOS RECIBIDOS:", data);
+
+        allStudents = data;
+
+        console.log("ALL STUDENTS:", allStudents);
+
+        applyFiltersAndRender();
+        updateStats();
+        refreshAllCharts();
+
+    } catch(err) {
+
+        console.error(err);
+        showToast("Error cargando usuarios", true);
+
+    }
+}
+
+    // ---------- ACTUALIZAR ESTADÍSTICAS GLOBALES ----------
+   function updateStats() {
+
+    console.log("UPDATE STATS", allStudents);
+
+    const total = allStudents.length;
+
+    console.log("TOTAL:", total);
+
+    const active = allStudents.filter(s => s.activo == 1).length;
+    const uniqueCycles = new Set(
+        allStudents.map(s => s.ciclo).filter(c => c && c.trim())
+    );
+
+    const validEmailCount = allStudents.filter(
+        s => isValidEmail(s.email)
+    ).length;
+
+    const coverage = total
+        ? Math.round((validEmailCount / total) * 100)
+        : 0;
+
+    const lastDate = allStudents.length
+        ? allStudents[0]?.fecha_registro
+        : null;
+
+    document.getElementById("statResponses").innerText = total;
+    document.getElementById("statActive").innerText = active;
+    document.getElementById("statCycles").innerText = uniqueCycles.size;
+    document.getElementById("coveragePercent").innerText = `${coverage}%`;
+    document.getElementById("validEmails").innerText = validEmailCount;
+    document.getElementById("activeCountStat").innerText = active;
+    document.getElementById("latestDate").innerText = lastDate ? formatDateIso(lastDate) : "-";
+
+    document.getElementById("chunkReady").innerHTML =
+        `${CHUNK_SIZE}<span style="font-size:12px;"> /lote</span>`;
+}
+
+    // ---------- FILTRADO Y RENDER TABLA ----------
+    function applyFiltersAndRender() {
+        const searchTerm = document.getElementById("searchInput")?.value.toLowerCase() || "";
+        filteredStudents = allStudents.filter(s => {
+            const fullName = `${s.nombre || ""} ${s.apellidos || ""}`.toLowerCase();
+            const emailMatch = (s.email || "").toLowerCase().includes(searchTerm);
+            const cicloMatch = (s.ciclo || "").toLowerCase().includes(searchTerm);
+            const nameMatch = fullName.includes(searchTerm);
+            return nameMatch || emailMatch || cicloMatch;
+        });
+        renderTable(filteredStudents);
+        refreshAllCharts();
+    }
+
+    function renderTable(students) {
+        const tbody = document.getElementById("responsesTable");
+        if (!students.length) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px;">📭 No hay alumnos registrados. Importa datos usando CSV.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = students.map(s => {
+            const isActive = s.activo == 1;
+            const nombreCompleto = `${s.nombre || ""} ${s.apellidos || ""}`.trim() || "—";
+            // IMPORTANTE: usar email tal cual está en DB para el toggle (evitar errores por escape)
+            const safeEmail = s.email || "";
+            return `
+            <tr>
+                <td><strong>${escapeHtml(nombreCompleto)}</strong></td>
+                <td>${escapeHtml(s.email || "-")}</td>
+                <td><span class="badge">${escapeHtml(s.ciclo || "Sin ciclo")}</span></td>
+                <td>${isActive ? '<span class="badge">✅ Activo</span>' : '<span class="badge badge-danger">⛔ Inactivo</span>'}</td>
+                <td class="user-actions">
+                    ${!isActive ? `<button class="activate" data-email="${escapeHtml(safeEmail)}" data-action="activate">Activar</button>` : `<button class="deactivate" data-email="${escapeHtml(safeEmail)}" data-action="deactivate">Desactivar</button>`}
+                </td>
+            </tr>`;
+        }).join("");
+
+        // Asignar eventos a los botones dinámicamente (evita problemas de onclick en ventana global)
+        document.querySelectorAll("#responsesTable button.activate, #responsesTable button.deactivate").forEach(btn => {
+            btn.removeEventListener("click", handleUserToggle);
+            btn.addEventListener("click", handleUserToggle);
+        });
+    }
+
+    async function handleUserToggle(event) {
+        const button = event.currentTarget;
+        const email = button.getAttribute("data-email");
+        const action = button.getAttribute("data-action");
+        if (!email) {
+            showToast("Error: email no identificado", true);
+            return;
+        }
+        const newStatus = action === "activate" ? true : false;
+        await toggleUserStatusByEmail(email, newStatus);
+    }
+
+    // Función central para cambiar estado usando email como identificador único
+   window.toggleUserStatusByEmail = async function(email, newStatus) {
+
+    if (!email) return;
+
+    try {
+
+        const response = await fetch("cambiar_estado.php", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                email: email,
+                activo: newStatus ? 1 : 0
+            })
+
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+
+        showToast(
+            `Usuario ${newStatus ? "activado" : "desactivado"} correctamente`
+        );
+
+        await loadResponses();
+
+    } catch (err) {
+
+        console.error(err);
+
+        showToast(
+            `Error al ${newStatus ? "activar" : "desactivar"}: ${err.message}`,
+            true
+        );
+
+    }
+
+};
+
+    // ---------- IMPORTACIÓN POR CHUNKS CON DETECCIÓN ROBUSTA ----------
+    async function upsertInChunks(alumnosArray) {
+        const supabase = createSupabaseClient();
+        for (let i = 0; i < alumnosArray.length; i += CHUNK_SIZE) {
+            const chunk = alumnosArray.slice(i, i + CHUNK_SIZE);
+            const { error } = await supabase.from("alumnos").upsert(chunk, { onConflict: "email" });
+            if (error) throw new Error(`Error en chunk ${Math.floor(i/CHUNK_SIZE) + 1}: ${error.message}`);
+        }
+    }
+
+    document.getElementById("importFile").addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const progressDiv = document.getElementById("importProgress");
+        try {
+            progressDiv.innerText = "📄 Leyendo archivo...";
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data);
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet);
+            if (!rows.length) throw new Error("El archivo está vacío");
+
+            const alumnosParaImportar = [];
+            let skippedNoEmail = 0;
+            let skippedInvalidEmail = 0;
+
+            for (const raw of rows) {
+                // Mapeo flexible de columnas
+                const nombre = getFieldValue(raw, ["nombre", "name", "nombres", "first_name", "nombre_alumno"]);
+                const apellidos = getFieldValue(raw, ["apellidos", "apellido", "last_name", "surname", "apellido_alumno"]);
+                let email = getFieldValue(raw, ["email", "correo", "correo_electronico", "mail", "e-mail"]);
+                const ciclo = getFieldValue(raw, ["ciclo", "curso", "programa", "titulacion", "estudios"]);
+
+                if (!email) {
+                    skippedNoEmail++;
+                    continue;
+                }
+                if (!isValidEmail(email)) {
+                    skippedInvalidEmail++;
+                    continue;
+                }
+
+                email = email.trim().toLowerCase();
+                alumnosParaImportar.push({
+                    nombre: nombre.substring(0, 100),
+                    apellidos: apellidos.substring(0, 100),
+                    email: email,
+                    ciclo: ciclo.substring(0, 120),
+                    activo: true,      // Por defecto activo al importar
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                });
+            }
+
+            if (!alumnosParaImportar.length) {
+                let msg = "No se encontraron emails válidos para importar.";
+                if (skippedNoEmail) msg += ` ${skippedNoEmail} filas sin email.`;
+                if (skippedInvalidEmail) msg += ` ${skippedInvalidEmail} emails inválidos.`;
+                throw new Error(msg);
+            }
+
+            progressDiv.innerText = `🔄 Importando ${alumnosParaImportar.length} registros en lotes de ${CHUNK_SIZE}...`;
+            await upsertInChunks(alumnosParaImportar);
+            progressDiv.innerText = `✅ ¡Importación completada! ${alumnosParaImportar.length} alumnos procesados. (Ignorados: ${skippedNoEmail} sin email, ${skippedInvalidEmail} email inválido)`;
+            showToast(`Importación exitosa: ${alumnosParaImportar.length} alumnos`);
+            await loadResponses();
+        } catch (err) {
+            console.error(err);
+            progressDiv.innerText = `❌ Error: ${err.message}`;
+            showToast(`Fallo en importación: ${err.message}`, true);
+        } finally {
+            e.target.value = "";
+            setTimeout(() => { if(progressDiv.innerText.includes("completada")) setTimeout(() => { if(progressDiv.innerText !== "") progressDiv.innerText = ""; }, 3500); }, 1000);
+        }
+    });
+
+    // ---------- EXPORTAR CSV ----------
+    document.getElementById("exportBtn").addEventListener("click", () => {
+        const dataToExport = filteredStudents.length ? filteredStudents : allStudents;
+        if (!dataToExport.length) {
+            showToast("No hay datos para exportar", true);
+            return;
+        }
+        const headers = ["Nombre", "Apellidos", "Email", "Ciclo", "Activo", "Fecha registro"];
+        const rows = dataToExport.map(s => [s.nombre || "", s.apellidos || "", s.email || "", s.ciclo || "", s.activo ? "Activo" : "Inactivo", s.created_at ? new Date(s.created_at).toLocaleDateString() : ""]);
+        const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute("download", "alumnos_camarafp.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast("Exportación completada");
+    });
+
+    // ---------- FILTROS ----------
+    document.getElementById("searchInput").addEventListener("input", () => applyFiltersAndRender());
+    document.getElementById("resetFilters").addEventListener("click", () => {
+        document.getElementById("searchInput").value = "";
+        applyFiltersAndRender();
+    });
+
+    // ---------- LOGOUT ----------
+    window.logout = function() {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+    };
+
+    // ---------- INICIALIZAR SESIÓN ----------
+    (function initSession() {
+        const role = sessionStorage.getItem("userRole");
+        if (!role) { window.location.href = "index.html"; return; }
+        if (role !== "admin") { window.location.href = "login.html"; return; }
+        document.getElementById("adminEmail").innerHTML = "Email: " + (sessionStorage.getItem("userEmail") || "admin@camarafp.com");
+    })();
+
+    loadResponses();
+</script>
+</body>
+</html>
